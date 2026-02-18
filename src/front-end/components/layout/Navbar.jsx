@@ -1,7 +1,6 @@
 import { useState } from "react";
-import RightSide from "./right-side.jsx";
 import logo from "../ui/logo.svg";
-import bell from "../ui/bell.svg";
+import RightSide from "./right-side.jsx";
 import Bell from "../utils/bell.jsx";
 
 

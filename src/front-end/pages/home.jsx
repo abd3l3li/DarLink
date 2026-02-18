@@ -1,14 +1,12 @@
 import Navbar from "../components/layout/Navbar.jsx";
-import Background from "../components/ui/home-bg.svg";
+import Background from "../components/layout/bg.jsx";
 
 
 export default function Home() {
     return (
-        <div className="home  overflow-hidden flex flex-col">
+        <div className="home h-screen overflow-hidden flex flex-col relative">
             <Navbar />
-            <div className="flex items-end justify-center mt-12 ">
-                <img src={Background} alt="Background" className="w-full h-auto" />
-            </div>
+            <Background />
         </div>
     );
 }
