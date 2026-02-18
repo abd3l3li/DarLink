@@ -2,6 +2,7 @@ import { useState } from "react";
 import RightSide from "./right-side.jsx";
 import logo from "../ui/logo.svg";
 import bell from "../ui/bell.svg";
+import Bell from "../utils/bell.jsx";
 
 
 function Navbar() {
@@ -9,13 +10,13 @@ function Navbar() {
 
     return (
         <nav className="navbar bg-[var(--color-surface)] shadow-md">
-            <div className="flex items-center justify-between px-5 py-3">
+            <div className="flex items-center justify-between px-7 py-4 gap-7">
 
                 <a href="/" className="logo  md:block">
-                    <img src={logo} alt="Logo" className="h-7 md:h-10 max-[300px]:hidden" />
+                    <img src={logo} alt="Logo" className="h-9 md:h-12 max-[300px]:hidden" />
                 </a>
 
-                <ul className="nav-links hidden md:flex gap-7 font-bold text-lg">
+                <ul className="nav-links hidden md:flex gap-35 max-[1245px]:gap-7 font-bold text-2xl">
                     <li className="duration-300 hover:text-[var(--color-secondary)]"><a href="/">Home</a></li>
                     <li className="duration-300 hover:text-[var(--color-secondary)]"><a href="/slots">Slots</a></li>
                     <li className="duration-300 hover:text-[var(--color-secondary)]"><a href="/about">About</a></li>
@@ -27,11 +28,8 @@ function Navbar() {
 
                 {/* mobile: bell + hamburger */}
                 <div className="flex items-center gap-4 md:hidden">
-                    <img 
-                        src={bell} 
-                        alt="Notifications" 
-                        className="h-6 max-[300px]:hidden cursor-pointer hover:[filter:invert(67%)_sepia(52%)_saturate(521%)_hue-rotate(93deg)_brightness(92%)_contrast(89%)]" 
-                    />
+                    
+                    <Bell className="md:hidden max-[300px]:hidden"/>
                     <button 
                         className="flex flex-col gap-1 p-2 group"
                         onClick={() => setIsOpen(!isOpen)} >
