@@ -1,11 +1,12 @@
 import { useState } from "react";
 import logo from "../ui/logo.svg";
-import RightSide from "./right-side.jsx";
 import Bell from "../utils/bell.jsx";
+import Logged from "./logged.jsx";
+import NotLogged from "./notLogged.jsx";
 
 
-function Navbar() {
-    const [isOpen, setIsOpen] = useState(false);
+function Navbar({isLoggedIn = false}) {
+    const [isOpen, setIsOpen] = useState(true);
 
     return (
         <nav className="navbar bg-[var(--color-surface)] shadow-md">
@@ -22,7 +23,7 @@ function Navbar() {
                 </ul>
 
                 <div className=" hidden md:block">
-                    <RightSide />
+                    {isLoggedIn ? <Logged /> : <NotLogged />}
                 </div>
 
                 {/* mobile: bell + hamburger */}
