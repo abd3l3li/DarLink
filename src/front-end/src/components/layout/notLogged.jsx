@@ -1,5 +1,5 @@
-import LoginButton from "./loginButton.jsx";
-import SignUpButton from "./signUpButton.jsx";
+import LoginButton from "../utils/loginButton.jsx";
+import SignUpButton from "../utils/signUpButton.jsx";
 
 export default function NotLogged() {
     return (
