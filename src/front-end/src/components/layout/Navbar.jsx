@@ -6,20 +6,24 @@ import NotLogged from "./notLogged.jsx";
 
 
 function Navbar({isLoggedIn = false}) {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <nav className="navbar bg-[var(--color-surface)] shadow-md">
-            <div className="flex items-center justify-between px-7 py-4 gap-7">
+        <nav className="navbar fixed top-0 w-full z-99 bg-[var(--color-surface)] shadow-md">
+            <div className="flex items-center justify-between  max-w-[103rem] w-full mx-auto p-3 py-2">
 
-                <a href="/" className="logo  md:block">
-                    <img src={logo} alt="Logo" className="h-9 md:h-12 max-[300px]:hidden" />
+                <a href="/" className="logo md:block">
+                    <img src={logo} alt="Logo" className="h-9 md:h-10 max-[300px]:hidden" />
                 </a>
 
-                <ul className="nav-links hidden md:flex gap-35 max-[1245px]:gap-7 font-bold text-2xl">
-                    <li className="duration-300 hover:text-[var(--color-secondary)]"><a href="/">Home</a></li>
-                    <li className="duration-300 hover:text-[var(--color-secondary)]"><a href="/slots">Slots</a></li>
-                    <li className="duration-300 hover:text-[var(--color-secondary)]"><a href="/about">About</a></li>
+                <ul className="nav-links hidden md:flex gap-15  max-[1245px]:gap-7 font-bold text-[1rem]">
+                    <li className="transition-all duration-300 hover:border-b-1 
+                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/">Home</a></li>
+                    <li className="transition-all duration-300 hover:border-b-1 
+                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/slots">Slots</a></li>
+                    <li className="transition-all duration-300 hover:border-b-1 
+                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/about">About</a></li>
+            
                 </ul>
 
                 <div className=" hidden md:block">

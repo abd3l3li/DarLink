@@ -8,7 +8,7 @@ export default function Create() {
             <img 
                 src={create} 
                 alt="Create" 
-                className="cursor-pointer h-12 duration-500 hover:opacity-80 hover:drop-shadow-md 
+                className="cursor-pointer h-9 duration-500 hover:opacity-80 hover:drop-shadow-md 
                 hover:scale-[1.01] active:scale-100" 
             />
     );
