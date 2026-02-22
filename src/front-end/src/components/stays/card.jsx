@@ -8,9 +8,9 @@ export default function Card({ stay }) {
 
     return (
 
-        <div className="w-80 rounded-2xl overflow-hidden 
+        <div className=" w-full rounded-2xl overflow-hidden col-span-1
         bg-[var(--color-border-gray)] shadow-md hover:shadow-xl 
-        transition-all duration-300"
+        transition-all duration-300 max-w-sm"
         >
             
             <div className="relative">

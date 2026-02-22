@@ -14,7 +14,7 @@ export default function FloatingSearchBar() {
 
 	return (
 
-		<div className="mt-16 w-full max-w-4xl z-99 rounded-2xl bg-[var(--color-surface)] p-5 shadow-2xl">
+		<div className="mt-16 w-full max-w-7xl z-99 rounded-2xl bg-[var(--color-surface)] p-7 shadow-2xl">
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-4 lg:gap-6">
 
 				{filterOptions.map(({ name, label, placeholder, options }) => (
