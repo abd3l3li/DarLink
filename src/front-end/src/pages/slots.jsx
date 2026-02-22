@@ -4,6 +4,7 @@ import Card from "../components/stays/card.jsx";
 import { stays } from "../components/stays/staysTemp.js";
 
 export default function Slots() {
+
     return (
         <div className="slots h-screen flex flex-col relative">
             <Navbar isLoggedIn={true} />
@@ -12,7 +13,7 @@ export default function Slots() {
             </div>
 
                 <div className="grid grid-cols-1 place-items-center md:grid-cols-2 md:gap-10 
-                    lg:grid-cols-3 lg:gap-15 gap-5 mt-10 px-5 w-full max-w-7xl mx-auto">
+                    lg:grid-cols-3 lg:gap-15 gap-5 mt-10 px-5 w-full max-w-7xl mx-auto pb-10">
                     {stays.map((item) => (
                         <Card key={item.id} stay={item} />
                     ))}

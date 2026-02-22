@@ -54,7 +54,7 @@ export default function Card({ stay }) {
 
                     <div className="flex items-center justify-between">
                         <ReqButton />
-                        <span className="text-lg font-bold text-gray-800">
+                        <span className="text-lg font-bold text-[var(--color-text)]">
                         {stay.price ? `${stay.price} MAD` : "N/A"}
                         </span>
                     </div>
