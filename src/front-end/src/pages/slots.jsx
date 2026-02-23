@@ -2,6 +2,8 @@ import Search from "../components/utils/searchBar.jsx";
 import Navbar from "../components/layout/Navbar.jsx";
 import Card from "../components/stays/card.jsx";
 import { stays } from "../components/stays/staysTemp.js";
+import Footer from "../components/layout/footer.jsx";
+
 
 export default function Slots() {
 
@@ -19,6 +21,7 @@ export default function Slots() {
                     ))}
                 </div>
 
+            <Footer />
         </div>
     );
 }
