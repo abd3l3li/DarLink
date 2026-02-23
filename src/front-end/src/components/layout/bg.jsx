@@ -6,7 +6,7 @@ export default function Background() {
 
     return (
     <>
-        <div className="absolute z-10 w-full h-full bg-black/13" />
+        <div className="absolute z-10 w-full h-full bg-[var(--color-muted)]/28" />
         <div className="flex-1 flex flex-col-reverse md:flex-col mt-4 md:mt-35 items-center justify-end md:justify-center gap-5">
         <img
             src={title}
