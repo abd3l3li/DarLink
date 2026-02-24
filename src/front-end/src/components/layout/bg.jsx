@@ -7,17 +7,18 @@ export default function Background() {
     return (
     <>
         <div className="absolute z-10 w-full h-full bg-[var(--color-muted)]/28" />
-        <div className="flex-1 flex flex-col-reverse md:flex-col mt-4 md:mt-35 items-center justify-end md:justify-center gap-5">
-        <img
-            src={title}
-            alt="Title"
-            className="z-10 w-[90%] md:w-auto h-auto max-w-[49rem]"
-        />
-        <div className="h-16 md:h-0" />
-        <div className="w-full p-4 z-20 max-w-4xl md:p-0">
-            <SearchBar />
+        <div className="flex-1 flex flex-col-reverse md:flex-col mt-4 md:mt-36 items-center justify-end md:justify-center gap-5">
+            <img
+                src={title}
+                alt="Title"
+                className="z-10 w-[90%] md:w-auto h-auto max-w-[49rem]"
+            />
+            <div className="h-16 md:h-0" />
+            <div className="w-full p-4 z-20 max-w-4xl md:p-0">
+                    <SearchBar />
+            </div>
         </div>
-        </div>
+        
         <img
         src={bg}
         alt="Background"
