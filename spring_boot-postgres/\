@@ -1,0 +1,16 @@
+#To-do make build, make up and make down
+PATH=/backend/src/postgres-spring_b-restAPI/
+
+# make build
+build:
+	./$(PATH)mvnw clean package -DskipTests
+	./$(PATH)mvnw package -DskipTests --file $(PATH)pom.xml
+	#docker compose -f compose.yml build
+
+# make up
+up:
+	docker compose -f compose.yml up -d
+
+# make down
+down:
+	docker compose -f compose.yml down -v
