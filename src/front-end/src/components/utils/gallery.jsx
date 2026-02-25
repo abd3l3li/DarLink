@@ -3,6 +3,7 @@ import PhotoSystem from "./photoSystem";
 import Upload from "./upload";
 
 export default function Gallery() {
+    
     const [photos, setPhotos] = useState([]);
 
     const fetchPhotos = () => {
