@@ -1,7 +1,7 @@
 import Home from "./pages/home.jsx";
 import Slots from "./pages/slots.jsx";
 import LangButton from "./components/layout/langButton.jsx";
-import Gallery from "./components/utils/gallery.jsx";
+import CreatePost from "./pages/createPost";
 
 
 
@@ -14,7 +14,7 @@ export default function App() {
       {/* <Home />
         <Slots />
         <LangButton /> */}
-        <Gallery />
+        <CreatePost />
     </div>
   );
 }
