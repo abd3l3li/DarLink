@@ -1,16 +1,21 @@
-// import { Outlet } from "react-router-dom";
 import Home from "./pages/home.jsx";
 import Slots from "./pages/slots.jsx";
-// import Footer from "./components/layout/footer.jsx";
 import LangButton from "./components/layout/langButton.jsx";
+import Gallery from "./components/utils/gallery.jsx";
+
+import photos from "@/components/stays/photos.js";
+
+
+
 
 export default function App() {
-
-    return (
+  return (
     <div className="app">
-        <Home />
+
+      {/* <Home />
         <Slots />
-        <LangButton />
+        <LangButton /> */}
+        <Gallery photos={photos} />
     </div>
-    );
+  );
 }
