@@ -2,7 +2,7 @@
 FILEPATH=backend/src/postgres-spring_b-restAPI/
 
 # make build
-buildl:
+build:
 	./$(FILEPATH)mvnw clean package -DskipTests -f ./$(FILEPATH)pom.xml
 	./$(FILEPATH)mvnw package -DskipTests -f ./$(FILEPATH)pom.xml
 	docker compose -f compose.yml build
@@ -14,3 +14,6 @@ up:
 # make down
 down:
 	docker compose -f compose.yml down -v
+ps:
+	@docker compose ps -a
+	@echo "list all containers"
