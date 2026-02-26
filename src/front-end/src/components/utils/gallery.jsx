@@ -20,7 +20,9 @@ export default function Gallery() {
     return (
         <div className="
             gallery 
-            min-h-screen 
+            w-full
+            min-h-screen
+            lg:min-h-[600px]
             flex 
             flex-col lg:flex-row 
             items-center 
