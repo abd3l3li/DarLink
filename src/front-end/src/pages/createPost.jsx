@@ -6,6 +6,10 @@ import cancelButton from "@/components/ui/cancelButton.svg";
 import publishButton from "@/components/ui/publishButton.svg";
 import { useState } from "react";
 
+
+
+
+
 const Options = [
     { name: "location", label: "Location", placeholder: "Select City", options: ["Casablanca", "Rabat", "Marrakech", "Fès", "Tanger", "Agadir", "Oujda", "Kenitra", "Ben Guerir"] },
     { name: "type", label: "Room Type", placeholder: "Shared or Private", options: ["Private Room", "Shared Room", "Both"] },
@@ -23,7 +27,13 @@ const EXPECTATION_OPTIONS = [
 
 const INITIAL_VALUES = { location: "", type: "", price: "" };
 
+
+
+
+
+
 export default function CreatePost() {
+
     const [values, setValues] = useState(INITIAL_VALUES);
     const [included, setIncluded] = useState([]);
     const [expectations, setExpectations] = useState([]);
@@ -31,7 +41,7 @@ export default function CreatePost() {
 
     const handleChange = (e) => setValues({ ...values, [e.target.name]: e.target.value });
 
-    // Unified checkbox toggle — works for both included and expectations
+    // for both included and expectations
     const toggleCheckbox = (setter, list, value) => {
         setter(list.includes(value) ? list.filter((i) => i !== value) : [...list, value]);
     };
@@ -44,7 +54,7 @@ export default function CreatePost() {
     };
 
     const publishHandler = () => {
-        // Basic validation before sending to backend
+
         if (!values.location || !values.type || !values.price) {
             alert("Please fill in location, room type, and price.");
             return;
@@ -53,11 +63,11 @@ export default function CreatePost() {
         const postData = {
             location: values.location,
             type: values.type,
-            price: parseFloat(values.price), // ← always send a number to the backend
+            price: parseFloat(values.price),
             included,
             expectations,
             details,
-            // photos: photoUrls,  ← add after handling Gallery uploads
+            photos: [] // Placeholder
         };
 
         console.log("Publishing post:", postData);
@@ -69,13 +79,13 @@ export default function CreatePost() {
         <>
             <Navbar isLoggedIn={true} />
 
-            {/* Removed h-screen — let content determine height */}
             <div className="flex flex-col items-center max-w-7xl mx-auto px-4 py-10 gap-30">
 
                 <Gallery />
 
                 {/* Filter bar */}
-                <div className="flex items-center justify-around w-full h-[8rem] bg-[var(--color-surface)] rounded-4xl shadow-lg py-40 md:py-3 px-6">
+                <div className="flex items-center justify-around w-full h-[8rem] bg-[var(--color-surface)] 
+                                rounded-4xl shadow-lg py-40 md:py-3 px-6">
                     <div className="flex items-center justify-around w-full gap-4 flex-wrap">
                         {Options.map(({ name, label, placeholder, options }) => (
                             <div key={name} className="flex flex-col text-left">
@@ -96,7 +106,7 @@ export default function CreatePost() {
                             </div>
                         ))}
 
-                        {/* Price: store raw number, show MAD as a visual suffix */}
+                        {/* Price */}
                         <div className="flex flex-col text-left">
                             <label className="mb-2 pl-2 text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
                                 Price Range
@@ -148,7 +158,7 @@ export default function CreatePost() {
                 {/* Room Details */}
                 <SectionBlock title="Room Details:" icon={letterIcon} subtitle="Describe the rooms available, size, furniture, and anything important to know.">
                     <textarea
-                        value={details} // ← now controlled, so resetForm() actually clears it
+                        value={details} // so resetForm() actually clears it
                         onChange={(e) => setDetails(e.target.value)}
                         className="w-full h-36 bg-[var(--color-surface)] rounded-4xl shadow-lg p-6 text-[var(--color-text)] focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none resize-none"
                         placeholder="E.g., Spacious private room with a queen-size bed, desk, and wardrobe. Shared access to a fully equipped kitchen and living room."
@@ -170,13 +180,11 @@ export default function CreatePost() {
                 </div>
             </div>
 
-            {/* Footer is now OUTSIDE the content div so it always sits at the bottom */}
             <Footer />
         </>
     );
 }
 
-// Small reusable components to reduce repetition in JSX
 
 function SectionBlock({ title, icon, subtitle, children }) {
     return (
@@ -199,7 +207,7 @@ function CheckboxItem({ item, checked, onChange }) {
                 className="mr-2 w-5 h-5"
                 value={item}
                 checked={checked}
-                onChange={onChange} // ← onChange not onClick
+                onChange={onChange} // onChange not onClick
             />
             <span className="text-lg">{item}</span>
         </label>

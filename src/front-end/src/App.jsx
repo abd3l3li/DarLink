@@ -13,8 +13,8 @@ export default function App() {
       <div className="app">
 
         {/* <Home />
-          <Slots />
-          <LangButton /> */}
+          <Slots /> */}
+          <LangButton />
           <CreatePost />
       </div>
   );

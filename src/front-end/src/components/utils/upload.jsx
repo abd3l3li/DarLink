@@ -9,7 +9,7 @@ export default function Upload({ photos = [], onUpload }) {
         const formData = new FormData();
         formData.append('photo', file);
 
-        fetch('http://localhost:3001/upload', {
+        fetch('http://backend:3001/upload', {
             method: 'POST',
             body: formData,
         })

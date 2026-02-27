@@ -7,7 +7,7 @@ export default function Gallery() {
     const [photos, setPhotos] = useState([]);
 
     const fetchPhotos = () => {
-        fetch("http://localhost:3001/photos")
+        fetch("http://backend:3001/photos")
             .then(res => res.json())
             .then(data => setPhotos(data))
             .catch(() => setPhotos([]));
