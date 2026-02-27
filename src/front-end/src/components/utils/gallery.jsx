@@ -1,17 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import PhotoSystem from "./photoSystem";
 import Upload from "./upload";
 
-export default function Gallery() {
+export default function Gallery({ photos = [], fetchPhotos = () => {} }) {
     
-    const [photos, setPhotos] = useState([]);
-
-    const fetchPhotos = () => {
-        fetch("http://backend:3001/photos")
-            .then(res => res.json())
-            .then(data => setPhotos(data))
-            .catch(() => setPhotos([]));
-    };
 
     useEffect(() => {
         fetchPhotos();

@@ -8,8 +8,6 @@ import { useState } from "react";
 
 
 
-
-
 const Options = [
     { name: "location", label: "Location", placeholder: "Select City", options: ["Casablanca", "Rabat", "Marrakech", "Fès", "Tanger", "Agadir", "Oujda", "Kenitra", "Ben Guerir"] },
     { name: "type", label: "Room Type", placeholder: "Shared or Private", options: ["Private Room", "Shared Room", "Both"] },
@@ -34,6 +32,18 @@ const INITIAL_VALUES = { location: "", type: "", price: "" };
 
 export default function CreatePost() {
 
+        // lifted from Gallery
+    const [photos, setPhotos] = useState([]);
+
+    const fetchPhotos = () => {
+        fetch("http://backend:3001/photos")
+            .then(res => res.json())
+            .then(data => setPhotos(data))
+            .catch(() => setPhotos([]));
+    };
+
+
+
     const [values, setValues] = useState(INITIAL_VALUES);
     const [included, setIncluded] = useState([]);
     const [expectations, setExpectations] = useState([]);
@@ -51,6 +61,7 @@ export default function CreatePost() {
         setIncluded([]);
         setExpectations([]);
         setDetails("");
+        // setPhotos([]); // cleared from the UI, but not the server
     };
 
     const publishHandler = () => {
@@ -67,7 +78,7 @@ export default function CreatePost() {
             included,
             expectations,
             details,
-            photos: [] // Placeholder
+            photos,
         };
 
         console.log("Publishing post:", postData);
@@ -81,7 +92,7 @@ export default function CreatePost() {
 
             <div className="flex flex-col items-center max-w-7xl mx-auto px-4 py-10 gap-30">
 
-                <Gallery />
+                <Gallery photos={photos} fetchPhotos={fetchPhotos} />
 
                 {/* Filter bar */}
                 <div className="flex items-center justify-around w-full h-[8rem] bg-[var(--color-surface)] 
