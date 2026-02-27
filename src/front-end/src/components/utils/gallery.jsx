@@ -11,7 +11,7 @@ const orientationConfig = {
     },
 };
 
-export default function Gallery({ photos = [], fetchPhotos = () => {}, orientation }) {
+export default function Gallery({ photos = [], fetchPhotos = () => {}, orientation = "vertical" }) {
     
     const config = orientationConfig[orientation];
 

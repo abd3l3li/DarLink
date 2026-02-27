@@ -14,14 +14,14 @@ const orientationConfig = {
     next: "left-1/2 -translate-x-1/2 -bottom-8 rotate-90",
   },
   horizontal: {
-    carousel: "w-[360px]",
+    carousel: "w-[460px]",
     content: "h-[120px]",
     previous: "top-1/2 -translate-y-1/2 -left-8",
     next: "top-1/2 -translate-y-1/2 -right-8",
   },
 };
 
-export default function PhotoSystem({ photos, orientation = "vertical" }) {
+export default function PhotoSystem({ photos, orientation }) {
   const config = orientationConfig[orientation];
 
   return (
