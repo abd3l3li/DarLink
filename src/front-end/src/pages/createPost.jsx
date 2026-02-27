@@ -129,7 +129,7 @@ export default function CreatePost() {
 
                 {/* What's Included */}
                 <SectionBlock title="What's Included:" icon={letterIcon}>
-                    <div className="grid grid-cols-3 w-full bg-[var(--color-surface)] rounded-4xl py-3 px-6 md:px-0 shadow-lg min-h-[9rem]">
+                    <div className="grid grid-cols-1 md:grid-cols-3 space-y-3 md:space-y-0 w-full bg-[var(--color-surface)] rounded-4xl py-3 px-6 md:px-0 shadow-lg min-h-[9rem]">
                         {INCLUDED_OPTIONS.map((item) => (
                             <CheckboxItem
                                 key={item}
@@ -143,7 +143,7 @@ export default function CreatePost() {
 
                 {/* House Rules */}
                 <SectionBlock title="House Rules & Expectations:" icon={letterIcon}>
-                    <div className="grid grid-cols-3 w-full bg-[var(--color-surface)] rounded-4xl py-3 px-6 md:px-0 shadow-lg min-h-[9rem]">
+                    <div className="grid grid-cols-1 md:grid-cols-3 space-y-3 md:space-y-0 w-full bg-[var(--color-surface)] rounded-4xl py-3 px-6 md:px-0 shadow-lg min-h-[9rem]">
                         {EXPECTATION_OPTIONS.map((item) => (
                             <CheckboxItem
                                 key={item}
@@ -204,7 +204,7 @@ function CheckboxItem({ item, checked, onChange }) {
         <label className="flex items-center ml-7 text-[var(--color-text)] cursor-pointer">
             <input
                 type="checkbox"
-                className="mr-2 w-5 h-5"
+                className="mr-2 w-3 h-3 md:w-5 md:h-5"
                 value={item}
                 checked={checked}
                 onChange={onChange} // onChange not onClick
