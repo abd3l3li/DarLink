@@ -77,7 +77,7 @@ export default function CreatePost() {
 
     return (
         <>
-            <Navbar isLoggedIn={true} />
+            <Navbar isLoggedIn={true} isCreating={true} />
 
             <div className="flex flex-col items-center max-w-7xl mx-auto px-4 py-10 gap-30">
 

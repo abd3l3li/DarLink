@@ -5,7 +5,7 @@ import Logged from "./logged.jsx";
 import NotLogged from "./notLogged.jsx";
 
 
-function Navbar({isLoggedIn = false}) {
+function Navbar({isLoggedIn = false, isCreating = false}) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -27,7 +27,7 @@ function Navbar({isLoggedIn = false}) {
                 </ul>
 
                 <div className=" hidden md:block">
-                    {isLoggedIn ? <Logged /> : <NotLogged />}
+                    {isLoggedIn ? <Logged isCreating={isCreating} /> : <NotLogged />}
                 </div>
 
                 {/* mobile: bell + hamburger */}
