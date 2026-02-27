@@ -8,12 +8,14 @@ build:
 	docker compose -f compose.yml build
 
 # make up
-up:
+up: build
 	docker compose -f compose.yml up -d
 
 # make down
 down:
-	docker compose -f compose.yml down -v
+	docker compose -f compose.yml down
 ps:
 	@docker compose ps -a
 	@echo "list all containers"
+clean:
+	docker compose -f compose.yml down --rmi 'all' -v

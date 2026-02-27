@@ -15,7 +15,8 @@ services:
       exec java -jar /app.jar
       '
   db:
-    image: postgres:18
+    #image: postgres:18
+    build: db
     restart: always
     secrets:
       - db-password
