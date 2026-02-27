@@ -3,6 +3,7 @@ import Slots from "./pages/slots.jsx";
 import LangButton from "./components/layout/langButton.jsx";
 import CreatePost from "./pages/createPost";
 import { Provider } from "@/components/ui/provider"
+import SlotShow from "./pages/slotShow.jsx";
 
 
 
@@ -14,8 +15,9 @@ export default function App() {
 
         {/* <Home />
           <Slots /> */}
-          <LangButton />
-          <CreatePost />
+          {/* <LangButton /> */}
+          {/* <CreatePost /> */}
+          <SlotShow />
       </div>
   );
 }

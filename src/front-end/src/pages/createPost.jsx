@@ -92,7 +92,7 @@ export default function CreatePost() {
 
             <div className="flex flex-col items-center max-w-7xl mx-auto px-4 py-10 gap-30">
 
-                <Gallery photos={photos} fetchPhotos={fetchPhotos} />
+                <Gallery photos={photos} fetchPhotos={fetchPhotos} orientation="vertical" />
 
                 {/* Filter bar */}
                 <div className="flex items-center justify-around w-full h-[8rem] bg-[var(--color-surface)] 
