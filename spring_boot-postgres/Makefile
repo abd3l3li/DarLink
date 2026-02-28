@@ -1,21 +1,22 @@
 #To-do make build, make up and make down
-FILEPATH=backend/src/postgres-spring_b-restAPI/
-
+FILEPATH=backend/src/simple_restAPI/
+JAR_FILE_PATH=src/simple_restAPI/target/*.jar
 # make build
 build:
 	./$(FILEPATH)mvnw clean package -DskipTests -f ./$(FILEPATH)pom.xml
 	./$(FILEPATH)mvnw package -DskipTests -f ./$(FILEPATH)pom.xml
-	docker compose -f compose.yml build
+	@JAR_FILE="$(JAR_FILE_PATH)" docker compose -f compose.yml build
+	@echo "Build completed successfully."
 
 # make up
-up: build
-	docker compose -f compose.yml up -d
+up: 
+	@JAR_FILE="$(JAR_FILE_PATH)" docker compose -f compose.yml up
 
 # make down
 down:
-	docker compose -f compose.yml down
+	@JAR_FILE="$(JAR_FILE_PATH)" docker compose -f compose.yml down
 ps:
-	@docker compose ps -a
+	@JAR_FILE="$(JAR_FILE_PATH)" docker compose ps -a
 	@echo "list all containers"
 clean:
-	docker compose -f compose.yml down --rmi 'all' -v
+	@JAR_FILE="$(JAR_FILE_PATH)" docker compose -f compose.yml down --rmi 'all' -v
