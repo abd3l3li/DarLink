@@ -4,7 +4,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        JAR_FILE: ${JAR_FILE}
+        FILESPATH: ${FILESPATH}
     ports:
       - 8080:8080
     secrets:
@@ -13,11 +13,6 @@ services:
       #    - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     networks:
       - darlink
-    entrypoint: >
-      sh -c '
-      export SPRING_DATASOURCE_PASSWORD=$(cat /run/secrets/db-password | tr -d "\n") &&
-      exec java -jar /app.jar
-      '
   db:
     #image: postgres:18
     build: db
