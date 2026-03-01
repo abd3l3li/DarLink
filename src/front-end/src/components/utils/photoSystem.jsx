@@ -8,14 +8,14 @@ import {
 
 const orientationConfig = {
   vertical: {
-    carousel: "w-[120px]",
-    content: "h-[360px]",
+    carousel: "md:w-[120px] w-[80px]",
+    content: "md:h-[360px] h-[240px]",
     previous: "left-1/2 -translate-x-1/2 -top-8 rotate-90",
     next: "left-1/2 -translate-x-1/2 -bottom-8 rotate-90",
   },
   horizontal: {
-    carousel: "w-[460px]",
-    content: "h-[120px]",
+    carousel: "md:w-[460px] w-[300px]",
+    content: "md:h-[120px] h-[80px]",
     previous: "top-1/2 -translate-y-1/2 -left-8",
     next: "top-1/2 -translate-y-1/2 -right-8",
   },

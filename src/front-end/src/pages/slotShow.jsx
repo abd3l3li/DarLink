@@ -6,6 +6,7 @@ import mapLogo from "../components/ui/map-pinned.svg";
 import slotsCircle from "../components/ui/slotsCircle.svg";
 import deleteButton from "../components/ui/deleteButton.svg";
 import editButton from "../components/ui/editButton.svg";
+import checkMark from "../components/ui/checkMark.svg";
 
 export default function SlotShow({stay = {}}) {
 
@@ -24,10 +25,10 @@ export default function SlotShow({stay = {}}) {
             <main className="flex-1 flex flex-col items-start 
                                 justify-center text-left gap-10 py-10 max-w-7xl ">
                 
-                <div className="flex items-center justify-start gap-10 w-full max-w-7xl px-5 text-left">
+                <div className="flex flex-col md:flex-row items-center justify-start gap-10 w-full max-w-7xl px-5 text-left">
 
                     <ShowGallery photos={stay.photos || []} />
-                    <div className="space-y-2 flex flex-col items-start gap-3 ml-2 w-xl max-w-md s">
+                    <div className="space-y-2 flex flex-col items-start gap-3 ml-2 w-full md:w-xl max-w-md">
                         <img src={mapLogo} alt="map" className="mr-4 w-7 h-7 opacity-80" draggable={false} />
                         <span className="text-2xl font-semibold text-[var(--color-text)]">
                             {/* {stay.city} */}City
@@ -35,7 +36,7 @@ export default function SlotShow({stay = {}}) {
 
                         <div className="my-2 border-t border-[var(--color-muted)] opacity-50 w-full"></div>
 
-                        <span className="ml-1 text-2xl font-bold text-[var(--color-text)]">
+                        <span className="ml-1 text-2xl font-semibold text-[var(--color-text)]">
                             {/* {stay.price ? `${stay.price} MAD` : "N/A"} */}
                                 Price
                         </span>
@@ -90,6 +91,76 @@ export default function SlotShow({stay = {}}) {
 
                     </div>
 
+                </div>
+
+                <div className=" md:max-w-1/2 w-full px-5 mt-10 md:mx-30 
+                                flex flex-col items-start justify-center gap-5">
+                    {/* next here */}
+                        <div className="my-2 border-t border-[var(--color-muted)] opacity-80 w-full "></div>
+
+                        <div className="flex flex-col items-start mb-3 gap-10">
+                            <h2 className="text-xl text-left font-bold text-[var(--color-text)]">What’s Included</h2>
+                            <div>
+                            {
+                                (stay.included) ? (
+                                    <ul className="text-[var(--color-text)] space-y-2">
+                                        {stay.included.map((item, index) => (
+                                            <li key={index}>
+                                                <img src={checkMark} alt="check" className="inline w-4 h-4 mr-2 opacity-80" draggable={false}/>
+                                                {item}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-[var(--color-muted)]">No information provided.</p>
+                                )
+                            }
+                            </div>
+                        </div>
+
+                        <div className="my-2 border-t border-[var(--color-muted)] opacity-80 w-full "></div>
+
+                        <div className="flex flex-col items-start mb-3 gap-10">
+                            <h2 className="text-xl text-left font-bold text-[var(--color-text)]">House Rules & Expectations</h2>
+                            <div>
+                            {
+                                stay.expectations ? (
+                                    <ul className="text-[var(--color-text)] space-y-2">
+                                        {stay.expectations.map((item, index) => (
+                                            <li key={index}>{item}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-[var(--color-muted)]">No information provided.</p>
+                                )
+                            }
+                            </div>
+                        </div>
+                    
+                        <div className="my-2 border-t border-[var(--color-muted)] opacity-80 w-full "></div>
+
+                        <div className="flex flex-col items-start mb-3 gap-10">
+                            <h2 className="text-xl text-left font-bold text-[var(--color-text)]">Room Details</h2>
+                            <div>
+                            {
+                                stay.details ? (
+                                    <p className="text-italic font-semibold text-[var(--color-text)]">{stay.details}</p>
+                                ) : (
+                                    <p className="text-italic font-semibold text-[var(--color-muted)]">No information provided.</p>
+                                )
+                            }
+                            </div>
+                        </div>
+                        
+                        <div className="my-2 border-t border-[var(--color-muted)] opacity-80 w-full "></div>
+
+                        <div className="flex flex-col items-start mb-3 gap-10">
+                            <h2 className="text-xl text-left font-bold text-[var(--color-text)]">Owner</h2>
+                            <div className="flex items-center gap-4">
+                                <img src={stay.owner?.image || ""} alt={stay.owner?.name || ""} className="w-16 h-16 rounded-full" />
+                                <p className="text-italic font-semibold text-[var(--color-text)]">{stay.owner?.name || "N/A"}</p>
+                            </div>
+                        </div>
                 </div>
             </main>
             <Footer />

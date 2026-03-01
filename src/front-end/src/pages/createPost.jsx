@@ -97,7 +97,7 @@ export default function CreatePost() {
                 <Gallery photos={photos} fetchPhotos={fetchPhotos} orientation="vertical" />
 
                 {/* Filter bar */}
-                <div className="flex items-center justify-around w-full h-[8rem] bg-[var(--color-surface)] 
+                <div className="flex items-center justify-around w-full md:h-[8rem] bg-[var(--color-surface)] 
                                 rounded-4xl shadow-lg py-40 md:py-3 px-6">
                     <div className="flex items-center justify-around w-full gap-4 flex-wrap">
                         {Options.map(({ name, label, placeholder, options }) => (
