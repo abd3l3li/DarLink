@@ -4,8 +4,8 @@ export const stays = [
         city: "Rabat",
         state: "Private",
         avSlots: 2,
-        price: 500,
-        admin: true,
+        price: 800,
+        admin: false,
         photos: ["https://preview.redd.it/new-cat-reaction-meme-v0-9w0fho1j6luf1.png?width=1080&crop=smart&auto=webp&s=ad1615470e1ee3b38d8dd17b1872be32440d9ddb", 
                     "https://preview.redd.it/new-cat-reaction-meme-v0-naz8jdui6luf1.png?width=1080&crop=smart&auto=webp&s=45763ffcfac1b0ec914d7c8ca9718380ba85cac6",
                     "https://preview.redd.it/new-cat-reaction-meme-v0-ynzuox7j6luf1.png?width=1080&crop=smart&auto=webp&s=34b1c473a4399f5024d457182b89c340c915f803",
@@ -16,7 +16,7 @@ export const stays = [
             name: "Mohamed Sonbol",
             image: "https://preview.redd.it/new-cat-reaction-meme-v0-9w0fho1j6luf1.png?width=1080&crop=smart&auto=webp&s=ad1615470e1ee3b38d8dd17b1872be32440d9ddb"
         },
-        details: "A cozy private room in the heart of Rabat, perfect for solo travelers or couples. Enjoy the vibrant city life while having a peaceful retreat to come back to.",
+        details: "A cozy private room in the heart of Rabat, perfect for solo travelers. Enjoy the vibrant city life while having a peaceful retreat to come back to.",
         expectations: [
             "No smoking inside the property.",
             "Please respect the neighbors and keep noise to a minimum after 10 PM.",
@@ -27,7 +27,7 @@ export const stays = [
             "Access to a shared kitchen",
             "Fresh towels and linens"
         ],
-        type: "Shared",
+        type: "Private",
     },
     {
         id: 2,
