@@ -27,9 +27,9 @@ export default function ShowGallery({ photos = [] }) {
 
             <div className="upload-section flex flex-col gap-3 w-full max-w-[600px]">
                 <div className=" w-full h-[250px] sm:h-[350px] lg:h-[400px] bg-[var(--color-border-surface)] flex items-center 
-                                justify-center rounded-xl border-2 border-dashed border-[var(--color-border-gray)]">
+                                justify-center rounded-xl border-2 border-solid border-[var(--color-border-gray)]">
                     {photo ? (
-                        <img src={photo.url} alt={photo.alt || "selected photo"} className="w-full h-full object-cover rounded-xl" draggable={false} />
+                        <img src={photo} alt={photo.alt || "selected photo"} className="w-full h-full object-cover rounded-xl" draggable={false} />
                     ) : (
                         <span className="text-sm text-[var(--color-muted)]">Click a photo to preview</span>
                     )}

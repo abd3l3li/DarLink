@@ -36,7 +36,7 @@ export default function PhotoSystem({ photos, orientation, onClick = () => {} })
             <CarouselItem key={index} className="basis-1/3">
               <div className="h-full p-2">
                 <img
-                  src={photo.url}
+                  src={photo}
                   alt={photo.alt || `photo-${index}`}
                   className="w-full h-full object-cover rounded-xl"
                   draggable={false}

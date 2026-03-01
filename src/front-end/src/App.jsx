@@ -1,3 +1,4 @@
+import { stays } from "./components/stays/staysTemp.js";
 import Home from "./pages/home.jsx";
 import Slots from "./pages/slots.jsx";
 import LangButton from "./components/layout/langButton.jsx";
@@ -17,7 +18,7 @@ export default function App() {
           {/* <Slots /> */}
           {/* <LangButton /> */}
           {/* <CreatePost /> */}
-          <SlotShow />
+          <SlotShow stay={stays[0]} />
       </div>
   );
 }

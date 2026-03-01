@@ -1,4 +1,3 @@
-
 import ReqButton from "../utils/ReqButton.jsx";
 import mapLogo from "../ui/map-pinned.svg";
 import bedLogo from "../ui/bedLogo.svg";
@@ -15,7 +14,7 @@ export default function Card({ stay }) {
             
             <div className="relative">
                 <img
-                    src={stay.photo}
+                    src={stay.photos[0]}
                     alt={stay.city}
                     className="w-full h-60 object-cover"
                     draggable={false}
