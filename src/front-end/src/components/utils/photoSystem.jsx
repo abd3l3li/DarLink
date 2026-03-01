@@ -21,7 +21,7 @@ const orientationConfig = {
   },
 };
 
-export default function PhotoSystem({ photos, orientation }) {
+export default function PhotoSystem({ photos, orientation, onClick = () => {} }) {
   const config = orientationConfig[orientation];
 
   return (
@@ -40,6 +40,7 @@ export default function PhotoSystem({ photos, orientation }) {
                   alt={photo.alt || `photo-${index}`}
                   className="w-full h-full object-cover rounded-xl"
                   draggable={false}
+                  onClick={() => onClick(index)}
                 />
               </div>
             </CarouselItem>

@@ -23,7 +23,7 @@ const EXPECTATION_OPTIONS = [
     "Pets allowed", "Clean shared spaces", "Respect common areas & noise levels"
 ];
 
-const INITIAL_VALUES = { location: "", type: "", price: "" };
+const INITIAL_VALUES = { location: "", type: "", price: "", avSlots: "" };
 
 
 
@@ -66,8 +66,9 @@ export default function CreatePost() {
 
     const publishHandler = () => {
 
-        if (!values.location || !values.type || !values.price) {
-            alert("Please fill in location, room type, and price.");
+        if (!values.location || !values.type || !values.price 
+            || !values.avSlots || photos.length === 0) {
+            alert("Please fill in location, room type, price, available slots, and upload at least one photo.");
             return;
         }
 
@@ -75,6 +76,7 @@ export default function CreatePost() {
             location: values.location,
             type: values.type,
             price: parseFloat(values.price),
+            avSlots: parseInt(values.avSlots) || 0,
             included,
             expectations,
             details,
@@ -135,6 +137,24 @@ export default function CreatePost() {
                                 <span className="pr-4 text-sm font-semibold text-[var(--color-muted)]">MAD</span>
                             </div>
                         </div>
+
+                        {/* Available Slots */}
+                        <div className="flex flex-col text-left">
+                            <label className="mb-2 pl-2 text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
+                                Available Slots
+                            </label>
+                            <div className="flex items-center bg-[var(--color-bg)] rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-[var(--color-secondary)]">
+                                <input
+                                    type="number"
+                                    name="avSlots"
+                                    value={values.avSlots}
+                                    onChange={handleChange}
+                                    className="bg-transparent px-4 py-4 font-medium focus:outline-none w-36"
+                                    placeholder="e.g. 3"
+                                    min="0"
+                                />
+                            </div>
+                        </div>                        
                     </div>
                 </div>
 
