@@ -12,6 +12,7 @@ export default function Background() {
                 src={title}
                 alt="Title"
                 className="z-10 w-[90%] md:w-auto h-auto max-w-[49rem]"
+                draggable={false}
             />
             <div className="h-16 md:h-0" />
             <div className="w-full p-4 z-20 max-w-4xl md:p-0">
@@ -23,6 +24,7 @@ export default function Background() {
         src={bg}
         alt="Background"
         className="absolute bottom-0  w-full h-[55vh] md:h-[80vh] object-cover object-top -z-10"
+        draggable={false}
         />
     </>
     );

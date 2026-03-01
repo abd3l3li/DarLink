@@ -15,7 +15,7 @@ export default function SlotShow() {
                 <div className="flex items-center justify-start gap-10 w-full max-w-7xl px-5 text-left">
                     <Gallery orientation="horizontal" />    
                     <div className="space-y-2 flex flex-col items-start gap-3 ml-2 w-xl max-w-md s">
-                        <img src={mapLogo} alt="map" className="mr-4 w-7 h-7 opacity-80" />
+                        <img src={mapLogo} alt="map" className="mr-4 w-7 h-7 opacity-80" draggable={false} />
                         <span className="text-lg font-semibold text-[var(--color-text)]">
                             {/* {stay.city} */}City
                         </span>
@@ -31,7 +31,7 @@ export default function SlotShow() {
                         <div className="relative">
                             <p className="mb-2 text-sm text-[var(--color-muted)]">Available Slots</p>
                             <span className="relative flex items-center gap-2 text-lg font-bold text-[var(--color-text)]">
-                                <img src={slotsCircle} alt="slots" />
+                                <img src={slotsCircle} alt="slots" draggable={false}/>
                                 <span className="absolute left-1/2 top-1/2 -ml-4 -translate-x-1/2 -translate-y-1/2 text-[var(--color-text)]">
                                     {/* Your text here, e.g. slot count */}
                                     5

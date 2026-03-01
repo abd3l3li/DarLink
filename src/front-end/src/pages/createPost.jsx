@@ -182,11 +182,13 @@ export default function CreatePost() {
                         src={cancelButton} alt="Cancel"
                         className="cursor-pointer hover:opacity-80 hover:scale-103 transition-transform duration-300 active:scale-95"
                         onClick={resetForm}
+                        draggable={false}
                     />
                     <img
                         src={publishButton} alt="Publish"
                         className="cursor-pointer hover:opacity-80 hover:scale-103 transition-transform duration-300 active:scale-95"
                         onClick={publishHandler}
+                        draggable={false}
                     />
                 </div>
             </div>
@@ -201,7 +203,7 @@ function SectionBlock({ title, icon, subtitle, children }) {
     return (
         <div className="flex flex-col items-start w-full gap-4">
             <span className="flex items-center ml-5 gap-4">
-                <img src={icon} alt="" />
+                <img src={icon} alt="" draggable={false}/>
                 <h1 className="text-lg font-bold">{title}</h1>
             </span>
             {subtitle && <p className="text-sm font-semibold text-[var(--color-muted)] ml-5">{subtitle}</p>}

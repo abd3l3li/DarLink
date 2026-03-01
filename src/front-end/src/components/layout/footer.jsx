@@ -11,9 +11,10 @@ export default function Footer() {
                             items-center justify-between gap-4">
                 
                     <img
-                    src="/src/components/ui/footer-logo.svg"
-                    alt="DarLink Logo"
-                    className="h-8 md:h-10"
+                        src="/src/components/ui/footer-logo.svg"
+                        alt="DarLink Logo"
+                        className="h-8 md:h-10"
+                        draggable={false}
                     />
 
                     <div className="flex items-center gap-8 text-sm md:text-base md:ml-22">

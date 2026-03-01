@@ -18,13 +18,14 @@ export default function Card({ stay }) {
                     src={stay.photo}
                     alt={stay.city}
                     className="w-full h-56 object-cover"
+                    draggable={false}
                 />
             </div>
 
                 <div className="p-5 space-y-4">
                 
                     <div className="flex items-center gap-2">
-                        <img src={mapLogo} alt="map" className="w-5 h-5 opacity-70" />
+                        <img src={mapLogo} alt="map" className="w-5 h-5 opacity-70" draggable={false}/>
                         <span className="text-lg font-semibold text-[var(--color-text)]">
                         {stay.city}
                         </span>
@@ -33,7 +34,7 @@ export default function Card({ stay }) {
                     <div className="flex justify-between items-center text-sm text-[var(--color-muted)]">
 
                         <div className="flex items-center gap-2">
-                            <img src={bedLogo} alt="bed" className="w-5 h-5 opacity-70" />
+                            <img src={bedLogo} alt="bed" className="w-5 h-5 opacity-70" draggable={false}/>
                             <span>
                                 {stay.avSlots
                                 ? stay.avSlots > 1
@@ -44,7 +45,7 @@ export default function Card({ stay }) {
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <img src={stateLogo} alt="state" className="w-5 h-5 opacity-80" />
+                            <img src={stateLogo} alt="state" className="w-5 h-5 opacity-80" draggable={false}/>
                             <span>{stay.state}</span>
                         </div>
 

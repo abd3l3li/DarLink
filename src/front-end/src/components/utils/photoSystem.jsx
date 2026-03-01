@@ -39,6 +39,7 @@ export default function PhotoSystem({ photos, orientation }) {
                   src={photo.url}
                   alt={photo.alt || `photo-${index}`}
                   className="w-full h-full object-cover rounded-xl"
+                  draggable={false}
                 />
               </div>
             </CarouselItem>

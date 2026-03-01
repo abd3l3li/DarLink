@@ -13,7 +13,7 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
             <div className="flex items-center justify-between  max-w-[103rem] w-full mx-auto p-3 py-2">
 
                 <a href="/" className="logo md:block">
-                    <img src={logo} alt="Logo" className="h-9 md:h-10 max-[300px]:hidden" />
+                    <img src={logo} alt="Logo" className="h-9 md:h-10 max-[300px]:hidden" draggable={false} />
                 </a>
 
                 <ul className="nav-links hidden md:flex gap-15  max-[1245px]:gap-7 font-bold text-[1rem]">

@@ -8,7 +8,8 @@ export default function Bell({ className = "" }) {
                 src={bell} 
                 alt="Notifications" 
                 className="cursor-pointer w-6 h-6  duration-500 
-                    hover:[filter:invert(67%)_sepia(52%)_saturate(521%)_hue-rotate(93deg)_brightness(92%)_contrast(89%)]" 
+                    hover:[filter:invert(67%)_sepia(52%)_saturate(521%)_hue-rotate(93deg)_brightness(92%)_contrast(89%)]"
+                    draggable={false}
             />
         </div>
     );
