@@ -4,13 +4,13 @@ import Gallery from "@/components/utils/gallery";
 import letterIcon from "@/components/ui/letter.svg";
 import cancelButton from "@/components/ui/cancelButton.svg";
 import publishButton from "@/components/ui/publishButton.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
 
 const Options = [
     { name: "location", label: "Location", placeholder: "Select City", options: ["Casablanca", "Rabat", "Marrakech", "Fès", "Tanger", "Agadir", "Oujda", "Kenitra", "Ben Guerir"] },
-    { name: "type", label: "Room Type", placeholder: "Shared or Private", options: ["Private Room", "Shared Room", "Both"] },
+    { name: "type", label: "Room Type", placeholder: "Shared or Private", options: ["Private", "Shared", "Both"] },
 ];
 
 const INCLUDED_OPTIONS = [
@@ -29,11 +29,30 @@ const INITIAL_VALUES = { location: "", type: "", price: "", avSlots: "" };
 
 
 
+export default function CreatePost( { stay } ) {
 
-export default function CreatePost() {
-
-        // lifted from Gallery
+    const [values, setValues] = useState(INITIAL_VALUES);
+    const [included, setIncluded] = useState([]);
+    const [expectations, setExpectations] = useState([]);
+    const [details, setDetails] = useState("");
+    // lifted up from Gallery.jsx
     const [photos, setPhotos] = useState([]);
+
+    // Prefill logic
+    useEffect(() => {
+        if (stay && Object.keys(stay).length > 0) {
+            setValues({
+                location: stay.city || "",
+                type: stay.type || "",
+                price: stay.price || "",
+                avSlots: stay.avSlots || "",
+            });
+            setIncluded(stay.included || []);
+            setExpectations(stay.expectations || []);
+            setDetails(stay.details || "");
+            setPhotos(stay.photos || []);
+        }
+    }, [stay]);
 
     const fetchPhotos = () => {
         fetch("http://backend:3001/photos")
@@ -41,13 +60,6 @@ export default function CreatePost() {
             .then(data => setPhotos(data))
             .catch(() => setPhotos([]));
     };
-
-
-
-    const [values, setValues] = useState(INITIAL_VALUES);
-    const [included, setIncluded] = useState([]);
-    const [expectations, setExpectations] = useState([]);
-    const [details, setDetails] = useState("");
 
     const handleChange = (e) => setValues({ ...values, [e.target.name]: e.target.value });
 
@@ -67,7 +79,7 @@ export default function CreatePost() {
     const publishHandler = () => {
 
         if (!values.location || !values.type || !values.price 
-            || !values.avSlots || photos.length === 0) {
+            || !values.avSlots /*|| photos.length === 0*/) {
             alert("Please fill in location, room type, price, available slots, and upload at least one photo.");
             return;
         }
@@ -97,7 +109,8 @@ export default function CreatePost() {
                 <Gallery photos={photos} fetchPhotos={fetchPhotos} orientation="vertical" />
 
                 {/* Filter bar */}
-                <div className="flex items-center justify-around w-full md:h-[8rem] bg-[var(--color-surface)] 
+                <div className="flex items-center justify-around w-full md:h-[8rem] 
+                                bg-[var(--color-surface)] 
                                 rounded-4xl shadow-lg py-40 md:py-3 px-6">
                     <div className="flex items-center justify-around w-full gap-4 flex-wrap">
                         {Options.map(({ name, label, placeholder, options }) => (
