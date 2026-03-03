@@ -16,7 +16,7 @@ export default function App() {
 
         {/* <Home /> */}
           {/* <Slots /> */}
-          {/* <LangButton /> */}
+          <LangButton />
           {/* <CreatePost /> */}
           <SlotShow stay={stays[0]} />
       </div>
