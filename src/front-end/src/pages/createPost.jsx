@@ -112,7 +112,7 @@ export default function CreatePost( { stay } ) {
                 <div className="flex items-center justify-around w-full md:h-[8rem] 
                                 bg-[var(--color-surface)] 
                                 rounded-4xl shadow-lg py-40 md:py-3 px-6">
-                    <div className="flex items-center justify-around w-full gap-4 flex-wrap">
+                    <div className="grid grid-cols-2 md:flex md:items-center md:justify-around w-full gap-4">
                         {Options.map(({ name, label, placeholder, options }) => (
                             <div key={name} className="flex flex-col text-left">
                                 <label className="mb-2 pl-2 text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
@@ -147,7 +147,7 @@ export default function CreatePost( { stay } ) {
                                     placeholder="e.g. 1500"
                                     min="0"
                                 />
-                                <span className="pr-4 text-sm font-semibold text-[var(--color-muted)]">MAD</span>
+                                <span className="pr-4 text-sm font-semibold text-[var(--color-muted)] hidden md:inline">MAD</span>
                             </div>
                         </div>
 
