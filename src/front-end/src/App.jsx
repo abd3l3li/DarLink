@@ -5,6 +5,7 @@ import LangButton from "./components/layout/langButton.jsx";
 import CreatePost from "./pages/createPost";
 import { Provider } from "@/components/ui/provider"
 import SlotShow from "./pages/slotShow.jsx";
+import ChatPage from "./pages/chatPage.jsx";
 
 
 
@@ -16,9 +17,10 @@ export default function App() {
 
         {/* <Home /> */}
           {/* <Slots /> */}
-          <LangButton />
+          {/* <LangButton /> */}
           {/* <CreatePost /> */}
-          <SlotShow stay={stays[0]} />
+          {/* <SlotShow stay={stays[0]} /> */}
+          <ChatPage />
       </div>
   );
 }
