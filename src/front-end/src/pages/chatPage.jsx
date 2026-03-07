@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import returnButton from "../components/ui/returnHome.svg";
 
-/* ------------------- Dummy Data ------------------- */
+/* ------------------- data ------------------- */
 
 const CONTACTS = [
   { id: 1, name: "qamar al-din", preview: "Yes, there are two rooms.", unread: 0, online: true, friendStatus: "friend", location: "Marrakech", listings: 1 },
@@ -22,7 +22,7 @@ const MESSAGES = {
   4: [{ id: 7, text: "need food", from: "them" }],
 };
 
-/* ------------------- Helper: Get Initials ------------------- */
+/* ------------------- helper functions ------------------- */
 
 function getInitials(name) {
   return name
@@ -33,12 +33,10 @@ function getInitials(name) {
     .toUpperCase();
 }
 
-/* ------------------- Small Components ------------------- */
-
 function Avatar({ name, online }) {
   return (
     <div className="relative">
-      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex 
+      <div className="w-10 h-10 rounded-full bg-blue-100 text-[var(--color-primary)] flex 
                         items-center justify-center font-semibold text-sm">
         {getInitials(name)}
       </div>
@@ -84,7 +82,7 @@ function ProfileModal({ contact, onClose }) {
                     flex-col items-center text-center"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
+        {/* x */}
         <button
           type="button"
           onClick={onClose}
@@ -96,7 +94,7 @@ function ProfileModal({ contact, onClose }) {
 
         <h2 className="text-sm font-semibold mb-6 text-[var(--color-text)]">Profile</h2>
 
-        {/* Avatar */}
+        {/* avatar */}
         <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full 
                         bg-[var(--color-bg)] border border-[var(--color-primary)] 
                         text-lg font-semibold text-[var(--color-text)]">
@@ -107,7 +105,7 @@ function ProfileModal({ contact, onClose }) {
           {contact.name}
         </p>
 
-        {/* Info */}
+        {/* info */}
         <div className="space-y-4 text-sm">
           <div>
             <p className="text-[var(--color-muted)]">Location:</p>
@@ -158,10 +156,14 @@ function ListingPlaceholder({ contact, onBack }) {
   );
 }
 
-/* ------------------- Main Page ------------------- */
+
+
+
+
+
 
 export default function ChatPage() {
-  // State
+
   const [contacts, setContacts] = useState(CONTACTS);
   const [messages, setMessages] = useState(MESSAGES);
   const [activeId, setActiveId] = useState(1);
@@ -169,21 +171,20 @@ export default function ChatPage() {
   const [showProfile, setShowProfile] = useState(false);
   const [view, setView] = useState("chat"); // "chat" or "listing"
 
-  // Refs
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Derived
   const activeContact = contacts.find((c) => c.id === activeId);
   const chatMessages = messages[activeId] || [];
 
-  // Auto-scroll and focus input when chat changes
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     inputRef.current?.focus();
   }, [chatMessages, activeId]);
 
-  // Select a contact from the sidebar
+
+
+
   function selectContact(id) {
     setActiveId(id);
     setView("chat");
@@ -193,8 +194,8 @@ export default function ChatPage() {
     );
   }
 
-  // Handle friend button actions
   function handleFriendAction(action) {
+
     const nextStatus = { request: "pending", cancel: "none", unfriend: "none" };
     setContacts((prev) =>
       prev.map((c) =>
@@ -203,14 +204,13 @@ export default function ChatPage() {
     );
   }
 
-  // Send a new message
   function sendMessage() {
+
     const text = input.trim();
     if (!text) return;
 
     const newMsg = { id: Date.now(), text, from: "me" };
 
-    // Add message to chat
     setMessages((prev) => ({
       ...prev,
       [activeId]: [...(prev[activeId] || []), newMsg],
@@ -224,10 +224,13 @@ export default function ChatPage() {
     setInput("");
   }
 
+
+
+
   return (
     <div className="h-screen max-w-7xl mx-auto p-4 flex flex-col bg-[var(--color-bg)] overflow-hidden">
 
-      {/* Return Button */}
+      {/* return */}
       <div className="flex justify-end mb-4">
         <img
           src={returnButton}
@@ -241,7 +244,7 @@ export default function ChatPage() {
       <div className="flex-1 flex flex-col md:flex-row bg-[var(--color-surface)] 
                         rounded-2xl shadow-xl overflow-hidden">
 
-        {/* Sidebar */}
+        {/* friends list */}
         <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r 
                           border-[var(--color-border-gray)] flex flex-col">
           <h2 className="text-lg font-bold p-4 border-b 
@@ -256,7 +259,7 @@ export default function ChatPage() {
                   ${c.id === activeId ? "bg-[var(--color-bg)] border-l-4 border-[var(--color-secondary)]" : ""}`}
               >
                 <Avatar name={c.name} online={c.online} />
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0"> {/* min-w-0 allows text to truncate properly */}
                   <span className="block font-semibold text-sm text-[var(--color-text)]">{c.name}</span>
                   <span className="block text-xs text-[var(--color-muted)] truncate">{c.preview}</span>
                 </div>
@@ -271,10 +274,10 @@ export default function ChatPage() {
           </div>
         </aside>
 
-        {/* Main Panel */}
+        {/* the chat */}
         <main className="flex-1 flex flex-col">
 
-          {/* Header */}
+          {/* header */}
           <header className="flex justify-between items-center p-5 border-b border-[var(--color-border-gray)]">
             <div className="flex items-center gap-3">
               <button
@@ -302,10 +305,9 @@ export default function ChatPage() {
             <FriendButton status={activeContact.friendStatus} onAction={handleFriendAction} />
           </header>
 
-          {/* Content Area */}
           {view === "chat" ? (
             <>
-              {/* Messages */}
+              {/* messages */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[var(--color-bg)]">
                 {chatMessages.length === 0 ? (
                   <p className="h-full flex items-center justify-center text-sm text-[var(--color-muted)]">
@@ -332,7 +334,7 @@ export default function ChatPage() {
                 <div ref={bottomRef} />
               </div>
 
-              {/* Input */}
+              {/* input field */}
               <div className="p-4 border-t border-[var(--color-border-gray)] bg-[var(--color-surface)]">
                 <div className="flex items-center gap-3 bg-[var(--color-bg)] rounded-xl px-4 py-2">
                   <input
@@ -360,7 +362,6 @@ export default function ChatPage() {
         </main>
       </div>
 
-      {/* Profile Modal */}
       {showProfile && (
         <ProfileModal contact={activeContact} onClose={() => setShowProfile(false)} />
       )}
