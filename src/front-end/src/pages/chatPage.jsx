@@ -35,10 +35,18 @@ function getInitials(name) {
 
 /* ------------------- Small Components ------------------- */
 
-function Avatar({ name }) {
+function Avatar({ name, online }) {
   return (
-    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-sm">
-      {getInitials(name)}
+    <div className="relative">
+      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex 
+                        items-center justify-center font-semibold text-sm">
+        {getInitials(name)}
+      </div>
+
+      {online && (
+        <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full 
+                          bg-[var(--color-secondary)] border-2 border-[var(--color-surface)]" />
+      )}
     </div>
   );
 }
@@ -71,7 +79,9 @@ function ProfileModal({ contact, onClose }) {
       onClick={onClose}
     >
       <div
-        className="relative w-72 rounded-3xl bg-[var(--color-surface)] shadow-[0_0_0_1px_rgba(37,99,235,0.25)] p-6 flex flex-col items-center text-center"
+        className="relative w-72 rounded-3xl bg-[var(--color-surface)] 
+                    shadow-[0_0_0_1px_rgba(37,99,235,0.25)] p-6 flex 
+                    flex-col items-center text-center"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -87,7 +97,9 @@ function ProfileModal({ contact, onClose }) {
         <h2 className="text-sm font-semibold mb-6 text-[var(--color-text)]">Profile</h2>
 
         {/* Avatar */}
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-bg)] border border-[var(--color-primary)] text-lg font-semibold text-[var(--color-text)]">
+        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full 
+                        bg-[var(--color-bg)] border border-[var(--color-primary)] 
+                        text-lg font-semibold text-[var(--color-text)]">
           {getInitials(contact.name)}
         </div>
 
@@ -118,7 +130,9 @@ function ProfileModal({ contact, onClose }) {
 function ListingPlaceholder({ contact, onBack }) {
   return (
     <div className="flex-1 flex items-center justify-center bg-[var(--color-bg)] p-6">
-      <div className="w-full max-w-sm rounded-3xl bg-[var(--color-surface)] shadow-[0_0_0_1px_rgba(37,99,235,0.25)] p-6 flex flex-col items-center text-center">
+      <div className="w-full max-w-sm rounded-3xl bg-[var(--color-surface)] 
+                        shadow-[0_0_0_1px_rgba(37,99,235,0.25)] p-6 flex flex-col 
+                        items-center text-center">
         <h2 className="text-sm font-semibold mb-4 text-[var(--color-text)]">
           Listing (placeholder)
         </h2>
@@ -134,7 +148,8 @@ function ListingPlaceholder({ contact, onBack }) {
         <button
           type="button"
           onClick={onBack}
-          className="bg-[var(--color-primary)] text-[var(--color-surface)] px-4 py-2 rounded-lg text-sm hover:opacity-90"
+          className="bg-[var(--color-primary)] text-[var(--color-surface)] 
+                      px-4 py-2 rounded-lg text-sm hover:opacity-90"
         >
           Back to chat
         </button>
@@ -210,7 +225,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen max-w-7xl mx-auto p-4 flex flex-col bg-[var(--color-bg)]">
+    <div className="h-screen max-w-7xl mx-auto p-4 flex flex-col bg-[var(--color-bg)] overflow-hidden">
 
       {/* Return Button */}
       <div className="flex justify-end mb-4">
@@ -223,11 +238,14 @@ export default function ChatPage() {
         />
       </div>
 
-      <div className="flex-1 flex flex-col md:flex-row bg-[var(--color-surface)] rounded-2xl shadow-xl overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row bg-[var(--color-surface)] 
+                        rounded-2xl shadow-xl overflow-hidden">
 
         {/* Sidebar */}
-        <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r border-[var(--color-border-gray)] flex flex-col">
-          <h2 className="text-lg font-bold p-4 border-b text-[var(--color-text)]">People</h2>
+        <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r 
+                          border-[var(--color-border-gray)] flex flex-col">
+          <h2 className="text-lg font-bold p-4 border-b 
+                          text-[var(--color-text)]">People</h2>
 
           <div className="flex-1 overflow-y-auto">
             {contacts.map((c) => (
@@ -235,15 +253,16 @@ export default function ChatPage() {
                 key={c.id}
                 onClick={() => selectContact(c.id)}
                 className={`w-full flex items-center gap-3 p-4 text-left hover:bg-[var(--color-bg)] transition
-                  ${c.id === activeId ? "bg-[var(--color-bg)] border-l-4 border-[var(--color-primary)]" : ""}`}
+                  ${c.id === activeId ? "bg-[var(--color-bg)] border-l-4 border-[var(--color-secondary)]" : ""}`}
               >
-                <Avatar name={c.name} />
+                <Avatar name={c.name} online={c.online} />
                 <div className="flex-1 min-w-0">
                   <span className="block font-semibold text-sm text-[var(--color-text)]">{c.name}</span>
                   <span className="block text-xs text-[var(--color-muted)] truncate">{c.preview}</span>
                 </div>
                 {c.unread > 0 && (
-                  <span className="bg-[var(--color-secondary)] text-[var(--color-surface)] text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
+                  <span className="bg-[var(--color-secondary)] text-[var(--color-surface)] 
+                                    text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
                     {c.unread}
                   </span>
                 )}
@@ -264,7 +283,7 @@ export default function ChatPage() {
                 className="rounded-full focus:outline-none"
                 aria-label="Open profile"
               >
-                <Avatar name={activeContact.name} />
+                <Avatar name={activeContact.name} online={activeContact.online} />
               </button>
               <div>
                 <p className="font-semibold text-[var(--color-text)]">{activeContact.name}</p>
@@ -299,7 +318,7 @@ export default function ChatPage() {
                       className={`flex ${msg.from === "me" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`px-4 py-2 rounded-2xl text-sm max-w-full sm:max-w-[70%]
+                        className={`px-4 py-2 rounded-2xl text-sm max-w-[80%] sm:max-w-[70%] break-words break-all whitespace-pre-wrap
                           ${msg.from === "me"
                             ? "bg-[var(--color-primary)] text-[var(--color-surface)] rounded-br-md"
                             : "bg-[var(--color-surface)] text-[var(--color-text)] border border-[var(--color-border-gray)] rounded-bl-md"
@@ -327,7 +346,8 @@ export default function ChatPage() {
                   />
                   <button
                     onClick={sendMessage}
-                    className="bg-[var(--color-primary)] hover:opacity-90 text-[var(--color-surface)] px-4 py-2 rounded-lg text-sm"
+                    className="bg-[var(--color-primary)] hover:opacity-90 
+                              text-[var(--color-surface)] px-4 py-2 rounded-lg text-sm"
                   >
                     Send
                   </button>
