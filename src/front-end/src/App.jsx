@@ -1,24 +1,48 @@
-import { stays } from "./components/stays/staysTemp.js";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/home.jsx";
 import Slots from "./pages/slots.jsx";
 import LangButton from "./components/layout/langButton.jsx";
 import CreatePost from "./pages/createPost";
-import { Provider } from "@/components/ui/provider"
 import SlotShow from "./pages/slotShow.jsx";
-import Sign_in from "./pages/sign_in.jsx";
-import Log_in from "./pages/log_in.jsx";
-import About from "./pages/about.jsx";
+import ChatPage from "./pages/chatPage.jsx";
+
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/slots",
+    element: <Slots />,
+  },
+  {
+    path: "/create-post",
+    element: <CreatePost />,
+  },
+  {
+    path: "/slot-show/:slotId",
+    element: <SlotShow />,
+  },
+  {
+    path: "/chat/:ownerId",
+    element: <ChatPage />,
+  },
+  {
+    path: "/chat/:ownerId/:stayId",
+    element: <ChatPage />,
+  },
+]);
+
+
 export default function App() {
   return (
       <div className="app">
-        <About />
-        <Sign_in />
-        <Log_in /> 
-        <Home />
-          <Slots />
-          <LangButton />
-          <CreatePost />
-          <SlotShow stay={stays[0]} />
+        <LangButton />
+
+        <div className="main">
+          <RouterProvider router={router} />
+        </div>
       </div>
   );
 }
