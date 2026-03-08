@@ -1,3 +1,4 @@
+import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
 import logo from "../ui/logo.svg";
 import Bell from "../utils/bell.jsx";
@@ -12,17 +13,20 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
         <nav className="navbar fixed top-0 w-full z-99 bg-[var(--color-surface)] shadow-md">
             <div className="flex items-center justify-between  max-w-[103rem] w-full mx-auto p-3 py-2">
 
-                <a href="/" className="logo md:block">
+                <Link to="/" className="logo md:block">
                     <img src={logo} alt="Logo" className="h-9 md:h-10 max-[300px]:hidden" draggable={false} />
-                </a>
+                </Link>
 
                 <ul className="nav-links hidden md:flex gap-15  max-[1245px]:gap-7 font-bold text-[1rem]">
-                    <li className="transition-all duration-300 hover:border-b-1 
-                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/">Home</a></li>
-                    <li className="transition-all duration-300 hover:border-b-1 
-                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/slots">Slots</a></li>
-                    <li className="transition-all duration-300 hover:border-b-1 
-                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/about">About</a></li>
+                    <li className={({ isActive }) => isActive ? "border-b-1 border-[var(--color-secondary)] text-[var(--color-secondary)]" 
+                                                                : "transition-all duration-300 hover:border-b-1 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"}>
+                        <NavLink to="/">Home</NavLink></li>
+                    <li className={({ isActive }) => isActive ? "border-b-1 border-[var(--color-secondary)] text-[var(--color-secondary)]" 
+                                                                : "transition-all duration-300 hover:border-b-1 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"}>
+                        <NavLink to="/slots">Slots</NavLink></li>
+                    <li className={({ isActive }) => isActive ? "border-b-1 border-[var(--color-secondary)] text-[var(--color-secondary)]" 
+                                                                : "transition-all duration-300 hover:border-b-1 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"}>
+                        <NavLink to="/about">About</NavLink></li>
             
                 </ul>
 
