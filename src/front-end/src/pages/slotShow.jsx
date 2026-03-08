@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { getStayById } from "../components/stays/staysTemp.js";
+
+import { useState } from "react";
 import ShowGallery from "../components/utils/showGallery";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/footer.jsx";
@@ -9,7 +12,9 @@ import deleteButton from "../components/ui/deleteButton.svg";
 import editButton from "../components/ui/editButton.svg";
 import checkMark from "../components/ui/checkMark.svg";
 
-export default function SlotShow({stay = {}}) {
+export default function SlotShow() {
+    const params = useParams();
+    const stay = getStayById(params.slotId) || {};
 
     const [editMode, setEditMode] = useState(false);
 
@@ -23,10 +28,6 @@ export default function SlotShow({stay = {}}) {
         console.log("slot request sent");
     }
 
-    const handleContactClick = () => {
-        console.log("Contact button clicked for owner:", stay.owner?.name);
-        // logic to open a contact form, send an email, or redirect to a messaging page
-    }
 
     return (
         <>
@@ -175,11 +176,13 @@ export default function SlotShow({stay = {}}) {
                                         <div className="flex items-center gap-5">
                                             <img src={stay.owner?.image || ""} alt={stay.owner?.name || ""} className="w-16 h-16 rounded-full" draggable={false}/>
                                             <p className="text-italic font-semibold text-[var(--color-text)]">{stay.owner?.name || "N/A"}</p>
-                                            <button className="bg-[var(--color-secondary)] text-[var(--color-surface)] px-6 py-2 
-                                                                rounded-full ml-4 hover:bg-[var(--color-secondary-hover)] 
-                                                                hover:scale-103 transition-transform duration-300"
-                                                                onClick={handleContactClick}
-                                                                >Contact</button>
+
+                                            <Link to={`/chat/${stay.owner?.id}/${stay.id}`}>
+                                                <button className="bg-[var(--color-secondary)] text-[var(--color-surface)] px-6 py-2 
+                                                                    rounded-full ml-4 hover:bg-[var(--color-secondary-hover)] 
+                                                                    hover:scale-103 transition-transform duration-300"
+                                                >Contact</button>
+                                            </Link>
                                         </div>
                                     </div>
                             </div>

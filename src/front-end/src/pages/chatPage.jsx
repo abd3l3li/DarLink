@@ -1,26 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { contacts as INITIAL_CONTACTS, messages as INITIAL_MESSAGES, getOwnerById,
+  getStaysByOwnerId, getStayById } from "../components/stays/staysTemp.js";
+
+import { useState, useRef, useEffect, useMemo } from "react";
 import returnButton from "../components/ui/returnHome.svg";
 
-/* ------------------- data ------------------- */
-
-const CONTACTS = [
-  { id: 1, name: "qamar al-din", preview: "Yes, there are two rooms.", unread: 0, online: true, friendStatus: "friend", location: "Marrakech", listings: 1 },
-  { id: 2, name: "khalid kashmiri", preview: "need food", unread: 1, online: false, friendStatus: "friend", location: "Casablanca", listings: 2 },
-  { id: 3, name: "ismail kanabawi", preview: "need food", unread: 1, online: false, friendStatus: "none", location: "Rabat", listings: 0 },
-  { id: 4, name: "usman shisha", preview: "need food", unread: 5, online: false, friendStatus: "pending", location: "Fès", listings: 3 },
-];
-
-const MESSAGES = {
-  1: [
-    { id: 1, text: "Hey There!", from: "them" },
-    { id: 2, text: "Is there any tuna... I mean is the room available?", from: "them" },
-    { id: 3, text: "Hello!?", from: "me" },
-    { id: 4, text: "Yes, there are two rooms.", from: "me" },
-  ],
-  2: [{ id: 5, text: "need food", from: "them" }],
-  3: [{ id: 6, text: "need food", from: "them" }],
-  4: [{ id: 7, text: "need food", from: "them" }],
-};
 
 /* ------------------- helper functions ------------------- */
 
@@ -68,8 +52,11 @@ function FriendButton({ status, onAction }) {
   );
 }
 
-function ProfileModal({ contact, onClose }) {
+function ProfileModal({ contact, onClose, onSelectListing }) {
   if (!contact) return null;
+
+  // Get listings for this contact
+  const listings = getStaysByOwnerId(contact.id);
 
   return (
     <div
@@ -77,7 +64,7 @@ function ProfileModal({ contact, onClose }) {
       onClick={onClose}
     >
       <div
-        className="relative w-72 rounded-3xl bg-[var(--color-surface)] 
+        className="relative w-80 max-h-[80vh] overflow-y-auto rounded-3xl bg-[var(--color-surface)] 
                     shadow-[0_0_0_1px_rgba(37,99,235,0.25)] p-6 flex 
                     flex-col items-center text-center"
         onClick={(e) => e.stopPropagation()}
@@ -106,18 +93,37 @@ function ProfileModal({ contact, onClose }) {
         </p>
 
         {/* info */}
-        <div className="space-y-4 text-sm">
+        <div className="space-y-4 text-sm w-full">
           <div>
             <p className="text-[var(--color-muted)]">Location:</p>
             <p className="font-semibold text-[var(--color-secondary)]">
               {contact.location || "Unknown"}
             </p>
           </div>
+          
+          {/* listings section*/}
           <div>
-            <p className="text-[var(--color-muted)]">Listings:</p>
-            <p className="font-semibold text-[var(--color-secondary)]">
-              {contact.listings ?? 0}
-            </p>
+            <p className="text-[var(--color-muted)] mb-2">Listings ({listings.length}):</p>
+            {listings.length > 0 ? (
+              <div className="space-y-2">
+                {listings.map((listing) => (
+                  <button
+                    key={listing.id}
+                    onClick={() => onSelectListing(listing)}
+                    className="w-full p-3 bg-[var(--color-bg)] rounded-xl text-left 
+                              hover:bg-[var(--color-primary)] hover:text-[var(--color-surface)]
+                              transition-colors duration-200"
+                  >
+                    <p className="font-semibold text-sm">{listing.city}</p>
+                    <p className="text-xs opacity-80">
+                      {listing.type} • {listing.avSlots} slots • {listing.price} MAD
+                    </p>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[var(--color-muted)] text-xs">No listings available</p>
+            )}
           </div>
         </div>
       </div>
@@ -125,29 +131,66 @@ function ProfileModal({ contact, onClose }) {
   );
 }
 
-function ListingPlaceholder({ contact, onBack }) {
+function ListingView({ listing, onBack }) {
+  if (!listing) return null;
+
   return (
-    <div className="flex-1 flex items-center justify-center bg-[var(--color-bg)] p-6">
-      <div className="w-full max-w-sm rounded-3xl bg-[var(--color-surface)] 
+    <div className="flex-1 flex items-center justify-center bg-[var(--color-bg)] p-6 overflow-y-auto">
+      <div className="w-full max-w-md rounded-3xl bg-[var(--color-surface)] 
                         shadow-[0_0_0_1px_rgba(37,99,235,0.25)] p-6 flex flex-col 
                         items-center text-center">
-        <h2 className="text-sm font-semibold mb-4 text-[var(--color-text)]">
-          Listing (placeholder)
+        
+        {listing.photos?.[0] && (
+          <div className="w-full h-40 rounded-xl overflow-hidden mb-4">
+            <img 
+              src={listing.photos[0]} 
+              alt={listing.city} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        <h2 className="text-lg font-semibold mb-2 text-[var(--color-text)]">
+          {listing.city}
         </h2>
-        <p className="text-base font-semibold text-[var(--color-text)] mb-2">
-          Room with {contact.name}
-        </p>
+        
         <p className="text-sm text-[var(--color-muted)] mb-4">
-          Location: <span className="text-[var(--color-secondary)]">{contact.location}</span>
+          {listing.type} • {listing.avSlots} slots available • {listing.price} MAD
         </p>
-        <p className="text-sm text-[var(--color-muted)] mb-6">
-          This is a temporary preview. Real details will come from the backend later.
-        </p>
+
+        {listing.details && (
+          <p className="text-sm text-[var(--color-text)] mb-4 text-left w-full">
+            {listing.details}
+          </p>
+        )}
+
+        {listing.included && listing.included.length > 0 && (
+          <div className="w-full text-left mb-4">
+            <p className="text-sm font-semibold text-[var(--color-text)] mb-2">What's Included:</p>
+            <ul className="text-xs text-[var(--color-muted)] space-y-1">
+              {listing.included.map((item, idx) => (
+                <li key={idx}>• {item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {listing.expectations && listing.expectations.length > 0 && (
+          <div className="w-full text-left mb-4">
+            <p className="text-sm font-semibold text-[var(--color-text)] mb-2">House Rules:</p>
+            <ul className="text-xs text-[var(--color-muted)] space-y-1">
+              {listing.expectations.map((item, idx) => (
+                <li key={idx}>• {item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
         <button
           type="button"
           onClick={onBack}
           className="bg-[var(--color-primary)] text-[var(--color-surface)] 
-                      px-4 py-2 rounded-lg text-sm hover:opacity-90"
+                      px-4 py-2 rounded-lg text-sm hover:opacity-90 mt-2"
         >
           Back to chat
         </button>
@@ -163,18 +206,38 @@ function ListingPlaceholder({ contact, onBack }) {
 
 
 export default function ChatPage() {
+  
+  const params = useParams();
+  const { ownerId, stayId } = params;
+  
+  // from staysTemp.js
+  const targetOwner = getOwnerById(ownerId);
+  const contextListing = stayId ? getStayById(stayId) : null;
+  
+  // Initialize contacts
+  const initialContacts = useMemo(() => {
+    const contactsList = targetOwner 
+      ? [INITIAL_CONTACTS.find(c => c.id === ownerId), ...INITIAL_CONTACTS.filter(c => c.id !== ownerId)].filter(Boolean)
+      : [...INITIAL_CONTACTS];
+    
+    if (contactsList.length > 0) {
+      contactsList[0] = { ...contactsList[0], unread: 0 };
+    }
+    return contactsList;
+  }, [ownerId, targetOwner]);
 
-  const [contacts, setContacts] = useState(CONTACTS);
-  const [messages, setMessages] = useState(MESSAGES);
-  const [activeId, setActiveId] = useState(1);
+  const [contacts, setContacts] = useState(initialContacts);
+  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [activeId, setActiveId] = useState(ownerId || initialContacts[0]?.id);
   const [input, setInput] = useState("");
   const [showProfile, setShowProfile] = useState(false);
   const [view, setView] = useState("chat"); // "chat" or "listing"
+  const [selectedListing, setSelectedListing] = useState(null);
 
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  const activeContact = contacts.find((c) => c.id === activeId);
+  const activeContact = contacts.find((c) => c.id === activeId) || contacts[0];
   const chatMessages = messages[activeId] || [];
 
   useEffect(() => {
@@ -182,20 +245,26 @@ export default function ChatPage() {
     inputRef.current?.focus();
   }, [chatMessages, activeId]);
 
-
-
+  // no contacts
+  if (!activeContact) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[var(--color-bg)]">
+        <p className="text-[var(--color-muted)]">No contacts available</p>
+      </div>
+    );
+  }
 
   function selectContact(id) {
     setActiveId(id);
     setView("chat");
-    // Clear unread count
+    setSelectedListing(null);
+
     setContacts((prev) =>
       prev.map((c) => (c.id === id ? { ...c, unread: 0 } : c))
     );
   }
 
   function handleFriendAction(action) {
-
     const nextStatus = { request: "pending", cancel: "none", unfriend: "none" };
     setContacts((prev) =>
       prev.map((c) =>
@@ -205,7 +274,6 @@ export default function ChatPage() {
   }
 
   function sendMessage() {
-
     const text = input.trim();
     if (!text) return;
 
@@ -216,7 +284,6 @@ export default function ChatPage() {
       [activeId]: [...(prev[activeId] || []), newMsg],
     }));
 
-    // Update sidebar preview
     setContacts((prev) =>
       prev.map((c) => (c.id === activeId ? { ...c, preview: text } : c))
     );
@@ -224,13 +291,31 @@ export default function ChatPage() {
     setInput("");
   }
 
+  function handleClickHere() {
+    if (contextListing) {
+      // a specific listing
+      setSelectedListing(contextListing);
+    } else {
+      // first listing of this owner
+      const ownerListings = getStaysByOwnerId(activeContact.id);
+      if (ownerListings.length > 0) {
+        setSelectedListing(ownerListings[0]);
+      }
+    }
+    setView("listing");
+  }
 
+  // selecting listing from profile modal
+  function handleSelectListingFromProfile(listing) {
+    setShowProfile(false);
+    setSelectedListing(listing);
+    setView("listing");
+  }
 
 
   return (
     <div className="h-screen max-w-7xl mx-auto p-4 flex flex-col bg-[var(--color-bg)] overflow-hidden">
 
-      {/* return */}
       <div className="flex justify-end mb-4">
         <img
           src={returnButton}
@@ -291,10 +376,10 @@ export default function ChatPage() {
               <div>
                 <p className="font-semibold text-[var(--color-text)]">{activeContact.name}</p>
                 <p className="text-xs text-[var(--color-muted)]">
-                  Chat about{" "}
+                  {contextListing ? `Chat about: ` : `View listing: `}
                   <button
                     type="button"
-                    onClick={() => setView("listing")}
+                    onClick={handleClickHere}
                     className="text-[var(--color-primary)] hover:underline hover:text-[var(--color-secondary)]"
                   >
                     Click here
@@ -357,13 +442,17 @@ export default function ChatPage() {
               </div>
             </>
           ) : (
-            <ListingPlaceholder contact={activeContact} onBack={() => setView("chat")} />
+            <ListingView listing={selectedListing} onBack={() => setView("chat")} />
           )}
         </main>
       </div>
 
       {showProfile && (
-        <ProfileModal contact={activeContact} onClose={() => setShowProfile(false)} />
+        <ProfileModal 
+          contact={activeContact} 
+          onClose={() => setShowProfile(false)} 
+          onSelectListing={handleSelectListingFromProfile}
+        />
       )}
     </div>
   );

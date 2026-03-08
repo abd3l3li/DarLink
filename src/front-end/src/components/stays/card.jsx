@@ -7,16 +7,16 @@ export default function Card({ stay }) {
 
     return (
 
-        <div className=" w-full rounded-2xl overflow-hidden col-span-1
+        <div className="rounded-2xl overflow-hidden col-span-1
         bg-[var(--color-border-gray)] shadow-md hover:shadow-xl 
-        transition-all duration-300 max-w-sm"
+        transition-all duration-300 w-80 h-auto"
         >
             
-            <div className="relative">
+            <div className="relative w-full h-48 overflow-hidden">
                 <img
                     src={stay.photos[0]}
                     alt={stay.city}
-                    className="w-full h-60 object-cover"
+                    className="w-full h-full object-cover"
                     draggable={false}
                 />
             </div>
@@ -45,7 +45,7 @@ export default function Card({ stay }) {
 
                         <div className="flex items-center gap-2">
                             <img src={stateLogo} alt="state" className="w-5 h-5 opacity-80" draggable={false}/>
-                            <span>{stay.state}</span>
+                            <span>{stay.type}</span>
                         </div>
 
                     </div>

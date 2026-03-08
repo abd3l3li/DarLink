@@ -21,11 +21,15 @@ const router = createBrowserRouter([
     element: <CreatePost />,
   },
   {
-    path: "/slot-show",
+    path: "/slot-show/:slotId",
     element: <SlotShow />,
   },
   {
-    path: "/chat",
+    path: "/chat/:ownerId",
+    element: <ChatPage />,
+  },
+  {
+    path: "/chat/:ownerId/:stayId",
     element: <ChatPage />,
   },
 ]);
