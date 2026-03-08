@@ -5,7 +5,9 @@ import LangButton from "./components/layout/langButton.jsx";
 import CreatePost from "./pages/createPost";
 import SlotShow from "./pages/slotShow.jsx";
 import ChatPage from "./pages/chatPage.jsx";
-
+import Sign_in from "./pages/sign_in.jsx";
+import Log_in from "./pages/log_in.jsx";
+import About from "./pages/about.jsx";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +33,18 @@ const router = createBrowserRouter([
   {
     path: "/chat/:ownerId/:stayId",
     element: <ChatPage />,
+  },
+  {
+    path: "/sign-up",
+    element: <Sign_in />,
+  },
+  { 
+    path: "/log-in",
+    element: <Log_in />,
+  },
+  { 
+    path: "/about",
+    element: <About />,
   },
 ]);
 

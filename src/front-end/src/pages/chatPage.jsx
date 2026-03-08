@@ -1,10 +1,9 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { contacts as INITIAL_CONTACTS, messages as INITIAL_MESSAGES, getOwnerById,
   getStaysByOwnerId, getStayById } from "../components/stays/staysTemp.js";
-
+  import Return from "../components/utils/retutn_home.jsx";
+  
 import { useState, useRef, useEffect, useMemo } from "react";
-import returnButton from "../components/ui/returnHome.svg";
-
 
 /* ------------------- helper functions ------------------- */
 
@@ -317,13 +316,9 @@ export default function ChatPage() {
     <div className="h-screen max-w-7xl mx-auto p-4 flex flex-col bg-[var(--color-bg)] overflow-hidden">
 
       <div className="flex justify-end mb-4">
-        <img
-          src={returnButton}
-          alt="Return home"
-          className="cursor-pointer hover:scale-103 active:scale-98 transition-transform"
-          draggable={false}
-          onClick={() => (window.location.href = "/")}
-        />
+          <Link to="/"> 
+              <Return className="cursor-pointer" />
+          </Link>
       </div>
 
       <div className="flex-1 flex flex-col md:flex-row bg-[var(--color-surface)] 
