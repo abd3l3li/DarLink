@@ -54,11 +54,8 @@ export default function CreatePost( { stay } ) {
         }
     }, [stay]);
 
-    const fetchPhotos = () => {
-        fetch("http://backend:3001/photos")
-            .then(res => res.json())
-            .then(data => setPhotos(data))
-            .catch(() => setPhotos([]));
+    const handlePhotoAdd = (dataUrl) => {
+        setPhotos((prev) => (prev.length < 5 ? [...prev, dataUrl] : prev));
     };
 
     const handleChange = (e) => setValues({ ...values, [e.target.name]: e.target.value });
@@ -73,14 +70,17 @@ export default function CreatePost( { stay } ) {
         setIncluded([]);
         setExpectations([]);
         setDetails("");
-        // setPhotos([]); // cleared from the UI, but not the server
+        setPhotos([]);
     };
 
     const publishHandler = () => {
 
-        if (!values.location || !values.type || !values.price 
-            || !values.avSlots /*|| photos.length === 0*/) {
-            alert("Please fill in location, room type, price, available slots, and upload at least one photo.");
+        if (!values.location || !values.type || !values.price || !values.avSlots) {
+            alert("Please fill in location, room type, price, and available slots.");
+            return;
+        }
+        if (photos.length === 0) {
+            alert("Please upload at least one photo.");
             return;
         }
 
@@ -106,7 +106,7 @@ export default function CreatePost( { stay } ) {
 
             <div className="flex flex-col items-center max-w-7xl mx-auto px-4 py-10 gap-30">
 
-                <Gallery photos={photos} fetchPhotos={fetchPhotos} orientation="vertical" />
+                <Gallery photos={photos} orientation="vertical" onPhotoAdd={handlePhotoAdd} />
 
                 {/* Filter bar */}
                 <div className="flex items-center justify-around w-full md:h-[8rem] 
