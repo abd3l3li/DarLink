@@ -10,8 +10,8 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <nav className="navbar fixed top-0 w-full z-99 bg-[var(--color-surface)] shadow-md">
-            <div className="flex items-center justify-between  max-w-[103rem] w-full mx-auto p-3 py-2">
+        <nav className="navbar fixed top-0 left-0 right-0 z-99 flex-shrink-0 bg-[var(--color-surface)] shadow-md">
+            <div className="flex items-center justify-between min-w-0 max-w-[103rem] w-full mx-auto px-7 py-2">
 
                 <Link to="/" className="logo md:block">
                     <img src={logo} alt="Logo" className="h-9 md:h-10 max-[300px]:hidden" draggable={false} />
