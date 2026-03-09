@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Log_in from "../ui/log_in.svg";
 
 export default function Question_tag() {
@@ -13,12 +14,12 @@ export default function Question_tag() {
         </button>
             <p className="mt-6 text-gray-600">
                 No Account yet?{" "}
-                <a
-                    href="/login"
+                <Link
+                    to="/sign-up"
                     className="text-blue-600 font-medium hover:underline"
                 >
                 SIGN UP
-                </a>
+                </Link>
             </p>
         </div>
     );
