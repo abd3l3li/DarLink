@@ -1,5 +1,6 @@
 import Navbar from "../components/layout/Navbar.jsx";
 import Background from "../components/layout/bg.jsx";
+import Footer from "../components/layout/Footer.jsx";
 
 export default function Home() {
     return (

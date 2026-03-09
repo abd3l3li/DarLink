@@ -4,6 +4,7 @@ import team1  from "../components/ui/About_img/team1.jpg";
 import team2  from "../components/ui/About_img/team2.jpg";
 import team3  from "../components/ui/About_img/team3.jpg";
 import team4  from "../components/ui/About_img/team4.jpg";
+import Footer from "../components/layout/Footer.jsx";
 export default function About() {
     return (
         <>
@@ -13,7 +14,7 @@ export default function About() {
 
                 {/* HERO SECTION */}
                 <section className="max-w-7xl mx-auto p-5">
-                    <div className="bg-white rounded-xl p-8 flex items-center gap-10 shadow-sm">
+                    <div className="bg-[var(--color-bg)] rounded-xl p-8 flex items-center gap-10 shadow-sm">
                         {/* Image */}
                         <img
                         src={carton}
@@ -23,7 +24,7 @@ export default function About() {
 
                         {/* Text */}
                         <div>
-                            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+                            <h1 className="text-4xl font-bold text-[var(--color-text)] mb-4">
                                 About DarLink
                             </h1>
 
@@ -121,6 +122,7 @@ export default function About() {
 
                 </div>
 
+            <Footer />
         </>
         
     );

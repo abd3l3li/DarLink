@@ -8,6 +8,8 @@ import ChatPage from "./pages/chatPage.jsx";
 import Sign_in from "./pages/sign_in.jsx";
 import Log_in from "./pages/log_in.jsx";
 import About from "./pages/about.jsx";
+import NotFound from "./pages/NotFund.jsx";
+import Footer from "./components/layout/Footer.jsx";
 
 const router = createBrowserRouter([
   {
@@ -45,6 +47,14 @@ const router = createBrowserRouter([
   { 
     path: "/about",
     element: <About />,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+  {
+    path: "/footer",
+    element: <Footer />,
   },
 ]);
 
