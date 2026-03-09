@@ -3,8 +3,6 @@ import { getStayById } from "../components/stays/staysTemp.js";
 
 import { useState } from "react";
 import ShowGallery from "../components/utils/showGallery";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/footer.jsx";
 import CreatePost from "./createPost";
 import mapLogo from "../components/ui/map-pinned.svg";
 import slotsCircle from "../components/ui/slotsCircle.svg";
@@ -38,7 +36,6 @@ export default function SlotShow() {
                 ) :
                 (
                     <div className="min-h-screen flex flex-col">
-                        <Navbar isLoggedIn={true} />
                         <main className="flex-1 flex flex-col items-start md:mt-10
                                             justify-center text-left gap-10 py-10 max-w-7xl ">
                             
@@ -187,7 +184,6 @@ export default function SlotShow() {
                                     </div>
                             </div>
                         </main>
-                        <Footer />
                     </div>   
                 )
             }     

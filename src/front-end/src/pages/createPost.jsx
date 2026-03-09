@@ -1,5 +1,3 @@
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/footer.jsx";
 import Gallery from "@/components/utils/gallery";
 import letterIcon from "@/components/ui/letter.svg";
 import cancelButton from "@/components/ui/cancelButton.svg";
@@ -102,8 +100,6 @@ export default function CreatePost( { stay } ) {
 
     return (
         <>
-            <Navbar isLoggedIn={true} isCreating={true} />
-
             <div className="flex flex-col items-center max-w-7xl mx-auto px-4 py-10 gap-30">
 
                 <Gallery photos={photos} orientation="vertical" onPhotoAdd={handlePhotoAdd} />
@@ -225,8 +221,6 @@ export default function CreatePost( { stay } ) {
                     />
                 </div>
             </div>
-
-            <Footer />
         </>
     );
 }

@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Layout from "./components/layout/Layout.jsx";
 import Home from "./pages/home.jsx";
 import Slots from "./pages/slots.jsx";
 import LangButton from "./components/layout/langButton.jsx";
@@ -11,20 +12,14 @@ import About from "./pages/about.jsx";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/slots",
-    element: <Slots />,
-  },
-  {
-    path: "/create-post",
-    element: <CreatePost />,
-  },
-  {
-    path: "/slot-show/:slotId",
-    element: <SlotShow />,
+    element: <Layout />,
+    children: [
+      { path: "/", element: <Home /> },
+      { path: "/slots", element: <Slots /> },
+      { path: "/create-post", element: <CreatePost /> },
+      { path: "/slot-show/:slotId", element: <SlotShow /> },
+      { path: "/about", element: <About /> },
+    ],
   },
   {
     path: "/chat/:ownerId",
@@ -38,13 +33,9 @@ const router = createBrowserRouter([
     path: "/sign-up",
     element: <Sign_in />,
   },
-  { 
+  {
     path: "/log-in",
     element: <Log_in />,
-  },
-  { 
-    path: "/about",
-    element: <About />,
   },
 ]);
 

@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Search from "../components/utils/searchBar.jsx";
-import Navbar from "../components/layout/Navbar.jsx";
 import Card from "../components/stays/card.jsx";
 import { stays } from "../components/stays/staysTemp.js";
-import Footer from "../components/layout/footer.jsx";
 
 const PAGE_SIZE = 6;
 
@@ -17,8 +15,7 @@ export default function Slots() {
     const hasNext = page < totalPages - 1;
 
     return (
-        <div className="slots h-screen flex flex-col relative">
-            <Navbar isLoggedIn={true} />
+        <div className="slots min-h-screen flex flex-col relative">
             <div className="flex justify-center items-center mt-9 mx-auto md:mt-22 w-full max-w-7xl p-2">
                 <Search />
             </div>
@@ -57,8 +54,6 @@ export default function Slots() {
                     </button>
                 </div>
             )}
-
-            <Footer />
         </div>
     );
 }

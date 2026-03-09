@@ -1,4 +1,3 @@
-import Navbar from "../components/layout/Navbar.jsx";
 import carton from "../components/ui/About_img/carton.jpg";
 import team1  from "../components/ui/About_img/team1.jpg";
 import team2  from "../components/ui/About_img/team2.jpg";
@@ -7,8 +6,6 @@ import team4  from "../components/ui/About_img/team4.jpg";
 export default function About() {
     return (
         <>
-            <Navbar isLoggedIn={false} isCreating={false} />
-
                 <div className="home h-screen overflow-hidden bg-[var(--color-bg)]  flex flex-col relative mt-20">
 
                 {/* HERO SECTION */}
