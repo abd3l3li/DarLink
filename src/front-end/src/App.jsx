@@ -9,6 +9,7 @@ import ChatPage from "./pages/chatPage.jsx";
 import Sign_in from "./pages/sign_in.jsx";
 import Log_in from "./pages/log_in.jsx";
 import About from "./pages/about.jsx";
+import MyListings from "./pages/myListings.jsx";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
       { path: "/create-post", element: <CreatePost /> },
       { path: "/slot-show/:slotId", element: <SlotShow /> },
       { path: "/about", element: <About /> },
+      { path: "/my-listings", element: <MyListings /> },
     ],
   },
   {

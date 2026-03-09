@@ -3,7 +3,7 @@ import mapLogo from "../ui/map-pinned.svg";
 import bedLogo from "../ui/bedLogo.svg";
 import stateLogo from "../ui/stateLogo.svg";
 
-export default function Card({ stay }) {
+export default function Card({ stay, isOwner = false }) {
 
     return (
 
@@ -53,7 +53,7 @@ export default function Card({ stay }) {
                     <div className="border-t border-[var(--color-muted)] opacity-50"></div>
 
                     <div className="flex items-center justify-between">
-                        <ReqButton />
+                        {!isOwner && <ReqButton />}
                         <span className="text-lg font-bold text-[var(--color-text)]">
                         {stay.price ? `${stay.price} MAD` : "N/A"}
                         </span>

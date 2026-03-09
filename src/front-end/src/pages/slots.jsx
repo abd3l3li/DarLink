@@ -24,7 +24,7 @@ export default function Slots() {
                 lg:grid-cols-3 lg:gap-15 gap-5 mt-10 px-5 w-full max-w-7xl mx-auto pb-10">
                 {pageStays.map((item) => (
                     <Link to={`/slot-show/${item.id}`} key={item.id}>
-                        <Card key={item.id} stay={item} />
+                        <Card key={item.id} stay={item} isOwner={item.admin === true} />
                     </Link>
                 ))}
             </div>
