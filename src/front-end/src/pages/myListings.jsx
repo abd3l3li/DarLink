@@ -2,14 +2,12 @@ import { Link } from "react-router-dom";
 import Card from "../components/stays/card.jsx";
 import { stays } from "../components/stays/staysTemp.js";
 
-// Filter stays to show only user's listings (placeholder: using admin flag to simulate ownership)
-// In real implementation, this would filter by current user's ID from backend
 const myListings = stays.filter((stay) => stay.admin === true);
 
 export default function MyListings() {
     return (
+        
         <div className="slots min-h-screen flex flex-col relative">
-            {/* Header */}
             <div className="w-full max-w-7xl mx-auto px-5 mt-9 md:mt-22 flex items-center gap-4">
                 <Link
                     to="/"
@@ -22,7 +20,6 @@ export default function MyListings() {
                 <h1 className="text-2xl font-bold text-[var(--color-text)]">Your Listings</h1>
             </div>
 
-            {/* Listings Grid */}
             {myListings.length > 0 ? (
                 <div className="grid grid-cols-1 place-items-center md:grid-cols-2 md:gap-10 lg:grid-cols-3 lg:gap-15 gap-5 mt-10 px-5 w-full max-w-7xl mx-auto pb-10">
                     {myListings.map((stay) => (
