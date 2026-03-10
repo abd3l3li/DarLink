@@ -1,4 +1,4 @@
-package com.DarLink.Darlink;
+package com.DarLink.DarLink;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import io.github.cdimascio.dotenv.Dotenv; // Import this
 
 @SpringBootApplication
-public class DarlinkApplication {
+public class DarLinkApplication {
 
     public static void main(String[] args) {
         // 1. Load .env file
@@ -17,6 +17,6 @@ public class DarlinkApplication {
         dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 
         // 3. Start Spring Boot
-        SpringApplication.run(DarlinkApplication.class, args);
+        SpringApplication.run(DarLinkApplication.class, args);
     }
 }

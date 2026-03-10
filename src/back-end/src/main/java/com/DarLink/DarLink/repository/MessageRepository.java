@@ -1,5 +1,5 @@
-package com.DarLink.Darlink.repository;
-import com.DarLink.Darlink.entity.Message;
+package com.DarLink.DarLink.repository;
+import com.DarLink.DarLink.entity.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;

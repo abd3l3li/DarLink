@@ -1,5 +1,5 @@
 
-package com.DarLink.Darlink.entity;
+package com.DarLink.DarLink.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

@@ -1,10 +1,10 @@
-package com.DarLink.Darlink.config;
+package com.DarLink.DarLink.config;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.DarLink.Darlink.entity.User;
-import com.DarLink.Darlink.repository.UserRepository;
+import com.DarLink.DarLink.entity.User;
+import com.DarLink.DarLink.repository.UserRepository;
 
 @Component
 public class UserTester implements CommandLineRunner {

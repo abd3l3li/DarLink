@@ -1,9 +1,9 @@
-package com.DarLink.Darlink.Controller;
+package com.DarLink.DarLink.Controller;
 
-import com.DarLink.Darlink.dto.AuthResponse;
-import com.DarLink.Darlink.dto.LoginRequest;
-import com.DarLink.Darlink.dto.RegisterRequest;
-import com.DarLink.Darlink.service.AuthService;
+import com.DarLink.DarLink.dto.AuthResponse;
+import com.DarLink.DarLink.dto.LoginRequest;
+import com.DarLink.DarLink.dto.RegisterRequest;
+import com.DarLink.DarLink.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

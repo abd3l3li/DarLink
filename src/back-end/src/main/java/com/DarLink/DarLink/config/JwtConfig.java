@@ -1,10 +1,10 @@
-package com.DarLink.Darlink.config;
+package com.DarLink.DarLink.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties; // Import for @ConfigurationProperties
 import org.springframework.context.annotation.Configuration; // Import for @Configuration
 
 @Configuration
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "jwt") // Bind properties with prefix "jwt" to this class
 public class JwtConfig {
 
     private String secret;

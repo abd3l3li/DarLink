@@ -1,6 +1,6 @@
-package com.DarLink.Darlink.config;
+package com.DarLink.DarLink.config;
 
-import com.DarLink.Darlink.security.CustomUserDetailsService;
+import com.DarLink.DarLink.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

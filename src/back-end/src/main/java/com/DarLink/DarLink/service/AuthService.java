@@ -1,11 +1,11 @@
-package com.DarLink.Darlink.service;
+package com.DarLink.DarLink.service;
 
-import com.DarLink.Darlink.dto.AuthResponse;
-import com.DarLink.Darlink.dto.LoginRequest;
-import com.DarLink.Darlink.dto.RegisterRequest;
-import com.DarLink.Darlink.entity.User;
-import com.DarLink.Darlink.repository.UserRepository;
-import com.DarLink.Darlink.security.JwtService;
+import com.DarLink.DarLink.dto.AuthResponse;
+import com.DarLink.DarLink.dto.LoginRequest;
+import com.DarLink.DarLink.dto.RegisterRequest;
+import com.DarLink.DarLink.entity.User;
+import com.DarLink.DarLink.repository.UserRepository;
+import com.DarLink.DarLink.security.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;

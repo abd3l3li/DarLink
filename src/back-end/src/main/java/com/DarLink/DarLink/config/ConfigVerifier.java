@@ -1,4 +1,4 @@
-package com.DarLink.Darlink.config;
+package com.DarLink.DarLink.config;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;

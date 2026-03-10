@@ -1,4 +1,4 @@
-package com.DarLink.Darlink.entity;
+package com.DarLink.DarLink.entity;
 
 import java.time.LocalDateTime;
 

@@ -1,4 +1,4 @@
-package com.DarLink.Darlink.entity;
+package com.DarLink.DarLink.entity;
 
 import java.time.LocalDateTime;
 
@@ -41,7 +41,7 @@ public class Stay {
     private String photoUrl; 
     
     // RELATIONS: A Stay belongs to one Host (User)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)  // fetch = FetchType.LAZY means we only load the host when we need it
     @JoinColumn(name = "host_id", nullable = false)
     private User host;
 

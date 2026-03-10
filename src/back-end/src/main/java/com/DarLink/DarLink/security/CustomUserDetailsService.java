@@ -1,7 +1,7 @@
-package com.DarLink.Darlink.security;
+package com.DarLink.DarLink.security;
 
-import com.DarLink.Darlink.entity.User;
-import com.DarLink.Darlink.repository.UserRepository;
+import com.DarLink.DarLink.entity.User;
+import com.DarLink.DarLink.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

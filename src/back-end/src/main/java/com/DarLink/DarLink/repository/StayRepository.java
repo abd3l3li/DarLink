@@ -1,11 +1,11 @@
-package com.DarLink.Darlink.repository;
+package com.DarLink.DarLink.repository;
 
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.DarLink.Darlink.entity.Stay;
+import com.DarLink.DarLink.entity.Stay;
 
 @Repository
 public interface StayRepository extends JpaRepository<Stay, Long> {
@@ -17,5 +17,5 @@ public interface StayRepository extends JpaRepository<Stay, Long> {
     List<Stay> findByHostId(Long hostId);
 
     // Find stays cheaper than a certain price
-    List<Stay> findByPricePerNightLessThan(Double price);
+    List<Stay> findByPricePerNightLessThan(Double pricePerNight);
 }

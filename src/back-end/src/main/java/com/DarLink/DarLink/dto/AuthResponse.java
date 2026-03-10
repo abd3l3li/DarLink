@@ -1,4 +1,4 @@
-package com.DarLink.Darlink.dto;
+package com.DarLink.DarLink.dto;
 
 public class AuthResponse {
 

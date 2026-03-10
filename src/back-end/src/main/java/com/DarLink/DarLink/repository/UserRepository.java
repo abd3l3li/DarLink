@@ -1,11 +1,11 @@
-package com.DarLink.Darlink.repository;
+package com.DarLink.DarLink.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.DarLink.Darlink.entity.User;
+import com.DarLink.DarLink.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {

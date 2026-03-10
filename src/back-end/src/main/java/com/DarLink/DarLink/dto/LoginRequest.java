@@ -1,4 +1,4 @@
-package com.DarLink.Darlink.dto;
+package com.DarLink.DarLink.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

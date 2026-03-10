@@ -1,6 +1,6 @@
-package com.DarLink.Darlink.security;
+package com.DarLink.DarLink.security;
 
-import com.DarLink.Darlink.config.JwtConfig;
+import com.DarLink.DarLink.config.JwtConfig;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
