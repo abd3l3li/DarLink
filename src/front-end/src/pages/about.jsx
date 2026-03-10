@@ -10,7 +10,7 @@ export default function About() {
 
                 {/* HERO SECTION */}
                 <section className="max-w-7xl mx-auto p-5">
-                    <div className="bg-white rounded-xl p-8 flex items-center gap-10 shadow-sm">
+                    <div className="bg-[var(--color-bg)] rounded-xl p-8 flex items-center gap-10 shadow-sm">
                         {/* Image */}
                         <img
                         src={carton}
@@ -20,7 +20,7 @@ export default function About() {
 
                         {/* Text */}
                         <div>
-                            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+                            <h1 className="text-4xl font-bold text-[var(--color-text)] mb-4">
                                 About DarLink
                             </h1>
 
@@ -82,42 +82,57 @@ export default function About() {
                 <div className="flex justify-center gap-16">
 
                     <div>
-                    <img
-                        src={team1}
-                        className="w-20 h-20 rounded-full object-cover mx-auto"
-                    />
-                    <p className="mt-2 text-gray-700">a-ait-bo</p>
+                        <a href="https://github.com/abdelouahedait" target="_blank">
+                            <img
+                                src={team1}
+                                className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                                rounded-full border bg-white
+                                transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                                </img>
+                                <p className="mt-2 text-gray-700">a-ait-bo</p>
+                        </a>
                     </div>
 
                     <div>
-                    <img
-                        src={team2}
-                        className="w-20 h-20 rounded-full object-cover mx-auto"
-                    />
-                    <p className="mt-2 text-gray-700">abel-baz</p>
+                        <a href="https://github.com/abd3l3li" target="_blank">
+                            <img
+                                src={team2}
+                                    className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                                    rounded-full border bg-white
+                                    transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                            />
+                            <p className="mt-2 text-gray-700">abel-baz</p>
+                        </a>
                     </div>
 
                     <div>
-                    <img
-                        src={team3}
-                        className="w-20 h-20 rounded-full object-cover mx-auto"
-                    />
-                    <p className="mt-2 text-gray-700">ysahraou</p>
+                        <a href="https://github.com/Lc0d3r" target="_blank">
+                            <img
+                                src={team3}
+                                className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                                    rounded-full border bg-white
+                                    transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                            />
+                            <p className="mt-2 text-gray-700">ysahraou</p>
+                        </a>
                     </div>
 
                     <div>
+                        <a href="https://github.com/TGK1921" target="_blank">
                     <img
                         src={team4}
-                        className="w-20 h-20 rounded-full object-cover mx-auto"
+                        className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                            rounded-full border bg-white
+                            transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
                     />
                     <p className="mt-2 text-gray-700">her-rehy</p>
+                    </a>
                     </div>
 
                 </div>
                 </section>
 
                 </div>
-
         </>
         
     );

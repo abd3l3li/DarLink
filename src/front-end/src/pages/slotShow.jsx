@@ -1,8 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { getStayById } from "../components/stays/staysTemp.js";
-
 import { useState } from "react";
-import ShowGallery from "../components/utils/showGallery";
+import ShowGallery from "../components/stays/showGallery.jsx";
 import CreatePost from "./createPost";
 import mapLogo from "../components/ui/map-pinned.svg";
 import slotsCircle from "../components/ui/slotsCircle.svg";

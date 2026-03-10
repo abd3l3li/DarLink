@@ -1,19 +1,28 @@
-#To-do make build, make up and make down
-FILESPATH_PATH=.
-# make build
 build:
-	@FILESPATH="$(FILESPATH_PATH)" docker compose -f compose.yml build
-	@echo "Build completed successfully."
+	docker compose build
 
-# make up
-up: 
-	@FILESPATH="$(FILESPATH_PATH)" docker compose -f compose.yml up
+up:
+	docker compose up
 
-# make down
+run: build
+	docker compose up
+
+up-d:
+	docker compose up
+
 down:
-	@FILESPATH="$(FILESPATH_PATH)" docker compose -f compose.yml down
-ps:
-	@FILESPATH="$(FILESPATH_PATH)" docker compose ps -a
-	@echo "list all containers"
+	docker compose down
+
 clean:
-	@FILESPATH="$(FILESPATH_PATH)" docker compose -f compose.yml down --rmi 'all' -v
+	docker compose down -v
+	docker volume prune
+
+fclean: clean
+	docker compose down --rmi 'all' -v
+	docker image prune
+
+ps:
+	docker compose ps -a
+
+logs:
+	docker compose logs $(sr)

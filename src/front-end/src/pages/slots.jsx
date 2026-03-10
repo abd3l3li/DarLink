@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Search from "../components/utils/searchBar.jsx";
+import Search from "../components/stays/searchBar.jsx";
 import Card from "../components/stays/card.jsx";
 import { stays } from "../components/stays/staysTemp.js";
 
@@ -8,9 +8,11 @@ const PAGE_SIZE = 6;
 
 export default function Slots() {
     const [page, setPage] = useState(0);
+    
+    const availableStays = stays.filter((item) => item.avSlots > 0);
     const start = page * PAGE_SIZE;
-    const pageStays = stays.slice(start, start + PAGE_SIZE);
-    const totalPages = Math.ceil(stays.length / PAGE_SIZE);
+    const pageStays = availableStays.slice(start, start + PAGE_SIZE);
+    const totalPages = Math.ceil(availableStays.length / PAGE_SIZE);
     const hasPrev = page > 0;
     const hasNext = page < totalPages - 1;
 

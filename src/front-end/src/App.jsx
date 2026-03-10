@@ -10,6 +10,10 @@ import Sign_in from "./pages/sign_in.jsx";
 import Log_in from "./pages/log_in.jsx";
 import About from "./pages/about.jsx";
 import MyListings from "./pages/myListings.jsx";
+import NotFound from "./pages/NotFound.jsx";
+import Terms from "./components/layout/Terms.jsx";
+import Privacy from "./components/layout/Privacy.jsx";
+import Contact from "./components/layout/Contact.jsx";
 
 const router = createBrowserRouter([
   {
@@ -26,19 +30,44 @@ const router = createBrowserRouter([
   {
     path: "/chat/:ownerId",
     element: <ChatPage />,
+    errorElement: <NotFound />,
   },
   {
     path: "/chat/:ownerId/:stayId",
     element: <ChatPage />,
+    errorElement: <NotFound />,
   },
   {
     path: "/sign-up",
     element: <Sign_in />,
+    errorElement: <NotFound />,
   },
   {
     path: "/log-in",
     element: <Log_in />,
+    errorElement: <NotFound />,
   },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+  {
+    path: "/terms",
+    element: <Terms />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/privacy",
+    element: <Privacy />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
+    errorElement: <NotFound />,
+  }
+
+
 ]);
 
 
