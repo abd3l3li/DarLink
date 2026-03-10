@@ -8,9 +8,11 @@ const PAGE_SIZE = 6;
 
 export default function Slots() {
     const [page, setPage] = useState(0);
+    
+    const availableStays = stays.filter((item) => item.avSlots > 0);
     const start = page * PAGE_SIZE;
-    const pageStays = stays.slice(start, start + PAGE_SIZE);
-    const totalPages = Math.ceil(stays.length / PAGE_SIZE);
+    const pageStays = availableStays.slice(start, start + PAGE_SIZE);
+    const totalPages = Math.ceil(availableStays.length / PAGE_SIZE);
     const hasPrev = page > 0;
     const hasNext = page < totalPages - 1;
 
@@ -24,7 +26,7 @@ export default function Slots() {
                 lg:grid-cols-3 lg:gap-15 gap-5 mt-10 px-5 w-full max-w-7xl mx-auto pb-10">
                 {pageStays.map((item) => (
                     <Link to={`/slot-show/${item.id}`} key={item.id}>
-                        <Card key={item.id} stay={item} />
+                        <Card stay={item} />
                     </Link>
                 ))}
             </div>

@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { getStayById } from "../components/stays/staysTemp.js";
-
 import { useState } from "react";
 import ShowGallery from "../components/stays/showGallery.jsx";
 import CreatePost from "./createPost";

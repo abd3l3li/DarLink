@@ -1,4 +1,4 @@
-import Gallery from "@/components/utils/gallery";
+import Gallery from "@/components/stays/gallery.jsx";
 import letterIcon from "@/components/ui/letter.svg";
 import cancelButton from "@/components/ui/cancelButton.svg";
 import publishButton from "@/components/ui/publishButton.svg";
