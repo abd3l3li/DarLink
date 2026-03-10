@@ -21,7 +21,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         name: userData.name,
         email: userData.email,
         password: "************",
-        authOption: "-select an option-",
+        authOption: "option2",
         image: userData.image || "",
     });
 
@@ -283,7 +283,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     <span className="text-[var(--color-text)]">Log out</span>
                 </button>
             </div>
-            
+
         </div>
     );
 }
