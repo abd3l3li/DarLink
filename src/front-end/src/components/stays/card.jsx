@@ -1,4 +1,4 @@
-import ReqButton from "../utils/ReqButton.jsx";
+import ReqButton from "./ReqButton.jsx";
 import mapLogo from "../ui/map-pinned.svg";
 import bedLogo from "../ui/bedLogo.svg";
 import stateLogo from "../ui/stateLogo.svg";

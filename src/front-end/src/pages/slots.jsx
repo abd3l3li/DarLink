@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Search from "../components/utils/searchBar.jsx";
+import Search from "../components/stays/searchBar.jsx";
 import Card from "../components/stays/card.jsx";
 import { stays } from "../components/stays/staysTemp.js";
 

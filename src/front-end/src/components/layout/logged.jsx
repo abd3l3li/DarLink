@@ -1,4 +1,4 @@
-import Create from '../utils/create.jsx';
+import Create from '../stays/create.jsx';
 import Bell from '../utils/bell.jsx';
 import User from '../utils/user.jsx';
 import { Link } from 'react-router-dom';
