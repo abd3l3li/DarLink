@@ -266,7 +266,16 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     <span className="text-[var(--color-text)]">Chat</span>
                 </Link>
 
-                <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--color-bg)] transition-colors text-left">
+                <button
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--color-bg)] transition-colors text-left"
+                    onClick={() => {
+                        const footer = document.querySelector('footer');
+                        if (footer) {
+                            footer.scrollIntoView({ behavior: 'smooth' });
+                        }
+                        onClose();
+                    }}
+                >
                     <svg className="w-5 h-5 text-[var(--color-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
