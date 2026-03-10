@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-// Placeholder user data (will come from backend)
+// (will come from backend)
 const userData = {
     name: "abel-baz",
     email: "abel-baz@figma.me",
@@ -9,7 +9,9 @@ const userData = {
 };
 
 export default function ProfileDropdown({ isOpen, onClose }) {
+
     const [showEditProfile, setShowEditProfile] = useState(false);
+
     const [profile, setProfile] = useState({
         name: userData.name,
         email: userData.email,
@@ -19,12 +21,12 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         name: userData.name,
         email: userData.email,
         password: "************",
-        authOption: "something here",
+        authOption: "-select an option-",
         image: userData.image || "",
     });
 
     const handleEditClick = () => {
-        // Load current saved profile data into form when opening edit
+
         setFormData((prev) => ({
             ...prev,
             name: profile.name,
@@ -51,7 +53,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     };
 
     const handleCancelEdit = () => {
-        // Discard any unsaved changes by resetting form to last saved profile
+
         setFormData((prev) => ({
             ...prev,
             name: profile.name,
@@ -62,7 +64,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     };
 
     const handleSaveChanges = () => {
-        // Persist changes locally
+
         setProfile((prev) => ({
             ...prev,
             name: formData.name,
@@ -70,16 +72,15 @@ export default function ProfileDropdown({ isOpen, onClose }) {
             image: formData.image || "",
         }));
 
-        // TODO: Send data to backend
+        // TODO: send data to backend
         console.log("Saving changes:", formData);
 
-        // Close edit and dropdown after saving
         setShowEditProfile(false);
         onClose();
     };
 
     const handleLogout = () => {
-        // TODO: Handle logout with backend
+        // TODO: handle logout with backend
         console.log("Logging out...");
         onClose();
     };
@@ -93,11 +94,12 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
     if (!isOpen) return null;
 
-    // Edit Profile View
+    // edit mode view
     if (showEditProfile) {
         return (
             <div className="absolute right-0 top-14 w-72 bg-[var(--color-surface)] rounded-2xl shadow-xl border border-[var(--color-border-gray)] z-50 overflow-hidden">
-                {/* Header */}
+                
+
                 <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-gray)]">
                     <button
                         onClick={handleCancelEdit}
@@ -109,7 +111,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     <div className="w-5"></div>
                 </div>
 
-                {/* Profile Image */}
                 <div className="flex flex-col items-center py-4">
                     <label className="relative cursor-pointer">
                         {formData.image && formData.image.trim().length > 0 ? (
@@ -119,7 +120,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                                 className="w-20 h-20 rounded-full object-cover border-2 border-[var(--color-border-gray)]"
                             />
                         ) : (
-                            <div className="w-20 h-20 rounded-full border-2 border-[var(--color-border-gray)] bg-[var(--color-bg)] flex items-center justify-center text-2xl font-semibold text-[var(--color-text)]">
+                            <div className="w-20 h-20 rounded-full border-2 border-[var(--color-border-gray)] bg-[var(--color-bg)] 
+                                            flex items-center justify-center text-2xl font-semibold text-[var(--color-text)]">
                                 {getInitial(formData.name)}
                             </div>
                         )}
@@ -135,7 +137,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     </label>
                 </div>
 
-                {/* Form */}
+
                 <div className="px-4 pb-4 space-y-3">
                     <div>
                         <label className="text-sm font-medium text-[var(--color-text)]">Name</label>
@@ -144,7 +146,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                             name="name"
                             value={formData.name}
                             onChange={handleInputChange}
-                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
+                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] 
+                                        bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
                         />
                     </div>
                     <div>
@@ -154,7 +157,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                             name="email"
                             value={formData.email}
                             onChange={handleInputChange}
-                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
+                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] 
+                                        bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
                         />
                     </div>
                     <div>
@@ -164,18 +168,20 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                             name="password"
                             value={formData.password}
                             onChange={handleInputChange}
-                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
+                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] 
+                                        bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
                         />
                     </div>
                     <div>
-                        <label className="text-sm font-medium text-[var(--color-text)]">Place holder for auth</label>
+                        <label className="text-sm font-medium text-[var(--color-text)]">authOption</label>
                         <select
                             name="authOption"
                             value={formData.authOption}
                             onChange={handleInputChange}
-                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
+                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] 
+                                        bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
                         >
-                            <option value="something here">something here</option>
+                            <option value="option1">Option 1</option>
                             <option value="option2">Option 2</option>
                             <option value="option3">Option 3</option>
                         </select>
@@ -192,10 +198,11 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         );
     }
 
-    // Main Profile Dropdown View
+    // default dropdown view
     return (
-        <div className="absolute right-0 top-14 w-64 bg-[var(--color-surface)] rounded-2xl shadow-xl border border-[var(--color-border-gray)] z-50 overflow-hidden">
-            {/* Header with back button */}
+        <div className="absolute right-0 top-14 w-64 bg-[var(--color-surface)] rounded-2xl shadow-xl 
+                        border border-[var(--color-border-gray)] z-50 overflow-hidden">
+            
             <div className="flex items-center px-4 py-3 border-b border-[var(--color-border-gray)]">
                 <button
                     onClick={onClose}
@@ -206,7 +213,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                 <span className="ml-3 font-semibold text-[var(--color-text)]">Profile</span>
             </div>
 
-            {/* User Info */}
+            {/* info */}
             <div className="flex flex-col items-center py-4">
                 {displayProfileImage ? (
                     <img
@@ -215,14 +222,15 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                         className="w-20 h-20 rounded-full object-cover border-2 border-[var(--color-border-gray)]"
                     />
                 ) : (
-                    <div className="w-20 h-20 rounded-full border-2 border-[var(--color-border-gray)] bg-[var(--color-bg)] flex items-center justify-center text-2xl font-semibold text-[var(--color-text)]">
+                    <div className="w-20 h-20 rounded-full border-2 border-[var(--color-border-gray)] bg-[var(--color-bg)] 
+                                    flex items-center justify-center text-2xl font-semibold text-[var(--color-text)]">
                         {getInitial(profile.name)}
                     </div>
                 )}
                 <span className="mt-2 font-medium text-[var(--color-text)]">{profile.name}</span>
             </div>
 
-            {/* Menu Items */}
+            {/* menu */}
             <div className="px-2 pb-3">
                 <button
                     onClick={handleEditClick}
@@ -240,7 +248,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--color-bg)] transition-colors"
                 >
                     <svg className="w-5 h-5 text-[var(--color-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 
+                                                012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                     <span className="text-[var(--color-text)]">Show your listings</span>
                 </Link>
@@ -251,7 +260,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--color-bg)] transition-colors text-left"
                 >
                     <svg className="w-5 h-5 text-[var(--color-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16h6a5 5 0 005-5V7a2 2 0 00-2-2H6a2 2 0 00-2 2v4a5 5 0 005 5z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16h6a5 5 0 005-5V7a2 2 0 00-2-2H6a2 
+                                                2 0 00-2 2v4a5 5 0 005 5z" />
                     </svg>
                     <span className="text-[var(--color-text)]">Chat</span>
                 </Link>
@@ -273,6 +283,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     <span className="text-[var(--color-text)]">Log out</span>
                 </button>
             </div>
+            
         </div>
     );
 }
