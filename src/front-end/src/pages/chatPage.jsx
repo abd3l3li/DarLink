@@ -213,7 +213,8 @@ export default function ChatPage() {
   const targetOwner = getOwnerById(ownerId);
   const contextListing = stayId ? getStayById(stayId) : null;
   
-  // Initialize contacts
+  // initialize contacts
+  // Boolean for tracking falsy values
   const initialContacts = useMemo(() => {
     const contactsList = targetOwner 
       ? [INITIAL_CONTACTS.find(c => c.id === ownerId), ...INITIAL_CONTACTS.filter(c => c.id !== ownerId)].filter(Boolean)

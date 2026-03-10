@@ -1,15 +1,11 @@
-import Navbar from "../components/layout/Navbar.jsx";
 import carton from "../components/ui/About_img/carton.jpg";
 import team1  from "../components/ui/About_img/team1.jpg";
 import team2  from "../components/ui/About_img/team2.jpg";
 import team3  from "../components/ui/About_img/team3.jpg";
 import team4  from "../components/ui/About_img/team4.jpg";
-import Footer from "../components/layout/Footer.jsx";
 export default function About() {
     return (
         <>
-            <Navbar isLoggedIn={false} isCreating={false} />
-
                 <div className="home h-screen overflow-hidden bg-[var(--color-bg)]  flex flex-col relative mt-20">
 
                 {/* HERO SECTION */}
@@ -86,43 +82,57 @@ export default function About() {
                 <div className="flex justify-center gap-16">
 
                     <div>
-                    <img
-                        src={team1}
-                        className="w-20 h-20 rounded-full object-cover mx-auto"
-                    />
-                    <p className="mt-2 text-gray-700">a-ait-bo</p>
+                        <a href="https://github.com/abdelouahedait" target="_blank">
+                            <img
+                                src={team1}
+                                className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                                rounded-full border bg-white
+                                transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                                </img>
+                                <p className="mt-2 text-gray-700">a-ait-bo</p>
+                        </a>
                     </div>
 
                     <div>
-                    <img
-                        src={team2}
-                        className="w-20 h-20 rounded-full object-cover mx-auto"
-                    />
-                    <p className="mt-2 text-gray-700">abel-baz</p>
+                        <a href="https://github.com/abd3l3li" target="_blank">
+                            <img
+                                src={team2}
+                                    className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                                    rounded-full border bg-white
+                                    transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                            />
+                            <p className="mt-2 text-gray-700">abel-baz</p>
+                        </a>
                     </div>
 
                     <div>
-                    <img
-                        src={team3}
-                        className="w-20 h-20 rounded-full object-cover mx-auto"
-                    />
-                    <p className="mt-2 text-gray-700">ysahraou</p>
+                        <a href="https://github.com/Lc0d3r" target="_blank">
+                            <img
+                                src={team3}
+                                className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                                    rounded-full border bg-white
+                                    transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                            />
+                            <p className="mt-2 text-gray-700">ysahraou</p>
+                        </a>
                     </div>
 
                     <div>
+                        <a href="https://github.com/TGK1921" target="_blank">
                     <img
                         src={team4}
-                        className="w-20 h-20 rounded-full object-cover mx-auto"
+                        className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                            rounded-full border bg-white
+                            transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
                     />
                     <p className="mt-2 text-gray-700">her-rehy</p>
+                    </a>
                     </div>
 
                 </div>
                 </section>
 
                 </div>
-
-            <Footer />
         </>
         
     );

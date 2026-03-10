@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Layout from "./components/layout/Layout.jsx";
 import Home from "./pages/home.jsx";
 import Slots from "./pages/slots.jsx";
 import LangButton from "./components/layout/langButton.jsx";
@@ -9,53 +10,62 @@ import Sign_in from "./pages/sign_in.jsx";
 import Log_in from "./pages/log_in.jsx";
 import About from "./pages/about.jsx";
 import NotFound from "./pages/NotFund.jsx";
-import Footer from "./components/layout/Footer.jsx";
+import Terms from "./components/layout/Terms.jsx";
+import Privacy from "./components/layout/Privacy.jsx";
+import Contact from "./components/layout/Contact.jsx";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/slots",
-    element: <Slots />,
-  },
-  {
-    path: "/create-post",
-    element: <CreatePost />,
-  },
-  {
-    path: "/slot-show/:slotId",
-    element: <SlotShow />,
+    element: <Layout />,
+    children: [
+      { path: "/", element: <Home /> , errorElement: <NotFound />},
+      { path: "/slots", element: <Slots />, errorElement: <NotFound /> },
+      { path: "/create-post", element: <CreatePost />, errorElement: <NotFound /> },
+      { path: "/slot-show/:slotId", element: <SlotShow />, errorElement: <NotFound /> },
+      { path: "/about", element: <About />, errorElement: <NotFound /> },
+    ],
   },
   {
     path: "/chat/:ownerId",
     element: <ChatPage />,
+    errorElement: <NotFound />,
   },
   {
     path: "/chat/:ownerId/:stayId",
     element: <ChatPage />,
+    errorElement: <NotFound />,
   },
   {
     path: "/sign-up",
     element: <Sign_in />,
+    errorElement: <NotFound />,
   },
-  { 
+  {
     path: "/log-in",
     element: <Log_in />,
-  },
-  { 
-    path: "/about",
-    element: <About />,
+    errorElement: <NotFound />,
   },
   {
     path: "*",
     element: <NotFound />,
   },
   {
-    path: "/footer",
-    element: <Footer />,
+    path: "/terms",
+    element: <Terms />,
+    errorElement: <NotFound />,
   },
+  {
+    path: "/privacy",
+    element: <Privacy />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
+    errorElement: <NotFound />,
+  }
+
+
 ]);
 
 
