@@ -1,16 +1,14 @@
-import Navbar from "../components/layout/Navbar";
-import Footer from "../components/layout/footer.jsx";
 import Gallery from "@/components/utils/gallery";
 import letterIcon from "@/components/ui/letter.svg";
 import cancelButton from "@/components/ui/cancelButton.svg";
 import publishButton from "@/components/ui/publishButton.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
 
 const Options = [
     { name: "location", label: "Location", placeholder: "Select City", options: ["Casablanca", "Rabat", "Marrakech", "Fès", "Tanger", "Agadir", "Oujda", "Kenitra", "Ben Guerir"] },
-    { name: "type", label: "Room Type", placeholder: "Shared or Private", options: ["Private Room", "Shared Room", "Both"] },
+    { name: "type", label: "Room Type", placeholder: "Shared or Private", options: ["Private", "Shared", "Both"] },
 ];
 
 const INCLUDED_OPTIONS = [
@@ -29,25 +27,34 @@ const INITIAL_VALUES = { location: "", type: "", price: "", avSlots: "" };
 
 
 
-
-export default function CreatePost() {
-
-        // lifted from Gallery
-    const [photos, setPhotos] = useState([]);
-
-    const fetchPhotos = () => {
-        fetch("http://backend:3001/photos")
-            .then(res => res.json())
-            .then(data => setPhotos(data))
-            .catch(() => setPhotos([]));
-    };
-
-
+export default function CreatePost( { stay } ) {
 
     const [values, setValues] = useState(INITIAL_VALUES);
     const [included, setIncluded] = useState([]);
     const [expectations, setExpectations] = useState([]);
     const [details, setDetails] = useState("");
+    // lifted up from Gallery.jsx
+    const [photos, setPhotos] = useState([]);
+
+    // Prefill logic
+    useEffect(() => {
+        if (stay && Object.keys(stay).length > 0) {
+            setValues({
+                location: stay.city || "",
+                type: stay.type || "",
+                price: stay.price || "",
+                avSlots: stay.avSlots || "",
+            });
+            setIncluded(stay.included || []);
+            setExpectations(stay.expectations || []);
+            setDetails(stay.details || "");
+            setPhotos(stay.photos || []);
+        }
+    }, [stay]);
+
+    const handlePhotoAdd = (dataUrl) => {
+        setPhotos((prev) => (prev.length < 5 ? [...prev, dataUrl] : prev));
+    };
 
     const handleChange = (e) => setValues({ ...values, [e.target.name]: e.target.value });
 
@@ -61,14 +68,17 @@ export default function CreatePost() {
         setIncluded([]);
         setExpectations([]);
         setDetails("");
-        // setPhotos([]); // cleared from the UI, but not the server
+        setPhotos([]);
     };
 
     const publishHandler = () => {
 
-        if (!values.location || !values.type || !values.price 
-            || !values.avSlots || photos.length === 0) {
-            alert("Please fill in location, room type, price, available slots, and upload at least one photo.");
+        if (!values.location || !values.type || !values.price || !values.avSlots) {
+            alert("Please fill in location, room type, price, and available slots.");
+            return;
+        }
+        if (photos.length === 0) {
+            alert("Please upload at least one photo.");
             return;
         }
 
@@ -90,16 +100,15 @@ export default function CreatePost() {
 
     return (
         <>
-            <Navbar isLoggedIn={true} isCreating={true} />
-
             <div className="flex flex-col items-center max-w-7xl mx-auto px-4 py-10 gap-30">
 
-                <Gallery photos={photos} fetchPhotos={fetchPhotos} orientation="vertical" />
+                <Gallery photos={photos} orientation="vertical" onPhotoAdd={handlePhotoAdd} />
 
                 {/* Filter bar */}
-                <div className="flex items-center justify-around w-full md:h-[8rem] bg-[var(--color-surface)] 
+                <div className="flex items-center justify-around w-full md:h-[8rem] 
+                                bg-[var(--color-surface)] 
                                 rounded-4xl shadow-lg py-40 md:py-3 px-6">
-                    <div className="flex items-center justify-around w-full gap-4 flex-wrap">
+                    <div className="grid grid-cols-2 md:flex md:items-center md:justify-around w-full gap-4">
                         {Options.map(({ name, label, placeholder, options }) => (
                             <div key={name} className="flex flex-col text-left">
                                 <label className="mb-2 pl-2 text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
@@ -134,7 +143,7 @@ export default function CreatePost() {
                                     placeholder="e.g. 1500"
                                     min="0"
                                 />
-                                <span className="pr-4 text-sm font-semibold text-[var(--color-muted)]">MAD</span>
+                                <span className="pr-4 text-sm font-semibold text-[var(--color-muted)] hidden md:inline">MAD</span>
                             </div>
                         </div>
 
@@ -212,8 +221,6 @@ export default function CreatePost() {
                     />
                 </div>
             </div>
-
-            <Footer />
         </>
     );
 }

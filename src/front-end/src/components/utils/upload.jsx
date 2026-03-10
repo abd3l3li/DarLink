@@ -1,26 +1,15 @@
 const MAX_PHOTOS = 5;
 
-export default function Upload({ photos = [], onUpload }) {
-
+export default function Upload({ photos = [], onPhotoAdd }) {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+        e.target.value = "";
+        if (photos.length >= MAX_PHOTOS) return;
 
-        const formData = new FormData();
-        formData.append('photo', file);
-
-        fetch('http://backend:3001/upload', {
-            method: 'POST',
-            body: formData,
-        })
-            .then(res => res.json())
-            .then(() => {
-                // both point to the same memory
-                if (onUpload) onUpload();
-            })
-            .catch(err => {
-                console.error('Upload failed:', err);
-            });
+        const reader = new FileReader();
+        reader.onload = () => onPhotoAdd(reader.result);
+        reader.readAsDataURL(file);
     };
 
     const atLimit = photos.length >= MAX_PHOTOS;
@@ -28,7 +17,7 @@ export default function Upload({ photos = [], onUpload }) {
     return (
         <div className="upload-section flex flex-col gap-3 w-full max-w-[600px]">
             <p className="text-sm text-[var(--color-muted)]">
-                {photos.length}/{MAX_PHOTOS} Uploaded Photos
+                {photos.length}/{MAX_PHOTOS} Photos
             </p>
             <div className="upload-area w-full h-[250px] sm:h-[350px] lg:h-[400px] bg-[var(--color-border-surface)] flex items-center 
                             justify-center rounded-xl border-2 border-dashed border-[var(--color-border-gray)]">
