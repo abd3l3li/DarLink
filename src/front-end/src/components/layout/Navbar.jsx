@@ -1,3 +1,4 @@
+import { NavLink, Link } from "react-router-dom";
 import { useState } from "react";
 import logo from "../ui/logo.svg";
 import Bell from "../utils/bell.jsx";
@@ -9,21 +10,50 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <nav className="navbar fixed top-0 w-full z-99 bg-[var(--color-surface)] shadow-md">
-            <div className="flex items-center justify-between  max-w-[103rem] w-full mx-auto p-3 py-2">
+        <nav className="navbar fixed top-0 left-0 right-0 z-99 flex-shrink-0 bg-[var(--color-surface)] shadow-md">
+            <div className="flex items-center justify-between min-w-0 max-w-[103rem] w-full mx-auto px-7 py-2">
 
-                <a href="/" className="logo md:block">
+                <Link to="/" className="logo md:block">
                     <img src={logo} alt="Logo" className="h-9 md:h-10 max-[300px]:hidden" draggable={false} />
-                </a>
+                </Link>
 
-                <ul className="nav-links hidden md:flex gap-15  max-[1245px]:gap-7 font-bold text-[1rem]">
-                    <li className="transition-all duration-300 hover:border-b-1 
-                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/">Home</a></li>
-                    <li className="transition-all duration-300 hover:border-b-1 
-                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/slots">Slots</a></li>
-                    <li className="transition-all duration-300 hover:border-b-1 
-                        hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)]"><a href="/about">About</a></li>
-            
+                <ul className="nav-links hidden md:flex gap-15 max-[1245px]:gap-7 font-bold text-[1rem]">
+                    <li>
+                        <NavLink 
+                            to="/" 
+                            className={({ isActive }) => 
+                                isActive 
+                                    ? "border-b-2 border-[var(--color-secondary)] text-[var(--color-secondary)] pb-1" 
+                                    : "transition-all duration-300 hover:border-b-2 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] pb-1"
+                            }
+                        >
+                            Home
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink 
+                            to="/slots" 
+                            className={({ isActive }) => 
+                                isActive 
+                                    ? "border-b-2 border-[var(--color-secondary)] text-[var(--color-secondary)] pb-1" 
+                                    : "transition-all duration-300 hover:border-b-2 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] pb-1"
+                            }
+                        >
+                            Slots
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink 
+                            to="/about" 
+                            className={({ isActive }) => 
+                                isActive 
+                                    ? "border-b-2 border-[var(--color-secondary)] text-[var(--color-secondary)] pb-1" 
+                                    : "transition-all duration-300 hover:border-b-2 hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary)] pb-1"
+                            }
+                        >
+                            About
+                        </NavLink>
+                    </li>
                 </ul>
 
                 <div className=" hidden md:block">

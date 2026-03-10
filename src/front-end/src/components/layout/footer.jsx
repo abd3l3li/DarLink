@@ -2,11 +2,11 @@ export default function Footer() {
 
     return (
         <footer
-            className="w-full border-t border-[var(--color-muted)]/20 
+            className="mt-auto flex-shrink-0 w-full min-w-0 border-t border-[var(--color-muted)]/20 
                         bg-[var(--color-surface)] text-[var(--color-primary)] 
                         opacity-80 hover:opacity-100 transition-opacity duration-300"
         >
-            <div className="max-w-7xl mx-auto px-7 
+            <div className="min-w-0 max-w-7xl mx-auto px-7 
                             flex flex-col p-4 md:flex-row 
                             items-center justify-between gap-4">
                 
