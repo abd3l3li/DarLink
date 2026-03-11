@@ -6,21 +6,19 @@ import team4  from "../components/ui/About_img/team4.jpg";
 export default function About() {
     return (
         <>
-                <div className="home h-screen overflow-hidden bg-[var(--color-bg)]  flex flex-col relative mt-20">
+                <div className="bg-(--color-bg) pt-20 pb-10">
 
                 {/* HERO SECTION */}
-                <section className="max-w-7xl mx-auto p-5">
-                    <div className="bg-[var(--color-bg)] rounded-xl p-8 flex items-center gap-10 shadow-sm">
-                        {/* Image */}
+                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <div className="bg-(--color-bg) rounded-xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-10 shadow-sm">
                         <img
                         src={carton}
                         alt="about"
-                        className="w-96 h-52 object-cover rounded-lg"
+                        className="w-full max-w-md md:w-96 h-52 object-cover rounded-lg shrink-0"
                         />
 
-                        {/* Text */}
-                        <div>
-                            <h1 className="text-4xl font-bold text-[var(--color-text)] mb-4">
+                        <div className="w-full">
+                            <h1 className="text-4xl font-bold text-(--color-text) mb-4">
                                 About DarLink
                             </h1>
 
@@ -36,15 +34,15 @@ export default function About() {
                 </section>
 
                 {/* FEATURES */}
-                <section className="text-center py-7">
+                <section className="text-center py-7 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-semibold text-gray-800 mb-10">
                         What We Offer
                     </h2>
 
-                    <div className="flex justify-center gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
 
-                        {/* Card 1 */}
-                        <div className="bg-white p-6 w-64 rounded-lg shadow-sm">
+                        {/* card 1 */}
+                        <div className="bg-white p-6 w-full max-w-xs rounded-lg shadow-sm">
                         <div className="text-blue-600 text-3xl mb-3">📅</div>
                         <h3 className="font-semibold text-lg mb-2">Easy Booking</h3>
                         <p className="text-gray-500 text-sm">
@@ -52,8 +50,8 @@ export default function About() {
                         </p>
                         </div>
 
-                        {/* Card 2 */}
-                        <div className="bg-white p-6 w-64 rounded-lg shadow-sm">
+                        {/* card 2 */}
+                        <div className="bg-white p-6 w-full max-w-xs rounded-lg shadow-sm">
                         <div className="text-blue-600 text-3xl mb-3">🛡️</div>
                         <h3 className="font-semibold text-lg mb-2">Community</h3>
                         <p className="text-gray-500 text-sm">
@@ -61,8 +59,8 @@ export default function About() {
                         </p>
                         </div>
 
-                        {/* Card 3 */}
-                        <div className="bg-white p-6 w-64 rounded-lg shadow-sm">
+                        {/* card 3 */}
+                        <div className="bg-white p-6 w-full max-w-xs rounded-lg shadow-sm">
                         <div className="text-blue-600 text-3xl mb-3">👥</div>
                         <h3 className="font-semibold text-lg mb-2">Secure Platform</h3>
                         <p className="text-gray-500 text-sm">
@@ -74,56 +72,56 @@ export default function About() {
                 </section>
 
                 {/* TEAM */}
-                <section className="text-center py-7">
+                <section className="text-center py-7 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-semibold text-gray-800 mb-10">
                     Our Team
                 </h2>
 
-                <div className="flex justify-center gap-16">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 justify-items-center">
 
                     <div>
-                        <a href="https://github.com/abdelouahedait" target="_blank">
+                        <a href="https://github.com/abdelouahedait" target="_blank" rel="noreferrer">
                             <img
                                 src={team1}
+                                alt="a-ait-bo"
                                 className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
-                                rounded-full border bg-white
-                                transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-                                </img>
+                                border bg-white transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                            />
                                 <p className="mt-2 text-gray-700">a-ait-bo</p>
                         </a>
                     </div>
 
                     <div>
-                        <a href="https://github.com/abd3l3li" target="_blank">
+                        <a href="https://github.com/abd3l3li" target="_blank" rel="noreferrer">
                             <img
                                 src={team2}
+                                alt="abel-baz"
                                     className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
-                                    rounded-full border bg-white
-                                    transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                                    border bg-white transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
                             />
                             <p className="mt-2 text-gray-700">abel-baz</p>
                         </a>
                     </div>
 
                     <div>
-                        <a href="https://github.com/Lc0d3r" target="_blank">
+                        <a href="https://github.com/Lc0d3r" target="_blank" rel="noreferrer">
                             <img
                                 src={team3}
+                                alt="ysahraou"
                                 className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
-                                    rounded-full border bg-white
-                                    transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                                    border bg-white transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
                             />
                             <p className="mt-2 text-gray-700">ysahraou</p>
                         </a>
                     </div>
 
                     <div>
-                        <a href="https://github.com/TGK1921" target="_blank">
+                        <a href="https://github.com/TGK1921" target="_blank" rel="noreferrer">
                     <img
                         src={team4}
+                        alt="her-rehy"
                         className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
-                            rounded-full border bg-white
-                            transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                            border bg-white transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
                     />
                     <p className="mt-2 text-gray-700">her-rehy</p>
                     </a>
