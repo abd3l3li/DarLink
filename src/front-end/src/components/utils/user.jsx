@@ -1,32 +1,19 @@
-import { useState, useRef, useEffect } from "react";
 import usr from "../ui/usr.svg";
 import ProfileDropdown from "./profileDropdown.jsx";
+import { useDropdown, DROPDOWN_TYPES } from "./dropdownContext.jsx";
 
 export default function User() {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsDropdownOpen(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const toggleDropdown = () => {
-        setIsDropdownOpen(!isDropdownOpen);
-    };
+    const { activeDropdown, toggleDropdown, closeDropdown } = useDropdown();
+    const isDropdownOpen = activeDropdown === DROPDOWN_TYPES.PROFILE;
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative" data-dropdown>
             <div 
                 className="bg-[var(--color-bg)] w-11 h-11 flex items-center justify-center rounded-full cursor-pointer"
-                onClick={toggleDropdown}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    toggleDropdown(DROPDOWN_TYPES.PROFILE);
+                }}
             >
                 <img 
                     src={usr} 
@@ -37,7 +24,7 @@ export default function User() {
             </div>
             <ProfileDropdown 
                 isOpen={isDropdownOpen} 
-                onClose={() => setIsDropdownOpen(false)} 
+                onClose={closeDropdown} 
             />
         </div>
     );

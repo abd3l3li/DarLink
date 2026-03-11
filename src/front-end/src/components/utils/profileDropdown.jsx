@@ -97,7 +97,11 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     // edit mode view
     if (showEditProfile) {
         return (
-            <div className="absolute right-0 top-14 w-72 bg-[var(--color-surface)] rounded-2xl shadow-xl border border-[var(--color-border-gray)] z-50 overflow-hidden">
+            <div 
+                className="absolute right-0 top-14 w-72 bg-[var(--color-surface)] rounded-2xl shadow-xl border border-[var(--color-border-gray)] z-50 overflow-hidden"
+                data-dropdown
+                onClick={(e) => e.stopPropagation()}
+            >
                 
 
                 <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-gray)]">
@@ -200,8 +204,12 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
     // default dropdown view
     return (
-        <div className="absolute right-0 top-14 w-64 bg-[var(--color-surface)] rounded-2xl shadow-xl 
-                        border border-[var(--color-border-gray)] z-50 overflow-hidden">
+        <div 
+            className="absolute right-0 top-14 w-64 bg-[var(--color-surface)] rounded-2xl shadow-xl 
+                        border border-[var(--color-border-gray)] z-50 overflow-hidden"
+            data-dropdown
+            onClick={(e) => e.stopPropagation()}
+        >
             
             <div className="flex items-center px-4 py-3 border-b border-[var(--color-border-gray)]">
                 <button

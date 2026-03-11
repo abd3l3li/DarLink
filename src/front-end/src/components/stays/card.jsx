@@ -53,7 +53,7 @@ export default function Card({ stay, isOwner = false }) {
                     <div className="border-t border-[var(--color-muted)] opacity-50"></div>
 
                     <div className="flex items-center justify-between">
-                        {!isOwner && <ReqButton />}
+                        {!isOwner && <ReqButton stay={stay} />}
                         <span className="text-lg font-bold text-[var(--color-text)]">
                         {stay.price ? `${stay.price} MAD` : "N/A"}
                         </span>

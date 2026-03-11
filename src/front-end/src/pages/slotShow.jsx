@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { getStayById } from "../components/stays/staysTemp.js";
 import { useState } from "react";
 import ShowGallery from "../components/stays/showGallery.jsx";
@@ -8,10 +8,13 @@ import slotsCircle from "../components/ui/slotsCircle.svg";
 import deleteButton from "../components/ui/deleteButton.svg";
 import editButton from "../components/ui/editButton.svg";
 import checkMark from "../components/ui/checkMark.svg";
+import { useNotifications, NOTIFICATION_TYPES } from "../components/utils/notificationContext.jsx";
 
 export default function SlotShow({ isOwner = false }) {
     const params = useParams();
     const stay = getStayById(params.slotId) || {};
+    const navigate = useNavigate();
+    const { addNotification } = useNotifications();
 
     const [editMode, setEditMode] = useState(false);
 
@@ -22,7 +25,22 @@ export default function SlotShow({ isOwner = false }) {
         console.log("delete request sent");
     }
     const reqHandle = () => {
-        console.log("slot request sent");
+        // auto-message
+        const autoMessage = `Hi! Is the stay in ${stay.city} (${stay.type}, ${stay.price} MAD) still available?`;
+        
+        sessionStorage.setItem("pendingChatMessage", JSON.stringify({
+            ownerId: stay.owner?.id,
+            stayId: stay.id,
+            message: autoMessage,
+        }));
+
+        addNotification({
+            type: NOTIFICATION_TYPES.SLOT_REQUEST,
+            message: `New slot request for ${stay.city}`,
+            link: `/chat/${stay.owner?.id}/${stay.id}`,
+        });
+
+        navigate(`/chat/${stay.owner?.id}/${stay.id}`);
     }
 
 
