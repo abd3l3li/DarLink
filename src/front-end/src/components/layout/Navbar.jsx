@@ -61,17 +61,25 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
                 </div>
 
                 {/* mobile: bell + hamburger */}
-                <div className="flex items-center gap-4 md:hidden">
-                    
-                    <Bell className="md:hidden max-[300px]:hidden"/>
-                    <button 
-                        className="flex flex-col gap-1 p-2 group"
-                        onClick={() => setIsOpen(!isOpen)} >
+                <div className="flex items-center gap-3 md:hidden">
+                    {!isLoggedIn && (
+                        <div className="flex items-center">
+                            <NotLogged />
+                        </div>
+                    )}
 
-                        <span className={`w-6 h-0.5 bg-[var(--color-text)] group-hover:bg-[var(--color-secondary)] transition-all ${isOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-                        <span className={`w-6 h-0.5 bg-[var(--color-text)] group-hover:bg-[var(--color-secondary)] transition-all ${isOpen ? 'opacity-0' : ''}`}></span>
-                        <span className={`w-6 h-0.5 bg-[var(--color-text)] group-hover:bg-[var(--color-secondary)] transition-all ${isOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
-                    </button>
+                    {isLoggedIn && <Bell className="md:hidden max-[300px]:hidden"/>}
+
+                    {isLoggedIn && (
+                        <button 
+                            className="flex flex-col gap-1 p-2 group"
+                            onClick={() => setIsOpen(!isOpen)} >
+
+                            <span className={`w-6 h-0.5 bg-[var(--color-text)] group-hover:bg-[var(--color-secondary)] transition-all ${isOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
+                            <span className={`w-6 h-0.5 bg-[var(--color-text)] group-hover:bg-[var(--color-secondary)] transition-all ${isOpen ? 'opacity-0' : ''}`}></span>
+                            <span className={`w-6 h-0.5 bg-[var(--color-text)] group-hover:bg-[var(--color-secondary)] transition-all ${isOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+                        </button>
+                    )}
                 </div>
                 
             </div>
@@ -80,11 +88,12 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
             {isOpen && (
                 <div className="md:hidden mt-5 px-5 pb-4">
                     <ul className="flex flex-col gap-4 font-bold text-lg">
-                        <li className="hover:text-[var(--color-secondary)]"><a href="/">Home</a></li>
-                        <li className="hover:text-[var(--color-secondary)]"><a href="/slots">Slots</a></li>
-                        <li className="hover:text-[var(--color-secondary)]"><a href="/profile">Profile</a></li>
-                        <li className="hover:text-[var(--color-secondary)]"><a href="/create">Create</a></li>
-                        <li className="hover:text-[var(--color-secondary)]"><a href="/about">About</a></li>
+                        <li className="hover:text-[var(--color-secondary)]"><Link to="/" onClick={() => setIsOpen(false)}>Home</Link></li>
+                        <li className="hover:text-[var(--color-secondary)]"><Link to="/slots" onClick={() => setIsOpen(false)}>Slots</Link></li>
+                        {/* <li className="hover:text-[var(--color-secondary)]"><Link to="/profile" onClick={() => setIsOpen(false)}>Profile</Link></li> */}
+                        <li className="hover:text-[var(--color-secondary)]"><Link to="/create-post" onClick={() => setIsOpen(false)}>Create</Link></li>
+                        <li className="hover:text-[var(--color-secondary)]"><Link to="/about" onClick={() => setIsOpen(false)}>About</Link></li>
+
                     </ul>
 
                 </div>
