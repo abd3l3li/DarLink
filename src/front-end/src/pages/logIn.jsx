@@ -1,5 +1,5 @@
 import Logbar from "../components/layout/logbar.jsx";
-import Log_page from "../components/layout/Logbg.jsx";
+import Log_page from "../components/layout/LogInBg.jsx";
 
 export default function Log_in() {
     return (

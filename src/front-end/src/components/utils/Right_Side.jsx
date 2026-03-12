@@ -6,8 +6,8 @@ import Question_tag from "../utils/question_tag.jsx";
 
 export default function Right_side() {
     
-    return (
-            <div className="flex  w-full lg:w-1/2 items-center justify-end">
+	return (
+			<div className="flex w-full lg:w-1/2 items-center justify-center lg:justify-end px-4 sm:px-6">
 				<div className="w-full max-w-md">
 					<Form_heder />
 					<Log_with />
@@ -15,5 +15,5 @@ export default function Right_side() {
 					<Question_tag />
 				</div>
 			</div>
-    );
+	);
 }

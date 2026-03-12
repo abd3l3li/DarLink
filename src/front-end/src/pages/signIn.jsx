@@ -1,5 +1,5 @@
 import Logbar from "../components/layout/logbar.jsx";
-import Sin_page from "../components/layout/Sinbg.jsx";
+import Sin_page from "../components/layout/SignBg.jsx";
 
 export default function Sign_in() {
     return (
