@@ -1,18 +1,17 @@
-import carton from "../components/ui/About_img/carton.jpg";
-import team1  from "../components/ui/About_img/team1.jpg";
-import team2  from "../components/ui/About_img/team2.jpg";
-import team3  from "../components/ui/About_img/team3.jpg";
-import team4  from "../components/ui/About_img/team4.jpg";
+import team1  from "../components/ui/imgs/team1.jpg";
+import team2  from "../components/ui/imgs/team2.jpg";
+import team3  from "../components/ui/imgs/team3.jpg";
+import team4  from "../components/ui/imgs/team4.jpg";
+import cover from "../components/ui/imgs/marrakech.jpeg";
 export default function About() {
     return (
         <>
                 <div className="bg-(--color-bg) pt-20 pb-10">
 
-                {/* HERO SECTION */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="bg-(--color-bg) rounded-xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 md:gap-10 shadow-sm">
                         <img
-                        src={carton}
+                        src={cover}
                         alt="about"
                         className="w-full max-w-md md:w-96 h-52 object-cover rounded-lg shrink-0"
                         />
@@ -33,7 +32,6 @@ export default function About() {
                     </div>
                 </section>
 
-                {/* FEATURES */}
                 <section className="text-center py-7 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-semibold text-gray-800 mb-10">
                         What We Offer

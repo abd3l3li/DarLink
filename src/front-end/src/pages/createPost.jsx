@@ -118,6 +118,7 @@ export default function CreatePost( { stay } ) {
                                     name={name}
                                     value={values[name]}
                                     onChange={handleChange}
+                                    required
                                     className="bg-[var(--color-bg)] px-4 py-4 font-medium shadow-sm rounded-lg transition-all focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
                                 >
                                     <option value="">{placeholder}</option>
@@ -139,6 +140,7 @@ export default function CreatePost( { stay } ) {
                                     name="price"
                                     value={values.price}
                                     onChange={handleChange}
+                                    required
                                     className="bg-transparent px-4 py-4 font-medium focus:outline-none w-36"
                                     placeholder="e.g. 1500"
                                     min="0"
@@ -158,6 +160,7 @@ export default function CreatePost( { stay } ) {
                                     name="avSlots"
                                     value={values.avSlots}
                                     onChange={handleChange}
+                                    required
                                     className="bg-transparent px-4 py-4 font-medium focus:outline-none w-36"
                                     placeholder="e.g. 3"
                                     min="0"

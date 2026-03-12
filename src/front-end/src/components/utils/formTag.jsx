@@ -7,6 +7,7 @@ export default function formTag() {
 				<input
 					type="text"
 					placeholder="Enter your username"
+					required
 					className="w-full border-b border-gray-300 py-2 bg-transparent focus:outline-none focus:border-(--color-secondary) transition-colors duration-300" />
 			</div>
 		</div>
@@ -16,6 +17,7 @@ export default function formTag() {
 				<input
 					type="email"
 					placeholder="Enter your email"
+					required
 					className="w-full border-b border-gray-300 py-2 bg-transparent focus:outline-none focus:border-(--color-secondary) transition-colors duration-300" />
 			</div>
 		</div>
@@ -25,6 +27,7 @@ export default function formTag() {
 				<input
 					type="password"
 					placeholder="Enter your password"
+					required
 					className="w-full border-b border-gray-300 py-2 bg-transparent focus:outline-none focus:border-(--color-secondary) transition-colors duration-300" />
 			</div>
 		</div>
