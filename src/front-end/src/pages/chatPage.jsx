@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { contacts as INITIAL_CONTACTS, messages as INITIAL_MESSAGES, getOwnerById,
   getStaysByOwnerId, getStayById } from "../components/stays/staysTemp.js";
-  import Return from "../components/utils/retutn_home.jsx";
+  import Return from "../components/utils/return_home.jsx";
   
 import { useState, useRef, useEffect, useMemo } from "react";
 

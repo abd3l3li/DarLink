@@ -1,5 +1,5 @@
-import Form_heder from "../utils/form_heder_2.jsx"
-import Log_with from "../utils/log_with_2.jsx";
+import Form_heder from "./form_header_2.jsx"
+import Log_with from "./logIn_with_2.jsx";
 import Form_tag from "../utils/formTag_2.jsx";
 import Question_tag from "../utils/question_tag_2.jsx";
 
