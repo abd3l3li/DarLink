@@ -53,9 +53,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String token = jwtService.generateToken(user.getEmail());
 
         // send token to frontend
-        response.setContentType("application/json");
-        response.getWriter().write("{\"token\":\"" + token + "\"}");
+        // response.setContentType("application/json");
+        // response.getWriter().write("{\"token\":\"" + token + "\"}");
 
-//        response.sendRedirect("http://localhost:8080/auth/callback?token=" + token);
+        response.sendRedirect("http://localhost:5173/auth/callback?token=" + token);
     }
 }
