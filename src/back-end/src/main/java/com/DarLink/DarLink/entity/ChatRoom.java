@@ -1,7 +1,6 @@
 package com.DarLink.DarLink.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,23 +9,20 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "chat_room")
 @Getter
 @Setter
-@Table(name = "message")
 @NoArgsConstructor
-public class Message {
+public class ChatRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "Content cannot be blank")
-    @Column(nullable = false, length = 500)
-    private String content;
     @CreationTimestamp
-    private LocalDateTime sentAt;
+    private LocalDateTime createdAt;
     @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
+    @JoinColumn(name = "user1_id", nullable = false)
+    private User user1;
     @ManyToOne
-    @JoinColumn(name = "room_id", nullable = false)
-    private ChatRoom room;
+    @JoinColumn(name = "user2_id", nullable = false)
+    private User user2;
 }
