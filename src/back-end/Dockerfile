@@ -1,9 +1,5 @@
 #this is the starge number 1 :)
-FROM eclipse-temurin:21 AS builder
-
-RUN apt-get update \
- && apt-get install -y maven \
- && rm -rf /var/lib/apt/lists/*
+FROM maven:3.9.10-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
