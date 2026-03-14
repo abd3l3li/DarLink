@@ -9,6 +9,7 @@ import ChatPage from "./pages/chatPage.jsx";
 import Sign_in from "./pages/sign_in.jsx";
 import Log_in from "./pages/log_in.jsx";
 import About from "./pages/about.jsx";
+import AuthCallback from "./pages/AuthCallback.jsx";
 
 const router = createBrowserRouter([
   {
@@ -37,14 +38,16 @@ const router = createBrowserRouter([
     path: "/log-in",
     element: <Log_in />,
   },
+  {
+    path: "/auth/callback",
+    element: <AuthCallback />,
+  },
 ]);
-
 
 export default function App() {
   return (
       <div className="app">
         <LangButton />
-
         <div className="main">
           <RouterProvider router={router} />
         </div>

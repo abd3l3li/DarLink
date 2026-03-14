@@ -16,6 +16,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.broker.AbstractBrokerMessageHandler;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -33,12 +34,19 @@ public class ChatController {
     private final UserRepository userRepository;
 
 
+//    private User getCurrentUser() {
+//        String email = (String) SecurityContextHolder
+//                .getContext()
+//                .getAuthentication()
+//                .getPrincipal();
+//        return userRepository.findByEmail(email).orElseThrow();
+//    }
     private User getCurrentUser() {
-        String email = (String) SecurityContextHolder
+        UserDetails userDetails = (UserDetails) SecurityContextHolder
                 .getContext()
                 .getAuthentication()
                 .getPrincipal();
-        return userRepository.findByEmail(email).orElseThrow();
+        return userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     }
     // the path should be like this /api/rooms?user2Id=89
     @PostMapping("/api/rooms")
@@ -76,8 +84,8 @@ public class ChatController {
             @Payload MessageRequest request,
             Principal principal) {
 
-        String email = principal.getName();
-        User sender = userRepository.findByEmail(email).orElseThrow();
+        UserDetails userDetails = (UserDetails) principal;
+        User sender = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
         Long senderId = sender.getId();
         ChatRoom room = chatRoomService.getRoomById(roomId).orElseThrow();
         MessageResponse res = messageService.toResponse(

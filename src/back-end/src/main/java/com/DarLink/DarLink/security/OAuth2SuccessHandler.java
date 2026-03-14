@@ -26,9 +26,19 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // get user info from Google
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email    = oAuth2User.getAttribute("email");
-        String name     = oAuth2User.getAttribute("name");
+        String checkEmail    = oAuth2User.getAttribute("email");
+        String checkName     = oAuth2User.getAttribute("name");
 
+        // 42
+        // 42 uses different attributes
+        if (checkEmail == null) {
+            checkEmail = oAuth2User.getAttribute("login") + "@student.1337.ma";
+        }
+        if (checkName == null) {
+            checkName = oAuth2User.getAttribute("login");
+        }
+        String name = checkName;
+        String email = checkEmail;
         // save user to DB if first time
         User user = userRepository.findUserByEmail(email)
                 .orElseGet(() -> {
@@ -43,9 +53,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String token = jwtService.generateToken(user.getEmail());
 
         // send token to frontend
-        response.setContentType("application/json");
-        response.getWriter().write("{\"token\":\"" + token + "\"}");
+        // response.setContentType("application/json");
+        // response.getWriter().write("{\"token\":\"" + token + "\"}");
 
-//        response.sendRedirect("http://localhost:8080/auth/callback?token=" + token);
+        response.sendRedirect("http://localhost:5173/auth/callback?token=" + token);
     }
 }
