@@ -69,6 +69,7 @@ public class StayController {
         stayService.deleteStay(id, currentUser);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/page")
     public ResponseEntity<Page<StayResponse>> getStaysPage(
             @RequestParam(defaultValue = "0") int page) {
