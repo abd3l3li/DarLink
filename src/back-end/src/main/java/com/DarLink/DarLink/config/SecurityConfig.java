@@ -39,10 +39,15 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ✅ Public: register & login
                         .requestMatchers("/api/auth/**").permitAll()
+                        // ✅ Public: WebSocket handshake
                         .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("/ws-test.html").permitAll()
-                        .anyRequest().authenticated())
+                        // ✅ Public: browsing stays (GET only — no token needed to view listings)
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/stays/**").permitAll()
+                        // 🔒 Everything else requires a valid JWT
+                        .anyRequest().authenticated()
+                )
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2SuccessHandler))
                 .exceptionHandling(ex -> ex
@@ -79,3 +84,31 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
