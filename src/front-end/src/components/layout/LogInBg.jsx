@@ -1,5 +1,5 @@
-import LeftSide_2 from "../utils/Left_Side_2.jsx";
-import RightSide_2 from "../utils/Right_Side_2.jsx";
+import LeftSide_2 from "../utils/logInDesign.jsx";
+import RightSide_2 from "../utils/logInForm.jsx";
 
 export default function Log_page() {
 

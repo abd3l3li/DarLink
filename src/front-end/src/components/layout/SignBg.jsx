@@ -1,5 +1,5 @@
-import LeftSide from "../utils/Left_Side.jsx";
-import RightSide from "../utils/Right_Side.jsx";
+import LeftSide from "../utils/signUpDesign.jsx";
+import RightSide from "../utils/signUpForm.jsx";
 
 export default function Logpage() {
 
