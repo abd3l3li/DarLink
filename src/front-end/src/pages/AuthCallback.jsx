@@ -12,6 +12,7 @@ export default function AuthCallback() {
     if (token) {
       localStorage.setItem("token", token);
       console.log("saved token, navigating to /");
+      
       navigate("/", { replace: true });
     } else {
       const stored = localStorage.getItem("token");
