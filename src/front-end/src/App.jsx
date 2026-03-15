@@ -6,7 +6,7 @@ import LangButton from "./components/layout/langButton.jsx";
 import CreatePost from "./pages/createPost";
 import SlotShow from "./pages/slotShow.jsx";
 import ChatPage from "./pages/chatPage.jsx";
-import Sign_in from "./pages/sign_in.jsx";
+import Sign_up from "./pages/sign_up.jsx";
 import Log_in from "./pages/log_in.jsx";
 import About from "./pages/about.jsx";
 import AuthCallback from "./pages/AuthCallback.jsx";
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/sign-up",
-    element: <Sign_in />,
+    element: <Sign_up />,
     errorElement: <NotFound />,
   },
   {
