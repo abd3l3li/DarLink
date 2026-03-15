@@ -60,8 +60,8 @@ public class ChatController {
         notification.setRoomId(null);
         notification.setSenderUsername(user1.getUsername());
 
-        messagingTemplate.convertAndSend("/topic/user." + user2.getId(), notification);
-        messagingTemplate.convertAndSend("/topic/user." + user1.getId(), notification);
+        messagingTemplate.convertAndSend("/topic/user." + user2.getEmail(), notification);
+        messagingTemplate.convertAndSend("/topic/user." + user1.getEmail(), notification);
         return ResponseEntity.ok("Chat room created successfully");
     }
     // the path should be like this /api/rooms/between?user2Id=89
@@ -93,15 +93,15 @@ public class ChatController {
         );
         messagingTemplate.convertAndSend("/topic/room." + roomId, res);
 
-        Long otherUserId = room.getUser1().getId().equals(senderId)
-                ? room.getUser2().getId()
-                : room.getUser1().getId();
+        String otherUserEmail = room.getUser1().getId().equals(senderId)
+                ? room.getUser2().getEmail()
+                : room.getUser1().getEmail();
 
         NotificationMessage notification = new NotificationMessage();
         notification.setType("new_message");
         notification.setRoomId(roomId);
         notification.setSenderUsername(sender.getUsername());
-        messagingTemplate.convertAndSend("/topic/user." + otherUserId, notification);
+        messagingTemplate.convertAndSend("/topic/user." + otherUserEmail, notification);
     }
 
     // the path should be like this /api/rooms
