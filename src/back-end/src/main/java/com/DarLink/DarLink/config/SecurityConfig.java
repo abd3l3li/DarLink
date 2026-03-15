@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         // ✅ Public: WebSocket handshake
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/ws-test.html").permitAll()
                         // ✅ Public: browsing stays (GET only — no token needed to view listings)
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/stays/**").permitAll()
                         // 🔒 Everything else requires a valid JWT

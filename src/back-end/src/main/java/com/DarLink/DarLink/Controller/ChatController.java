@@ -6,22 +6,20 @@ import com.DarLink.DarLink.entity.User;
 import com.DarLink.DarLink.repository.UserRepository;
 import com.DarLink.DarLink.service.ChatRoomService;
 import com.DarLink.DarLink.service.MessageService;
+import com.DarLink.DarLink.service.NotificationService;
 import com.DarLink.DarLink.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.broker.AbstractBrokerMessageHandler;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,15 +30,8 @@ public class ChatController {
     private final MessageService messageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
-
-//    private User getCurrentUser() {
-//        String email = (String) SecurityContextHolder
-//                .getContext()
-//                .getAuthentication()
-//                .getPrincipal();
-//        return userRepository.findByEmail(email).orElseThrow();
-//    }
     private User getCurrentUser() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder
                 .getContext()
@@ -48,38 +39,42 @@ public class ChatController {
                 .getPrincipal();
         return userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
     }
+
     // the path should be like this /api/rooms?user2Id=89
     @PostMapping("/api/rooms")
     public ResponseEntity<String> createRoom(@RequestParam Long user2Id) {
-        User user1 = getCurrentUser();  // get user from  token (jwt)
+        User user1 = getCurrentUser();
         User user2 = userService.findById(user2Id).orElseThrow();
         chatRoomService.createRoom(user1, user2);
 
-        NotificationMessage notification = new NotificationMessage();
-        notification.setType("room_updated");
-        notification.setRoomId(null);
-        notification.setSenderUsername(user1.getUsername());
-        System.out.println("DEBUG sending to /topic/user." + user2.getEmail());
-        System.out.println("DEBUG sending to /topic/user." + user1.getEmail());
+        notificationService.sendNotification(
+                user2, "room_updated", user1.getUsername(), null,
+                user1.getUsername() + " created a room with you", "/chat"
+        );
+        notificationService.sendNotification(
+                user1, "room_updated", user2.getUsername(), null,
+                "You created a room with " + user2.getUsername(), "/chat"
+        );
 
-        messagingTemplate.convertAndSend("/topic/user." + user2.getEmail(), notification);
-        messagingTemplate.convertAndSend("/topic/user." + user1.getEmail(), notification);
         return ResponseEntity.ok("Chat room created successfully");
     }
+
     // the path should be like this /api/rooms/between?user2Id=89
     @GetMapping("/api/rooms/between")
     public ResponseEntity<ChatRoomResponse> getRoomInfo(@RequestParam Long user2Id) {
-        User user1 = getCurrentUser();  // get user from  token (jwt)
+        User user1 = getCurrentUser();
         User user2 = userService.findById(user2Id).orElseThrow();
         ChatRoom room = chatRoomService.findRoom(user1, user2).orElseThrow();
         return ResponseEntity.ok(chatRoomService.toResponse(room));
     }
+
     // the path should be like this /api/rooms/messages?roomId=908
     @GetMapping("/api/rooms/messages")
     public List<MessageResponse> getMessages(@RequestParam Long roomId) {
         ChatRoom room = chatRoomService.getRoomById(roomId).orElseThrow();
         return messageService.getMessagesByRoom(room);
     }
+
     @MessageMapping("/chat/{roomId}")
     public void sendMessage(
             @DestinationVariable Long roomId,
@@ -95,23 +90,20 @@ public class ChatController {
         );
         messagingTemplate.convertAndSend("/topic/room." + roomId, res);
 
-        String otherUserEmail = room.getUser1().getId().equals(senderId)
-                ? room.getUser2().getEmail()
-                : room.getUser1().getEmail();
+        User otherUser = room.getUser1().getId().equals(senderId)
+                ? room.getUser2()
+                : room.getUser1();
 
-        System.out.println("DEBUG sending to /topic/user." + otherUserEmail);
-        System.out.println("DEBUG sending message to /topic/room." + roomId);
-        NotificationMessage notification = new NotificationMessage();
-        notification.setType("new_message");
-        notification.setRoomId(roomId);
-        notification.setSenderUsername(sender.getUsername());
-        messagingTemplate.convertAndSend("/topic/user." + otherUserEmail, notification);
+        notificationService.sendNotification(
+                otherUser, "new_message", sender.getUsername(), roomId,
+                sender.getUsername() + " sent you a message", "/chat/" + roomId
+        );
     }
 
     // the path should be like this /api/rooms
     @GetMapping("/api/rooms")
     public List<ChatRoomResponse> getAllRoom() {
-        User user = getCurrentUser();                               // from token
+        User user = getCurrentUser();
         return chatRoomService.getRoomsForUser(user);
     }
 }
