@@ -1,5 +1,6 @@
 package com.DarLink.DarLink.service;
 
+import com.DarLink.DarLink.dto.UpdateProfileRequest;
 import com.DarLink.DarLink.dto.UserResponse;
 import com.DarLink.DarLink.entity.User;
 import com.DarLink.DarLink.exception.UserAlreadyExistsException;
@@ -42,10 +43,28 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public UserResponse getMyProfile(User currentUser) {
+        return toResponse(currentUser);
+    }
+
+    public UserResponse updateMyProfile(User currentUser, UpdateProfileRequest request) {
+        currentUser.setBio(request.getBio());
+        currentUser.setCity(request.getCity());
+        currentUser.setAvatarUrl(request.getAvatarUrl());
+
+        User savedUser = userRepository.save(currentUser);
+        return toResponse(savedUser);
+    }
+
     public UserResponse toResponse(User user) {
         UserResponse res = new UserResponse();
         res.setId(user.getId());
         res.setUsername(user.getUsername());
+        res.setEmail(user.getEmail());
+        res.setBio(user.getBio());
+        res.setCity(user.getCity());
+        res.setAvatarUrl(user.getAvatarUrl());
+        res.setCreatedAt(user.getCreatedAt());
         return res;
     }
 }
