@@ -16,40 +16,39 @@ Updated: 2026-03-15
 - [x] JWT token generation and validation
   - `src/main/java/com/DarLink/DarLink/service/AuthService.java`
   - `src/main/java/com/DarLink/DarLink/security/JwtAuthenticationFilter.java`
-- [x] Stay CRUD endpoints available (including paging endpoint)
+- [x] Stay CRUD endpoints available (including paging endpoint GET /api/stays?page=&size=9)
   - `src/main/java/com/DarLink/DarLink/Controller/StayController.java`
 - [x] Real-time chat with WebSocket implemented
   - `src/main/java/com/DarLink/DarLink/config/WebSocketConfig.java`
   - `src/main/java/com/DarLink/DarLink/Controller/ChatController.java`
+- [x] **Secure routes in `SecurityConfig`**
+  - `/api/auth/**` and `/ws/**` are public
+  - `GET /api/stays/**` is public (browse without login)
+  - Everything else requires a valid JWT
+  - File: `src/main/java/com/DarLink/DarLink/config/SecurityConfig.java`
+- [x] **SlotRequest booking flow**
+  - `SlotRequestController` + `SlotRequestService` fully implemented
+  - `POST /api/slot-requests`
+  - `GET /api/slot-requests/me`
+  - `GET /api/slot-requests/host`
+  - `PATCH /api/slot-requests/{id}/status`
+- [x] **UserService** — `getMyProfile` + `updateMyProfile` methods implemented
+  - `src/main/java/com/DarLink/DarLink/service/UserService.java`
 
 ## Not Done (Priority Order)
 
-- [ ] **P0 - Secure routes in `SecurityConfig`**
-  - Problem now: `requestMatchers("/api/**").permitAll()` keeps business APIs open
-  - Target: keep only auth + handshake public, require JWT for protected API routes
-  - File: `src/main/java/com/DarLink/DarLink/config/SecurityConfig.java`
-
-- [ ] **P1 - SlotRequest booking flow**
-  - Add `SlotRequestController` + `SlotRequestService`
-  - Endpoints:
-    - `POST /api/slot-requests`
-    - `GET /api/slot-requests/me`
-    - `GET /api/slot-requests/host`
-    - `PATCH /api/slot-requests/{id}/status`
-  - Rules:
-    - validate dates (`start < end`, not in past)
-    - guest cannot request own stay
-    - only host can update request status
-
 - [ ] **P1 - Profile endpoints (`/api/users/me`)**
-  - Add `UserController` methods:
-    - `GET /api/users/me`
-    - `PATCH /api/users/me`
-  - Support profile fields: `bio`, `city`, `avatarUrl`
-  - Scope updates to authenticated user only
+  - `UserController.java` exists but is **empty** — no endpoints wired
+  - Need to add:
+    - `GET /api/users/me` → calls `userService.getMyProfile(currentUser)`
+    - `PATCH /api/users/me` → calls `userService.updateMyProfile(currentUser, request)`
+  - File: `src/main/java/com/DarLink/DarLink/Controller/UserController.java`
 
 - [ ] **P2 - Notification endpoints**
-  - Add `NotificationController` + `NotificationService`
+  - No `NotificationController` or `NotificationService` exist yet
+  - Need to create:
+    - `src/main/java/com/DarLink/DarLink/service/NotificationService.java`
+    - `src/main/java/com/DarLink/DarLink/Controller/NotificationController.java`
   - Endpoints:
     - `GET /api/notifications`
     - `PATCH /api/notifications/{id}/read`
@@ -58,8 +57,7 @@ Updated: 2026-03-15
 
 ## Suggested Execution Order
 
-1. Lock down `SecurityConfig` route protection (P0)
-2. Implement SlotRequest flow (P1)
-3. Implement profile endpoints (P1)
+1. ~~Lock down `SecurityConfig` route protection~~ ✅ Done
+2. ~~Implement SlotRequest flow~~ ✅ Done
+3. Implement profile endpoints in `UserController` (P1) ← **NEXT**
 4. Implement notification endpoints (P2)
-
