@@ -2,6 +2,9 @@ import Google from "../ui/google.svg";
 import Intra from "../ui/intra.svg";
 
 export default function Log_with() {
+    const handleClick = () => {
+        window.location.href = "/";
+    };
     return (
     <div className="flex gap-4 mt-8 ">
         <button
@@ -9,8 +12,10 @@ export default function Log_with() {
             className="flex items-center justify-center
                     rounded-full border bg-white
                     transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                    onClick={handleClick} 
             aria-label="Continue with Google">
             <img src={Google} alt="Google" draggable="false"/>
+
         </button>
         <button 
             type="button"

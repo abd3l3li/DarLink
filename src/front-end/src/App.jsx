@@ -9,34 +9,63 @@ import ChatPage from "./pages/chatPage.jsx";
 import Sign_in from "./pages/sign_in.jsx";
 import Log_in from "./pages/log_in.jsx";
 import About from "./pages/about.jsx";
+import NotFound from "./pages/NotFund.jsx";
+import Terms from "./components/layout/Terms.jsx";
+import Privacy from "./components/layout/Privacy.jsx";
+import Contact from "./components/layout/Contact.jsx";
 
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: "/", element: <Home /> },
-      { path: "/slots", element: <Slots /> },
-      { path: "/create-post", element: <CreatePost /> },
-      { path: "/slot-show/:slotId", element: <SlotShow /> },
-      { path: "/about", element: <About /> },
+      { path: "/", element: <Home /> , errorElement: <NotFound />},
+      { path: "/slots", element: <Slots />, errorElement: <NotFound /> },
+      { path: "/create-post", element: <CreatePost />, errorElement: <NotFound /> },
+      { path: "/slot-show/:slotId", element: <SlotShow />, errorElement: <NotFound /> },
+      { path: "/about", element: <About />, errorElement: <NotFound /> },
     ],
   },
   {
     path: "/chat/:ownerId",
     element: <ChatPage />,
+    errorElement: <NotFound />,
   },
   {
     path: "/chat/:ownerId/:stayId",
     element: <ChatPage />,
+    errorElement: <NotFound />,
   },
   {
     path: "/sign-up",
     element: <Sign_in />,
+    errorElement: <NotFound />,
   },
   {
     path: "/log-in",
     element: <Log_in />,
+    errorElement: <NotFound />,
   },
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+  {
+    path: "/terms",
+    element: <Terms />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/privacy",
+    element: <Privacy />,
+    errorElement: <NotFound />,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
+    errorElement: <NotFound />,
+  }
+
+
 ]);
 
 
