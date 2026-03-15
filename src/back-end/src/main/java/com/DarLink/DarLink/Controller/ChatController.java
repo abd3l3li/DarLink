@@ -59,6 +59,8 @@ public class ChatController {
         notification.setType("room_updated");
         notification.setRoomId(null);
         notification.setSenderUsername(user1.getUsername());
+        System.out.println("DEBUG sending to /topic/user." + user2.getEmail());
+        System.out.println("DEBUG sending to /topic/user." + user1.getEmail());
 
         messagingTemplate.convertAndSend("/topic/user." + user2.getEmail(), notification);
         messagingTemplate.convertAndSend("/topic/user." + user1.getEmail(), notification);
@@ -84,8 +86,8 @@ public class ChatController {
             @Payload MessageRequest request,
             Principal principal) {
 
-        UserDetails userDetails = (UserDetails) principal;
-        User sender = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        String email = principal.getName();
+        User sender = userRepository.findByEmail(email).orElseThrow();
         Long senderId = sender.getId();
         ChatRoom room = chatRoomService.getRoomById(roomId).orElseThrow();
         MessageResponse res = messageService.toResponse(
@@ -97,6 +99,8 @@ public class ChatController {
                 ? room.getUser2().getEmail()
                 : room.getUser1().getEmail();
 
+        System.out.println("DEBUG sending to /topic/user." + otherUserEmail);
+        System.out.println("DEBUG sending message to /topic/room." + roomId);
         NotificationMessage notification = new NotificationMessage();
         notification.setType("new_message");
         notification.setRoomId(roomId);
