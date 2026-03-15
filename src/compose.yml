@@ -1,10 +1,23 @@
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - 8080:8080
+      - 8443:8443
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    networks:
+      - darlink
+    depends_on:
+      - frontend
+      - backend
   frontend:
     build:
       context: ./front-end
       dockerfile: Dockerfile
-    ports:
-      - 5173:5173
+#    ports:
+#      - 5173:5173
     networks:
       - darlink
     volumes:
@@ -14,13 +27,13 @@ services:
       - CHOKIDAR_USEPOLLING=true
     depends_on:
       - backend
-  
+
   backend:
     build:
       context: ./back-end
       dockerfile: Dockerfile
-    ports:
-      - 8081:8081
+#    ports:
+#      - 8081:8081
     secrets:
       - db-password
     networks:
@@ -43,8 +56,8 @@ services:
       - POSTGRES_DB=DarLink
       - POSTGRES_USER=DarLink
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-    ports:
-      - 5432:5432
+#    ports:
+#      - 5432:5432
     expose:
       - 5432
     healthcheck:
