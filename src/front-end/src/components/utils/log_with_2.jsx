@@ -14,7 +14,7 @@ export default function Log_with() {
                     <img src={Google} alt="Google" draggable="false"/>
                 </button>
             </a>
-            <a href="http://localhost:8081/oauth2/authorization/42">
+            <a href="http://localhost:8080/oauth2/authorization/42">
                 <button
                     type="button"
                     className="flex items-center justify-center
