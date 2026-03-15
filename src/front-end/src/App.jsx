@@ -9,10 +9,14 @@ import ChatPage from "./pages/chatPage.jsx";
 import Sign_in from "./pages/sign_in.jsx";
 import Log_in from "./pages/log_in.jsx";
 import About from "./pages/about.jsx";
+<<<<<<< HEAD
 import NotFound from "./pages/NotFund.jsx";
 import Terms from "./components/layout/Terms.jsx";
 import Privacy from "./components/layout/Privacy.jsx";
 import Contact from "./components/layout/Contact.jsx";
+=======
+import AuthCallback from "./pages/AuthCallback.jsx";
+>>>>>>> 371ea7607147b17adb44e1ad69e774cb40039e85
 
 const router = createBrowserRouter([
   {
@@ -46,6 +50,7 @@ const router = createBrowserRouter([
     errorElement: <NotFound />,
   },
   {
+<<<<<<< HEAD
     path: "*",
     element: <NotFound />,
   },
@@ -66,14 +71,17 @@ const router = createBrowserRouter([
   }
 
 
+=======
+    path: "/auth/callback",
+    element: <AuthCallback />,
+  },
+>>>>>>> 371ea7607147b17adb44e1ad69e774cb40039e85
 ]);
-
 
 export default function App() {
   return (
       <div className="app">
         <LangButton />
-
         <div className="main">
           <RouterProvider router={router} />
         </div>

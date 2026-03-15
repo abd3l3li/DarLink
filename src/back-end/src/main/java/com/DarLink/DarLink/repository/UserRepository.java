@@ -16,4 +16,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Another useful one for checking duplicates during registration
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
+
+    Optional<User> findUserByUsername(String username);
+
+    boolean existsUserByEmail(String email);
+
+    boolean existsUserByUsername(String username);
+
+    Optional<User> findUserByEmail(String email);
 }
