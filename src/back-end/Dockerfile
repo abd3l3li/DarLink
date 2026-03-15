@@ -18,6 +18,8 @@ COPY --from=builder /app/target/*.jar /app.jar
 
 COPY .env .
 
+EXPOSE 8081
+
 ENTRYPOINT ["java","-jar","/app.jar"]
 
 #I use both concept [Layer Caching] and [Multi-Stage Builds]
