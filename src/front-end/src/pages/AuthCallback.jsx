@@ -7,14 +7,21 @@ export default function AuthCallback() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
+    console.log("token:", token);
 
     if (token) {
       localStorage.setItem("token", token);
-      navigate("/home");
+      console.log("saved token, navigating to /");
+      navigate("/", { replace: true });
     } else {
-      navigate("/login");
+      const stored = localStorage.getItem("token");
+      console.log("stored token:", stored);
+      if (stored) {
+        navigate("/", { replace: true });
+      } else {
+        navigate("/log-in", { replace: true });
+      }
     }
   }, []);
-
   return <div>Logging you in...</div>;
 }
