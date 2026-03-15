@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>WebSocket JWT Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <style>
+    body { font-family: monospace; background: #0d0f12; color: #c9d1d9; padding: 30px; }
+    h2   { color: #00ff9d; }
+    input, textarea {
+      width: 100%; padding: 8px; margin: 6px 0 12px;
+      background: #1e2329; color: #c9d1d9;
+      border: 1px solid #30363d; font-family: monospace;
+    }
+    button {
+      padding: 8px 16px; margin: 4px;
+      background: #1e2329; color: #00ff9d;
+      border: 1px solid #00ff9d; cursor: pointer;
+      font-family: monospace;
+    }
+    button:hover { background: #00ff9d; color: #0d0f12; }
+    #log {
+      margin-top: 20px; padding: 16px;
+      background: #1e2329; border: 1px solid #30363d;
+      height: 300px; overflow-y: auto;
+      font-size: 12px;
+    }
+    .success { color: #00ff9d; }
+    .error   { color: #ff4444; }
+    .info    { color: #0099ff; }
+    .msg     { color: #ffd700; }
+  </style>
+</head>
+<body>
+
+<h2>WebSocket JWT Tester</h2>
+
+<label>JWT Token</label>
+<input id="token" placeholder="paste your JWT token here" />
+
+<label>Backend URL</label>
+<input id="url" value="https://localhost:8443/ws" />
+
+<button onclick="connect()">Connect</button>
+<button onclick="disconnect()">Disconnect</button>
+
+<hr style="border-color:#30363d; margin: 20px 0"/>
+
+<label>Room ID</label>
+<input id="roomId" value="1" style="width:80px"/>
+
+<button onclick="subscribeRoom()">Subscribe to Room</button>
+<button onclick="subscribePersonal()">Subscribe to Personal Topic</button>
+
+<hr style="border-color:#30363d; margin: 20px 0"/>
+
+<label>Message Content</label>
+<input id="content" placeholder="type a message..." />
+
+<button onclick="sendMessage()">Send Message</button>
+
+<div id="log"></div>
+
+<script>
+  let stompClient  = null;
+  let subscription = null;
+
+  function log(msg, type = 'info') {
+    const box  = document.getElementById('log');
+    const line = document.createElement('div');
+    line.className = type;
+    line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    box.appendChild(line);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function connect() {
+    const token = document.getElementById('token').value.trim();
+    const url   = document.getElementById('url').value.trim();
+
+    if (!token) return log('paste your JWT token first', 'error');
+
+    const socket = new SockJS(url);
+    stompClient  = Stomp.over(socket);
+    stompClient.debug = null;
+
+    stompClient.connect(
+      { Authorization: 'Bearer ' + token },
+      () => log('connected successfully', 'success'),
+      (err) => log('connection error: ' + err, 'error')
+    );
+  }
+
+  function disconnect() {
+    if (stompClient) {
+      stompClient.disconnect();
+      log('disconnected', 'info');
+    }
+  }
+
+  function subscribeRoom() {
+    if (!stompClient) return log('connect first', 'error');
+    const roomId = document.getElementById('roomId').value.trim();
+
+    if (subscription) subscription.unsubscribe();
+
+    subscription = stompClient.subscribe(`/topic/room.${roomId}`, (frame) => {
+      const msg = JSON.parse(frame.body);
+      log(`message from ${msg.senderUsername}: ${msg.content}`, 'msg');
+    });
+
+    log(`subscribed to /topic/room.${roomId}`, 'success');
+  }
+
+  function subscribePersonal() {
+    if (!stompClient) return log('connect first', 'error');
+
+    // decode email from JWT
+    const token   = document.getElementById('token').value.trim();
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const email  = payload.sub;
+
+    stompClient.subscribe(`/topic/user.${email}`, (frame) => {
+      const notification = JSON.parse(frame.body);
+      log(`notification: ${notification.type} — from ${notification.senderUsername}`, 'msg');
+    });
+
+    log(`subscribed to /topic/user.${userId}`, 'success');
+  }
+
+  function sendMessage() {
+    if (!stompClient) return log('connect first', 'error');
+    const roomId  = document.getElementById('roomId').value.trim();
+    const content = document.getElementById('content').value.trim();
+    if (!content) return log('type a message first', 'error');
+
+    stompClient.send(
+      `/app/chat/${roomId}`,
+      {},
+      JSON.stringify({ roomId: parseInt(roomId), content })
+    );
+
+    log(`sent: ${content}`, 'info');
+    document.getElementById('content').value = '';
+  }
+</script>
+
+</body>
+</html>
