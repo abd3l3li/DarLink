@@ -1,5 +1,7 @@
 # DarLink — Chat System API
 
+> 📝 **Note** — If you have any questions or need changes to these endpoints contact the backend team.
+
 This document covers the chat rooms and real-time messaging system.
 All requests must include a valid JWT token in the Authorization header.
 

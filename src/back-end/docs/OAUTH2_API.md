@@ -1,5 +1,7 @@
 # DarLink — Authentication API
 
+> 📝 **Note** — If you have any questions or need changes to the authentication flow contact the backend team.
+
 This document covers the OAuth2 login flow and JWT token usage.
 
 ---

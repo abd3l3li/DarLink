@@ -1,6 +1,6 @@
 # DarLink — Notifications API
 
-> ⚠️ **Under Testing** — These endpoints are functional but still being tested. The notification types and content may change based on frontend requirements.
+> ⚠️ **Under Testing** — These endpoints are functional but still being tested. The notification types and content may change based on frontend requirements. If you have any questions or need changes contact the backend team.
 
 This document covers the notification system. Notifications are stored in the database and also delivered in real time via WebSocket.
 
@@ -104,12 +104,57 @@ Response: `200 OK`
 
 ---
 
+## Real Time Notifications via WebSocket
+
+In addition to fetching notifications via REST, the server pushes notifications in real time via WebSocket. Subscribe to the personal topic after login to receive them instantly.
+
+### Subscribe To Personal Topic
+
+```javascript
+// decode email from JWT token
+const payload = JSON.parse(atob(token.split('.')[1]));
+const email = payload.sub;
+
+// subscribe to personal topic
+stompClient.subscribe(`/topic/user.${email}`, (frame) => {
+  const notification = JSON.parse(frame.body);
+  console.log(notification.type);           // "new_message" or "room_updated"
+  console.log(notification.senderUsername); // who triggered it
+  console.log(notification.roomId);         // which room (null for room_updated)
+});
+```
+
+> Subscribe once after WebSocket connection is established on login. Do not resubscribe on every page change.
+
+### What You Receive
+
+```json
+{ "type": "new_message",  "roomId": 1,    "senderUsername": "ali" }
+{ "type": "room_updated", "roomId": null, "senderUsername": "ali" }
+```
+
+### Suggested Behaviour
+
+```
+On new_message  → increment notification badge count
+                → if notification panel is open, refresh GET /api/notifications
+
+On room_updated → refresh rooms list
+                → increment notification badge count
+```
+
+---
+
+
+
 ## Notification Types
 
 | Type | When | `message` example | `link` |
 |------|------|-------------------|--------|
 | `new_message` | Someone sent you a message | "ali sent you a message" | `/chat/{roomId}` |
 | `room_updated` | Someone created a room with you | "ali created a room with you" | `/chat` |
+
+> 📝 **Note** — More notification types will be added based on frontend requirements. If you need a new notification type or have any questions contact the backend team.
 
 ---
 
