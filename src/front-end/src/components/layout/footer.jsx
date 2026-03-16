@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import darlinkFooter from "/src/components/ui/footer-logo.svg";
 
 export default function Footer() {
 
@@ -13,7 +14,7 @@ export default function Footer() {
                             items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
                     <img
-                        src="/src/components/ui/footer-logo.svg"
+                        src={darlinkFooter}
                         alt="DarLink Logo"
                         className="h-8 md:h-10"
                         draggable={false}
