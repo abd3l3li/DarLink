@@ -78,9 +78,9 @@ export default function About() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 justify-items-center">
 
                     <div>
-                        <a href="https://github.com/abdelouahedait" target="_blank" rel="noreferrer">
+                        <a href="https://github.com/abd3l3li" target="_blank" rel="noreferrer">
                             <img
-                                src={team1}
+                                src={team2}
                                 alt="a-ait-bo"
                                 className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
                                 border bg-white transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
@@ -90,9 +90,9 @@ export default function About() {
                     </div>
 
                     <div>
-                        <a href="https://github.com/abd3l3li" target="_blank" rel="noreferrer">
+                        <a href="https://github.com/abdelouahedait" target="_blank" rel="noreferrer">
                             <img
-                                src={team2}
+                                src={team1}
                                 alt="abel-baz"
                                     className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
                                     border bg-white transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
