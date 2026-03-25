@@ -7,6 +7,7 @@ import com.DarLink.DarLink.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import com.DarLink.DarLink.dto.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,7 +25,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            AuthResponse response = authService.login(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            if ("2FA_REQUIRED".equals(e.getMessage())) {
+                return ResponseEntity.status(403).body(new ApiResponse("2FA required"));
+            }
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
