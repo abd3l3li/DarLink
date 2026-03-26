@@ -19,7 +19,8 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       JwtService jwtService, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -56,7 +57,11 @@ public class AuthService {
         // 2. If we get here, the password was correct! Find the user.
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
+        if (user.getTwoFactorEnabled()) {
+            // 2FA is enabled → ask for TOTP code
+            // Return a special response indicating 2FA is required
+            return new AuthResponse(null); // Return special status (see Step 6)
+        }
         // 3. Print a new ID Card (JWT) and return it
         String token = jwtService.generateToken(user.getEmail());
         return new AuthResponse(token);

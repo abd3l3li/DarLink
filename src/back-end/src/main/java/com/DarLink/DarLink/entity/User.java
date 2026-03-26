@@ -53,6 +53,25 @@ public class User {
         this.password = password;
     }
 
+    @Column(name = "totp_secret", nullable = true)
+    private String totpSecret; // Stores the encrypted secret key (33 chars)
+
+    @Column(name = "two_factor_enabled", nullable = false)
+    private Boolean twoFactorEnabled = false; // Flag to check if 2FA is active
+
+    @Column(name = "two_factor_verified", nullable = false)
+    private Boolean twoFactorVerified = false; // Flag to check if user verified the setup
+
+    // Getters and Setters
+    public String getTotpSecret() { return totpSecret; }
+    public void setTotpSecret(String totpSecret) { this.totpSecret = totpSecret; }
+
+    public Boolean getTwoFactorEnabled() { return twoFactorEnabled; }
+    public void setTwoFactorEnabled(Boolean twoFactorEnabled) { this.twoFactorEnabled = twoFactorEnabled; }
+
+    public Boolean getTwoFactorVerified() { return twoFactorVerified; }
+    public void setTwoFactorVerified(Boolean twoFactorVerified) { this.twoFactorVerified = twoFactorVerified; }
+
     // Lifecycle Hook: Sets date before saving to DB
     @PrePersist
     protected void onCreate() {
