@@ -18,6 +18,7 @@ public class StayResponse {
     private String address;
     private Double pricePerNight;
     private String photoUrl;
+    private String roomType;
 
     private Long hostId;
     private String hostUsername;

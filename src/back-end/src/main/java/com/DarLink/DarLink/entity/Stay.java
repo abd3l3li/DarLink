@@ -34,6 +34,8 @@ public class Stay {
 
     private String address;
 
+    private  String roomType; // e.g., "Entire Place", "Private Room", "Shared Room"
+
     @Min(value = 0, message = "Price cannot be negative")
     private Double pricePerNight;
 

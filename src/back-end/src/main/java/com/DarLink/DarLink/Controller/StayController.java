@@ -69,7 +69,17 @@ public class StayController {
         stayService.deleteStay(id, currentUser);
         return ResponseEntity.noContent().build();
     }
-
+    @GetMapping
+    public ResponseEntity<List<StayResponse>> getStays(
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String price) {
+        return ResponseEntity.ok(stayService.searchStays(location, type, price));
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
     @GetMapping("/page")
     public ResponseEntity<Page<StayResponse>> getStaysPage(
             @RequestParam(defaultValue = "0") int page) {

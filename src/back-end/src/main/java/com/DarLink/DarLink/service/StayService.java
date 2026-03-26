@@ -114,6 +114,19 @@ public class StayService {
 
         stayRepository.delete(stay);
     }
+    private record PriceBounds(Double min, Double max) {}
+
+    private PriceBounds parsePriceRange(String price) {
+        if (price == null || price.isBlank()) return new PriceBounds(null, null);
+
+        return switch (price.trim()) {
+            case "0 - 1000 DH" -> new PriceBounds(0.0, 1000.0);
+            case "1000 - 2000 DH" -> new PriceBounds(1000.0, 2000.0);
+            case "2000+ DH" -> new PriceBounds(2000.0, null);
+            default -> throw new IllegalArgumentException("Invalid price filter: " + price);
+        };
+    }
+
 
     public Page<StayResponse> getStaysPage(int page) {
         Pageable pageable = PageRequest.of(page, 9, Sort.by("createdAt").descending());
