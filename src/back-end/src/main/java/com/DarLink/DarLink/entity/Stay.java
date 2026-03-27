@@ -82,6 +82,9 @@ public class Stay {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
+    public String getRoomType() { return roomType; }
+    public void setRoomType(String roomType) { this.roomType = roomType; }
+
     public Double getPricePerNight() { return pricePerNight; }
     public void setPricePerNight(Double pricePerNight) { this.pricePerNight = pricePerNight; }
 
