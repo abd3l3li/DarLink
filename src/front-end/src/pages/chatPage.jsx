@@ -1,11 +1,11 @@
 import { useParams, Link } from "react-router-dom";
 import { contacts as INITIAL_CONTACTS, messages as INITIAL_MESSAGES, getOwnerById,
   getStaysByOwnerId, getStayById } from "../components/stays/staysTemp.js";
-  import Return from "../components/utils/retutn_home.jsx";
+  import Return from "../components/utils/return_home.jsx";
   
 import { useState, useRef, useEffect, useMemo } from "react";
 
-/* ------------------- helper functions ------------------- */
+// Heplper functions
 
 function getInitials(name) {
   return name
@@ -54,7 +54,7 @@ function FriendButton({ status, onAction }) {
 function ProfileModal({ contact, onClose, onSelectListing }) {
   if (!contact) return null;
 
-  // Get listings for this contact
+  // get listings for this contact
   const listings = getStaysByOwnerId(contact.id);
 
   return (
@@ -240,6 +240,30 @@ export default function ChatPage() {
   const activeContact = contacts.find((c) => c.id === activeId) || contacts[0];
   const chatMessages = messages[activeId] || [];
 
+  // pending message from Request button
+  useEffect(() => {
+    const pending = sessionStorage.getItem("pendingChatMessage");
+    if (pending) {
+      try {
+        const { ownerId: pendingOwnerId, message } = JSON.parse(pending);
+        if (pendingOwnerId === activeId && message) {
+          
+          const newMsg = { id: Date.now(), text: message, from: "me" };
+          setMessages((prev) => ({
+            ...prev,
+            [activeId]: [...(prev[activeId] || []), newMsg],
+          }));
+          setContacts((prev) =>
+            prev.map((c) => (c.id === activeId ? { ...c, preview: message } : c))
+          );
+        }
+      } catch (e) {
+        console.error("Error parsing pending message", e);
+      }
+      sessionStorage.removeItem("pendingChatMessage");
+    }
+  }, [activeId]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     inputRef.current?.focus();
@@ -358,7 +382,6 @@ export default function ChatPage() {
         {/* the chat */}
         <main className="flex-1 flex flex-col">
 
-          {/* header */}
           <header className="flex justify-between items-center p-5 border-b border-[var(--color-border-gray)]">
             <div className="flex items-center gap-3">
               <button

@@ -1,18 +1,20 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { getStayById } from "../components/stays/staysTemp.js";
-
 import { useState } from "react";
-import ShowGallery from "../components/utils/showGallery";
+import ShowGallery from "../components/stays/showGallery.jsx";
 import CreatePost from "./createPost";
 import mapLogo from "../components/ui/map-pinned.svg";
 import slotsCircle from "../components/ui/slotsCircle.svg";
 import deleteButton from "../components/ui/deleteButton.svg";
 import editButton from "../components/ui/editButton.svg";
 import checkMark from "../components/ui/checkMark.svg";
+import { useNotifications, NOTIFICATION_TYPES } from "../components/utils/notificationContext.jsx";
 
-export default function SlotShow() {
+export default function SlotShow({ isOwner = false }) {
     const params = useParams();
     const stay = getStayById(params.slotId) || {};
+    const navigate = useNavigate();
+    const { addNotification } = useNotifications();
 
     const [editMode, setEditMode] = useState(false);
 
@@ -23,7 +25,22 @@ export default function SlotShow() {
         console.log("delete request sent");
     }
     const reqHandle = () => {
-        console.log("slot request sent");
+        // auto-message
+        const autoMessage = `Hi! Is the stay in ${stay.city} (${stay.type}, ${stay.price} MAD) still available?`;
+        
+        sessionStorage.setItem("pendingChatMessage", JSON.stringify({
+            ownerId: stay.owner?.id,
+            stayId: stay.id,
+            message: autoMessage,
+        }));
+
+        addNotification({
+            type: NOTIFICATION_TYPES.SLOT_REQUEST,
+            message: `New slot request for ${stay.city}`,
+            link: `/chat/${stay.owner?.id}/${stay.id}`,
+        });
+
+        navigate(`/chat/${stay.owner?.id}/${stay.id}`);
     }
 
 
@@ -81,8 +98,8 @@ export default function SlotShow() {
 
                                     <div className="Buttons flex flex-col items-center justify-center w-full">
                                         {
-                                            // edit and delete buttons for admin
-                                            (stay.admin) ? (
+                                            // edit and delete buttons for admin (post owner)
+                                            (stay.admin || isOwner) ? (
 
                                                 <div className="flex items-center gap-7 mt-12">
                                                     <img src={deleteButton} alt="Delete" className="hover:scale-103 active:scale-98 transition-transform duration-200" onClick={deleteHandler} draggable={false}/>
@@ -174,12 +191,14 @@ export default function SlotShow() {
                                             <img src={stay.owner?.image || ""} alt={stay.owner?.name || ""} className="w-16 h-16 rounded-full" draggable={false}/>
                                             <p className="text-italic font-semibold text-[var(--color-text)]">{stay.owner?.name || "N/A"}</p>
 
-                                            <Link to={`/chat/${stay.owner?.id}/${stay.id}`}>
-                                                <button className="bg-[var(--color-secondary)] text-[var(--color-surface)] px-6 py-2 
-                                                                    rounded-full ml-4 hover:bg-[var(--color-secondary-hover)] 
-                                                                    hover:scale-103 transition-transform duration-300"
-                                                >Contact</button>
-                                            </Link>
+                                            {!stay.admin && (
+                                                <Link to={`/chat/${stay.owner?.id}/${stay.id}`}>
+                                                    <button className="bg-[var(--color-secondary)] text-[var(--color-surface)] px-6 py-2 
+                                                                        rounded-full ml-4 hover:bg-[var(--color-secondary-hover)] 
+                                                                        hover:scale-103 transition-transform duration-300"
+                                                    >Contact</button>
+                                                </Link>
+                                            )}
                                         </div>
                                     </div>
                             </div>

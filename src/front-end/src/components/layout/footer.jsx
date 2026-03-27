@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import darlinkFooter from "/src/components/ui/footer-logo.svg";
 
 export default function Footer() {
 
@@ -11,14 +12,14 @@ export default function Footer() {
             <div className="min-w-0 max-w-7xl mx-auto px-7 
                             flex flex-col p-4 md:flex-row 
                             items-center justify-between gap-4">
-                <Link to="/" className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                     <img
-                        src="/src/components/ui/footer-logo.svg"
+                        src={darlinkFooter}
                         alt="DarLink Logo"
                         className="h-8 md:h-10"
                         draggable={false}
                     />
-                </Link>
+                </div>
 
                     <div className="flex items-center gap-8 text-sm md:text-base md:ml-22">
                         <Link to="/terms" className="hover:text-[var(--color-secondary)] transition-colors">

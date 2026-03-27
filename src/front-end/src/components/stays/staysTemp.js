@@ -220,6 +220,103 @@ export const stays = [
         details: "Beach house perfect for surfers.",
         expectations: ["Clean up after yourself"],
         included: ["Wi-Fi", "Surfboard storage"],
+    },
+    // --- Additional stays for testing ---
+    {
+        id: "stay-10",
+        city: "Oujda",
+        type: "Private",
+        avSlots: 2,
+        price: 650,
+        photos: ["https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=60"],
+        owner: {
+            id: "owner-1",
+            name: "Mohamed Sonbol",
+            image: "https://preview.redd.it/new-cat-reaction-meme-v0-9w0fho1j6luf1.png?width=1080&crop=smart&auto=webp&s=ad1615470e1ee3b38d8dd17b1872be32440d9ddb"
+        },
+        details: "Bright private room in Oujda, close to the university.",
+        expectations: ["No loud music"],
+        included: ["Wi-Fi included", "Desk"],
+    },
+    {
+        id: "stay-11",
+        city: "Kenitra",
+        type: "Shared",
+        avSlots: 1,
+        price: 400,
+        photos: ["https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=60"],
+        owner: {
+            id: "owner-2",
+            name: "Jane Doe",
+            image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmFiYXQlMjBtb2NrJTIwcGhvdG98ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60"
+        },
+        details: "Affordable shared room in Kenitra, ideal for students.",
+        expectations: ["Respect study hours"],
+        included: ["Wi-Fi included", "Laundry"],
+    },
+    {
+        id: "stay-12",
+        city: "Ben Guerir",
+        type: "Both",
+        avSlots: 3,
+        price: 550,
+        photos: ["https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=800&q=60"],
+        owner: {
+            id: "owner-3",
+            name: "John Doe",
+            image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmFiYXQlMjBtb2NrJTIwcGhvdG98ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60"
+        },
+        details: "Modern apartment in Ben Guerir, close to all amenities.",
+        expectations: ["No pets"],
+        included: ["Wi-Fi included", "Parking"],
+    },
+    {
+        id: "stay-13",
+        city: "Rabat",
+        type: "Private",
+        avSlots: 2,
+        price: 900,
+        photos: ["https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=60"],
+        owner: {
+            id: "owner-4",
+            name: "Khalid Kashmiri",
+            image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmFiYXQlMjBtb2NrJTIwcGhvdG98ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60"
+        },
+        details: "Luxury private suite in Rabat, with private bathroom.",
+        expectations: ["No smoking"],
+        included: ["Wi-Fi included", "Private bathroom"],
+    },
+    {
+        id: "stay-14",
+        city: "Fès",
+        type: "Shared",
+        avSlots: 1,
+        price: 500,
+        photos: ["https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=800&q=60"],
+        owner: {
+            id: "owner-1",
+            name: "Mohamed Sonbol",
+            image: "https://preview.redd.it/new-cat-reaction-meme-v0-9w0fho1j6luf1.png?width=1080&crop=smart&auto=webp&s=ad1615470e1ee3b38d8dd17b1872be32440d9ddb"
+        },
+        details: "Friendly shared flat in Fès, close to the old city.",
+        expectations: ["Respect quiet hours"],
+        included: ["Wi-Fi included", "Shared kitchen"],
+    },
+    {
+        id: "stay-15",
+        city: "Marrakech",
+        type: "Both",
+        avSlots: 2,
+        price: 800,
+        photos: ["https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=800&q=60"],
+        owner: {
+            id: "owner-2",
+            name: "Jane Doe",
+            image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmFiYXQlMjBtb2NrJTIwcGhvdG98ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60"
+        },
+        details: "Spacious apartment in Marrakech, ideal for groups.",
+        expectations: ["No parties"],
+        included: ["Wi-Fi included", "Balcony"],
     }
 ];
 

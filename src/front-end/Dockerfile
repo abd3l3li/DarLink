@@ -1,14 +1,36 @@
-# to-do seach for each rule why we use it
-FROM node:20-alpine
+# Stage 1 : Build React
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+# dependencies
+COPY package.json package-lock.json ./
 
-RUN npm install
+# cleaner node_modules
+RUN npm ci
 
+# source code
 COPY . .
 
-EXPOSE 5173
+# build project
+RUN npm run build
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"] 
+
+# Stage 2 : Nginx
+FROM nginx:alpine
+
+# remove default config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# using our config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY ssl /etc/nginx/ssl
+
+# copy build files from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+EXPOSE 443
+
+CMD ["nginx", "-g", "daemon off;"]
