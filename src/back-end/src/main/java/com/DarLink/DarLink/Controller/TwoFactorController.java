@@ -36,7 +36,9 @@ public class TwoFactorController {
 
         // Generate new secret
         String secret = totpService.generateSecret();
-
+        user.setTotpSecret(secret);
+        user.setTwoFactorVerified(false);
+        userRepository.save(user);
         // Generate QR code URL
         String qrCodeUrl = totpService.getQrCodeUrl(email, secret, "DarLink");
 

@@ -34,6 +34,8 @@ public class Stay {
 
     private String address;
 
+    private  String roomType; // e.g., "Entire Place", "Private Room", "Shared Room"
+
     @Min(value = 0, message = "Price cannot be negative")
     private Double pricePerNight;
 
@@ -79,6 +81,9 @@ public class Stay {
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
+
+    public String getRoomType() { return roomType; }
+    public void setRoomType(String roomType) { this.roomType = roomType; }
 
     public Double getPricePerNight() { return pricePerNight; }
     public void setPricePerNight(Double pricePerNight) { this.pricePerNight = pricePerNight; }

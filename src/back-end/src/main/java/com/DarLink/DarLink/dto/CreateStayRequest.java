@@ -26,6 +26,9 @@ public class CreateStayRequest {
     @Size(max = 255, message = "Address must be at most 255 characters")
     private String address;
 
+    @Size(max = 50, message = "Room type must be at most 50 characters")
+    private String roomType;
+
     @DecimalMin(value = "0.0", inclusive = true, message = "Price per night cannot be negative")
     private Double pricePerNight;
 

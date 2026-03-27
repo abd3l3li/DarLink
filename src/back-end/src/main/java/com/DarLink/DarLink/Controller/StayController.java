@@ -35,15 +35,13 @@ public class StayController {
         return ResponseEntity.ok(stayService.createStay(request, host));
     }
 
-    // GET /api/stays — list all, or filter by city/price
+    // GET /api/stays — list all, or filter by location/type/price bucket
     @GetMapping
     public ResponseEntity<List<StayResponse>> getStays(
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) Double maxPrice) {
-
-        if (city != null) return ResponseEntity.ok(stayService.getStaysByCity(city));
-        if (maxPrice != null) return ResponseEntity.ok(stayService.getStaysByMaxPrice(maxPrice));
-        return ResponseEntity.ok(stayService.getAllStays());
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String price) {
+        return ResponseEntity.ok(stayService.searchStays(location, type, price));
     }
 
     // GET /api/stays/{id} — get one stay
@@ -69,6 +67,11 @@ public class StayController {
         stayService.deleteStay(id, currentUser);
         return ResponseEntity.noContent().build();
     }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
 
     @GetMapping("/page")
     public ResponseEntity<Page<StayResponse>> getStaysPage(

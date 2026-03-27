@@ -5,12 +5,14 @@ import com.DarLink.DarLink.dto.StayResponse;
 import com.DarLink.DarLink.entity.Stay;
 import com.DarLink.DarLink.entity.User;
 import com.DarLink.DarLink.repository.StayRepository;
+import com.DarLink.DarLink.repository.spec.StaySpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 
 @Service
@@ -25,6 +27,7 @@ public class StayService {
         stay.setDescription(request.getDescription());
         stay.setCity(request.getCity());
         stay.setAddress(request.getAddress());
+        stay.setRoomType(request.getRoomType());
         stay.setPricePerNight(request.getPricePerNight());
         stay.setPhotoUrl(request.getPhotoUrl());
         stay.setHost(host);
@@ -35,6 +38,23 @@ public class StayService {
 
     public List<StayResponse> getAllStays() {
         return stayRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<StayResponse> searchStays(String location, String type, String price) {
+        String normalizedLocation = normalizeText(location);
+        String normalizedType = parseRoomTypeFilter(type);
+        PriceBounds priceBounds = parsePriceRange(price);
+
+        Specification<Stay> spec = Specification
+                .where(StaySpecifications.cityEquals(normalizedLocation))
+                .and(StaySpecifications.roomTypeEquals(normalizedType))
+                .and(StaySpecifications.minPrice(priceBounds.min()))
+                .and(StaySpecifications.maxPrice(priceBounds.max()));
+
+        return stayRepository.findAll(spec, Sort.by("createdAt").descending())
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -75,6 +95,7 @@ public class StayService {
         response.setDescription(stay.getDescription());
         response.setCity(stay.getCity());
         response.setAddress(stay.getAddress());
+        response.setRoomType(stay.getRoomType());
         response.setPricePerNight(stay.getPricePerNight());
         response.setPhotoUrl(stay.getPhotoUrl());
         response.setCreatedAt(stay.getCreatedAt());
@@ -98,6 +119,7 @@ public class StayService {
         stay.setDescription(request.getDescription());
         stay.setCity(request.getCity());
         stay.setAddress(request.getAddress());
+        stay.setRoomType(request.getRoomType());
         stay.setPricePerNight(request.getPricePerNight());
         stay.setPhotoUrl(request.getPhotoUrl());
 
@@ -114,6 +136,36 @@ public class StayService {
 
         stayRepository.delete(stay);
     }
+    private record PriceBounds(Double min, Double max) {}
+
+    private String normalizeText(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
+    }
+
+    private String parseRoomTypeFilter(String type) {
+        String normalizedType = normalizeText(type);
+        if (normalizedType == null || normalizedType.equals("Both")) {
+            return null;
+        }
+        return normalizedType;
+    }
+
+    private PriceBounds parsePriceRange(String price) {
+        if (price == null || price.isBlank()) {
+            return new PriceBounds(null, null);
+        }
+
+        return switch (price.trim()) {
+            case "0 - 1000 DH" -> new PriceBounds(0.0, 1000.0);
+            case "1000 - 2000 DH" -> new PriceBounds(1000.0, 2000.0);
+            case "2000+ DH" -> new PriceBounds(2000.0, null);
+            default -> throw new IllegalArgumentException("Invalid price filter: " + price);
+        };
+    }
+
 
     public Page<StayResponse> getStaysPage(int page) {
         Pageable pageable = PageRequest.of(page, 9, Sort.by("createdAt").descending());
