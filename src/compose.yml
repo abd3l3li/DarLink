@@ -7,6 +7,7 @@ services:
     ports:
       - 8080:80
       - 1337:443
+      - 5173:5173
     networks:
       - darlink
     volumes:

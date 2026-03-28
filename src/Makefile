@@ -20,7 +20,8 @@ up:
 run: build
 	@docker compose up -d
 	@echo "\033[32mContainers are up and running!\033[0m"
-	@echo "\033[32mhttps://localhost:1337\033[0m"
+	@echo "\033[32mProduction: https://localhost:1337\033[0m"
+	@echo "\033[32mDevelopment: http://localhost:5173\033[0m"
 
 up-d:
 	@docker compose up -d
