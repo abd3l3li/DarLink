@@ -29,9 +29,12 @@ If missing/invalid, expect `401 Unauthorized`.
 ### Login with 2FA (expected flow)
 
 - `POST /api/auth/login`
-  - If user has 2FA disabled → returns `{ "token": "..." }`
-  - If user has 2FA enabled → returns `403` with message like `"2FA required"`
+  - If user has 2FA disabled -> returns `{ "token": "..." }`
+  - If user has 2FA enabled -> currently returns `{ "token": null }`
+  - (legacy/fallback handling) frontend can also treat `403` as 2FA-required if encountered
 - Then call `POST /api/auth/2fa/verify-login` to complete login and obtain the token.
+
+See full endpoint contracts and copy-paste examples in `src/front-end/docs/2fa-test.md`.
 
 ## Common status codes
 
