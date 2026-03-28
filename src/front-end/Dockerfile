@@ -1,4 +1,5 @@
-FROM node:20-alpine
+# Stage 1 : Build React
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -11,7 +12,25 @@ RUN npm ci
 # source code
 COPY . .
 
-EXPOSE 5173
-
 # build project
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+RUN npm run build
+
+
+# Stage 2 : Nginx
+FROM nginx:alpine
+
+# remove default config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# using our config
+COPY ../../nginx/nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY ../../nginx/ssl /etc/nginx/ssl
+
+# copy build files from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+EXPOSE 443
+
+CMD ["nginx", "-g", "daemon off;"]
