@@ -4,6 +4,7 @@ import logo from "../ui/logo.svg";
 import Bell from "../utils/bell.jsx";
 import Logged from "./logged.jsx";
 import NotLogged from "./notLogged.jsx";
+import User from "../utils/user.jsx";
 
 
 function Navbar({isLoggedIn = false, isCreating = false}) {
@@ -68,8 +69,13 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
                         </div>
                     )}
 
+                    {isLoggedIn && (
+                        <div className="max-[300px]:hidden">
+                            <User />
+                        </div>
+                    )}
                     {isLoggedIn && <Bell className="md:hidden max-[300px]:hidden"/>}
-
+                    
                     {isLoggedIn && (
                         <button 
                             className="flex flex-col gap-1 p-2 group"
