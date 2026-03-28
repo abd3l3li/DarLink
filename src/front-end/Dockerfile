@@ -1,5 +1,4 @@
-# Stage 1 : Build React
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -14,23 +13,3 @@ COPY . .
 
 # build project
 RUN npm run build
-
-
-# Stage 2 : Nginx
-FROM nginx:alpine
-
-# remove default config
-RUN rm /etc/nginx/conf.d/default.conf
-
-# using our config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-COPY ssl /etc/nginx/ssl
-
-# copy build files from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-EXPOSE 80
-EXPOSE 443
-
-CMD ["nginx", "-g", "daemon off;"]
