@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -67,5 +68,13 @@ public class NotificationController {
         res.setRead(notification.isRead());
         res.setCreatedAt(notification.getCreatedAt());
         return res;
+    }
+
+    // POST /api/notifications/read/{id} - mark specific notification as read
+    @PostMapping("/api/notifications/read.{id}")
+    public ResponseEntity<String> markAsRead(@PathVariable Long id) {
+        User user = getCurrentUser();
+        notificationService.markAsRead(id, user);
+        return ResponseEntity.ok("Notification marked as read");
     }
 }
