@@ -1,4 +1,4 @@
-print:
+help:
 	@echo "Usage: make [target]"
 	@echo "Targets:"
 	@echo "  build       Build the Docker images"
