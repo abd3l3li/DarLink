@@ -2,9 +2,7 @@ import Google from "../ui/google.svg";
 import Intra from "../ui/intra.svg";
 
 export default function Log_with() {
-    const handleClick = () => {
-        window.location.href = "/";
-    };
+
     return (
         <div className="flex gap-4 mt-8 ">
             <a href="https://localhost:1337/oauth2/authorization/google">
