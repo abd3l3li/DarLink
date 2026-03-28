@@ -6,6 +6,7 @@ export const DROPDOWN_TYPES = {
     NONE: null,
     NOTIFICATIONS: "notifications",
     PROFILE: "profile",
+    MOBILE_MENU: "mobile-menu",
 };
 
 export function DropdownProvider({ children }) {
