@@ -1,6 +1,6 @@
 package com.DarLink.DarLink.Controller;
 
-import com.DarLink.DarLink.dto.UpdateProfileRequest;
+import com.DarLink.DarLink.dto.PatchMeRequest;
 import com.DarLink.DarLink.dto.UserResponse;
 import com.DarLink.DarLink.entity.User;
 import com.DarLink.DarLink.repository.UserRepository;
@@ -25,15 +25,14 @@ public class UserController {
         return userRepository.findByEmail(auth.getName()).orElseThrow();
     }
 
-    // GET /api/users/me — return current user's profile
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMyProfile() {
         return ResponseEntity.ok(userService.getMyProfile(getCurrentUser()));
     }
 
-    // PATCH /api/users/me — update bio, city, avatarUrl
+    // PATCH /api/users/me (protected)
     @PatchMapping("/me")
-    public ResponseEntity<UserResponse> updateMyProfile(@Valid @RequestBody UpdateProfileRequest request) {
-        return ResponseEntity.ok(userService.updateMyProfile(getCurrentUser(), request));
+    public ResponseEntity<UserResponse> patchMyProfile(@Valid @RequestBody PatchMeRequest request) {
+        return ResponseEntity.ok(userService.patchMe(getCurrentUser(), request));
     }
 }
