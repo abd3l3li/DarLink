@@ -12,7 +12,7 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
 
     return (
         <nav className="navbar fixed top-0 left-0 right-0 z-99 flex-shrink-0 bg-[var(--color-surface)] shadow-md">
-            <div className="flex items-center justify-between min-w-0 max-w-[103rem] w-full mx-auto px-7 py-2">
+            <div className="flex items-center justify-between min-w-0 max-w-[103rem] w-full mx-auto px-4 sm:px-7 py-2">
 
                 <Link to="/" className="logo md:block">
                     <img src={logo} alt="Logo" className="h-9 md:h-10 max-[300px]:hidden" draggable={false} />
@@ -63,11 +63,7 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
 
                 {/* mobile: bell + hamburger */}
                 <div className="flex items-center gap-3 md:hidden">
-                    {!isLoggedIn && (
-                        <div className="flex items-center">
-                            <NotLogged />
-                        </div>
-                    )}
+                    {!isLoggedIn && <NotLogged />}
 
                     {isLoggedIn && (
                         <div className="max-[300px]:hidden">
