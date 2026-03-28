@@ -2,17 +2,23 @@ package com.DarLink.DarLink.service;
 
 import com.DarLink.DarLink.dto.CreateStayRequest;
 import com.DarLink.DarLink.dto.StayResponse;
+import com.DarLink.DarLink.dto.StayResponse.OwnerResponse;
 import com.DarLink.DarLink.entity.Stay;
 import com.DarLink.DarLink.entity.User;
 import com.DarLink.DarLink.repository.StayRepository;
 import com.DarLink.DarLink.repository.spec.StaySpecifications;
+import com.DarLink.DarLink.util.JsonListConverter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,14 +29,30 @@ public class StayService {
 
     public StayResponse createStay(CreateStayRequest request, User host) {
         Stay stay = new Stay();
-        stay.setName(request.getName());
+        stay.setName(resolveName(request, null));
         stay.setDescription(request.getDescription());
         stay.setCity(request.getCity());
         stay.setAddress(request.getAddress());
         stay.setRoomType(request.getRoomType());
         stay.setPricePerNight(request.getPricePerNight());
-        stay.setPhotoUrl(request.getPhotoUrl());
+        stay.setAvailableSlots(request.getAvailableSlots());
         stay.setHost(host);
+
+        if (request.getPhotos() != null && !request.getPhotos().isEmpty()) {
+            stay.setPhotos(JsonListConverter.toJson(request.getPhotos()));
+            stay.setPhotoUrl(request.getPhotos().get(0));
+        } else if (hasText(request.getPhotoUrl())) {
+            stay.setPhotoUrl(request.getPhotoUrl().trim());
+            stay.setPhotos(JsonListConverter.toJson(List.of(request.getPhotoUrl().trim())));
+        }
+
+        if (request.getIncluded() != null) {
+            stay.setIncluded(JsonListConverter.toJson(request.getIncluded()));
+        }
+
+        if (request.getExpectations() != null) {
+            stay.setExpectations(JsonListConverter.toJson(request.getExpectations()));
+        }
 
         Stay savedStay = stayRepository.save(stay);
         return toResponse(savedStay);
@@ -60,9 +82,36 @@ public class StayService {
                 .toList();
     }
 
+    public List<StayResponse> filterByCity(String city) {
+        if (!hasText(city)) {
+            return getAllStays();
+        }
+        return stayRepository.findByCityIgnoreCase(city.trim())
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<StayResponse> filterByMaxPrice(Double maxPrice) {
+        if (maxPrice == null || maxPrice <= 0) {
+            return getAllStays();
+        }
+        return stayRepository.findByPricePerNightLessThanEqual(maxPrice)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<StayResponse> getMyListings(User host) {
+        return stayRepository.findByHostId(host.getId())
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public StayResponse getStayById(Long id) {
         Stay stay = stayRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Stay not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Stay not found with id: " + id));
 
         return toResponse(stay);
     }
@@ -75,7 +124,7 @@ public class StayService {
     }
 
     public List<StayResponse> getStaysByMaxPrice(Double maxPrice) {
-        return stayRepository.findByPricePerNightLessThan(maxPrice)
+        return stayRepository.findByPricePerNightLessThanEqual(maxPrice)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -98,48 +147,87 @@ public class StayService {
         response.setRoomType(stay.getRoomType());
         response.setPricePerNight(stay.getPricePerNight());
         response.setPhotoUrl(stay.getPhotoUrl());
+        response.setAvailableSlots(stay.getAvailableSlots());
         response.setCreatedAt(stay.getCreatedAt());
+
+        List<String> photos = new ArrayList<>(JsonListConverter.fromJson(stay.getPhotos()));
+        if (photos.isEmpty() && hasText(stay.getPhotoUrl())) {
+            photos.add(stay.getPhotoUrl().trim());
+        }
+        response.setPhotos(photos);
+        response.setIncluded(JsonListConverter.fromJson(stay.getIncluded()));
+        response.setExpectations(JsonListConverter.fromJson(stay.getExpectations()));
 
         if (stay.getHost() != null) {
             response.setHostId(stay.getHost().getId());
             response.setHostUsername(stay.getHost().getUsername());
+            response.setHostAvatarUrl(stay.getHost().getAvatarUrl());
+
+            OwnerResponse owner = new OwnerResponse(
+                    stay.getHost().getId(),
+                    stay.getHost().getUsername(),
+                    stay.getHost().getAvatarUrl()
+            );
+            response.setOwner(owner);
         }
 
         return response;
     }
+
     public StayResponse updateStay(Long id, CreateStayRequest request, User currentUser) {
         Stay stay = stayRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Stay not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Stay not found with id: " + id));
 
         if (!stay.getHost().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("You are not the host of this stay");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the host of this stay");
         }
 
-        stay.setName(request.getName());
+        stay.setName(resolveName(request, stay));
         stay.setDescription(request.getDescription());
         stay.setCity(request.getCity());
         stay.setAddress(request.getAddress());
         stay.setRoomType(request.getRoomType());
         stay.setPricePerNight(request.getPricePerNight());
-        stay.setPhotoUrl(request.getPhotoUrl());
+        stay.setAvailableSlots(request.getAvailableSlots());
+
+        if (request.getPhotos() != null && !request.getPhotos().isEmpty()) {
+            stay.setPhotos(JsonListConverter.toJson(request.getPhotos()));
+            stay.setPhotoUrl(request.getPhotos().get(0));
+        } else if (hasText(request.getPhotoUrl())) {
+            stay.setPhotoUrl(request.getPhotoUrl().trim());
+            stay.setPhotos(JsonListConverter.toJson(List.of(request.getPhotoUrl().trim())));
+        }
+
+        if (request.getIncluded() != null) {
+            stay.setIncluded(JsonListConverter.toJson(request.getIncluded()));
+        }
+
+        if (request.getExpectations() != null) {
+            stay.setExpectations(JsonListConverter.toJson(request.getExpectations()));
+        }
 
         return toResponse(stayRepository.save(stay));
     }
 
     public void deleteStay(Long id, User currentUser) {
         Stay stay = stayRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Stay not found with id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Stay not found with id: " + id));
 
         if (!stay.getHost().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("You are not the host of this stay");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the host of this stay");
         }
 
         stayRepository.delete(stay);
     }
+
     private record PriceBounds(Double min, Double max) {}
 
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
     private String normalizeText(String value) {
-        if (value == null || value.isBlank()) {
+        if (!hasText(value)) {
             return null;
         }
         return value.trim();
@@ -166,6 +254,18 @@ public class StayService {
         };
     }
 
+    private String resolveName(CreateStayRequest request, Stay existingStay) {
+        if (hasText(request.getName())) {
+            return request.getName().trim();
+        }
+        if (existingStay != null && hasText(existingStay.getName())) {
+            return existingStay.getName();
+        }
+
+        String room = hasText(request.getRoomType()) ? request.getRoomType().trim() : "Room";
+        String city = hasText(request.getCity()) ? request.getCity().trim() : "Unknown city";
+        return room + " in " + city;
+    }
 
     public Page<StayResponse> getStaysPage(int page) {
         Pageable pageable = PageRequest.of(page, 9, Sort.by("createdAt").descending());

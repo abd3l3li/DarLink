@@ -1,17 +1,10 @@
 package com.DarLink.DarLink.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
@@ -26,7 +19,7 @@ public class Stay {
     @NotBlank(message = "Title is required")
     private String name;
 
-    @Column(columnDefinition = "TEXT") // Allows long descriptions
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @NotBlank(message = "City is required")
@@ -34,20 +27,35 @@ public class Stay {
 
     private String address;
 
-    private  String roomType; // e.g., "Entire Place", "Private Room", "Shared Room"
+    private String roomType;
 
     @Min(value = 0, message = "Price cannot be negative")
     private Double pricePerNight;
 
-    // Stores photo URL (we will handle file upload in Phase 4)
-    private String photoUrl; 
-    
-    // RELATIONS: A Stay belongs to one Host (User)
-    @ManyToOne(fetch = FetchType.LAZY)  // fetch = FetchType.LAZY means we only load the host when we need it
+    // NEW: Store multiple photos as JSON array
+    @Column(columnDefinition = "TEXT")
+    private String photos; // Stored as JSON: ["url1", "url2"]
+
+    // Keep photoUrl for backward compatibility
+    private String photoUrl;
+
+    // NEW: Available slots/rooms
+    @Min(value = 0, message = "Available slots cannot be negative")
+    private Integer availableSlots;
+
+    // NEW: What's included (JSON array)
+    @Column(columnDefinition = "TEXT")
+    private String included; // Stored as JSON: ["Wi-Fi", "Kitchen"]
+
+    // NEW: Expectations/rules (JSON array)
+    @Column(columnDefinition = "TEXT")
+    private String expectations; // Stored as JSON: ["No smoking", "Quiet at night"]
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "host_id", nullable = false)
     private User host;
 
-    @Column(name = "created_at", updatable = false) 
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     // Constructors
@@ -58,15 +66,20 @@ public class Stay {
         this.city = city;
         this.pricePerNight = pricePerNight;
         this.host = host;
+        this.photos = "[]";
+        this.included = "[]";
+        this.expectations = "[]";
     }
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.photos == null) this.photos = "[]";
+        if (this.included == null) this.included = "[]";
+        if (this.expectations == null) this.expectations = "[]";
     }
 
-    // --- Getters and Setters ---
-
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -90,6 +103,18 @@ public class Stay {
 
     public String getPhotoUrl() { return photoUrl; }
     public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+
+    public String getPhotos() { return photos; }
+    public void setPhotos(String photos) { this.photos = photos; }
+
+    public Integer getAvailableSlots() { return availableSlots; }
+    public void setAvailableSlots(Integer availableSlots) { this.availableSlots = availableSlots; }
+
+    public String getIncluded() { return included; }
+    public void setIncluded(String included) { this.included = included; }
+
+    public String getExpectations() { return expectations; }
+    public void setExpectations(String expectations) { this.expectations = expectations; }
 
     public User getHost() { return host; }
     public void setHost(User host) { this.host = host; }
