@@ -15,6 +15,8 @@ import Terms from "./components/layout/Terms.jsx";
 import Privacy from "./components/layout/Privacy.jsx";
 import Contact from "./components/layout/Contact.jsx";
 import AuthCallback from "./pages/AuthCallback.jsx";
+import TwoFA from "./pages/TwoFA.jsx";
+import TwoFASetup from "./pages/2fa-setup.jsx";
 
 const router = createBrowserRouter([
   {
@@ -72,6 +74,16 @@ const router = createBrowserRouter([
     element: <AuthCallback />,
     errorElement: <NotFound />,
   },
+  {
+    path: "/2fa",
+    element: <TwoFA />,
+    errorElement: <NotFound />,
+  }
+  ,{
+    path: "/2fa-setup",
+    element: <TwoFASetup />,
+    errorElement: <NotFound />,
+  }
 
 
 ]);
