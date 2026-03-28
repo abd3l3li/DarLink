@@ -8,7 +8,7 @@ It does not replace existing docs; it is a practical checklist you can follow on
 - [ ] You have access to the repository.
 - [ ] You can run Docker and Docker Compose locally.
 - [ ] You have Java 17, Maven, Node.js, and npm installed (for non-container debugging).
-- [ ] You can run HTTPS locally (`https://localhost:8443`).
+- [ ] You can run HTTPS locally (`https://localhost:1337`).
 
 ## 2) Clone and Enter the Project
 
