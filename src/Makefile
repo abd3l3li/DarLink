@@ -1,4 +1,4 @@
-print:
+help:
 	@echo "Usage: make [target]"
 	@echo "Targets:"
 	@echo "  build       Build the Docker images"
@@ -42,3 +42,5 @@ ps:
 
 logs:
 	@docker compose logs $(SERVICE)
+
+re: down run
