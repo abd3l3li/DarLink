@@ -80,8 +80,9 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     };
 
     const handleLogout = () => {
-        // TODO: handle logout with backend
         console.log("Logging out...");
+        localStorage.removeItem("token");
+        window.location.href = "/";
         onClose();
     };
 
@@ -297,7 +298,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     <svg className="w-5 h-5 text-[var(--color-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
-                    <span className="text-[var(--color-text)]">Log out</span>
+                    <span className="text-[var(--color-text)] hover:text-red-400">Log out</span>
                 </button>
             </div>
 

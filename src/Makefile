@@ -42,3 +42,5 @@ ps:
 
 logs:
 	@docker compose logs $(SERVICE)
+
+re: down run
