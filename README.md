@@ -93,6 +93,14 @@ Design characteristics:
 
 ## 4) Tech Stack
 
+Frontend (`src/front-end/package.json`):
+
+- React `19.x`.
+- React Router `7.x`.
+- Vite `7.x`.
+- Tailwind CSS `4.x`.
+- Chakra UI and related UI dependencies.
+
 Backend (`src/back-end/pom.xml`):
 
 - Java 17 (project property) with Spring Boot `3.5.11`.
@@ -104,14 +112,6 @@ Backend (`src/back-end/pom.xml`):
 - JWT with `jjwt` `0.12.5`.
 - PostgreSQL JDBC driver.
 - Lombok.
-
-Frontend (`src/front-end/package.json`):
-
-- React `19.x`.
-- React Router `7.x`.
-- Vite `7.x`.
-- Tailwind CSS `4.x`.
-- Chakra UI and related UI dependencies.
 
 Infra:
 
@@ -152,7 +152,7 @@ From `src/compose.yml` + `src/nginx/nginx.conf`:
 
 - External ports:
   - `8080`: HTTP (redirects to HTTPS)
-  - `8443`: HTTPS public entrypoint
+  - `1337`: HTTPS public entrypoint
 - Internal services:
   - `frontend`: Vite dev server on `5173` (proxied)
   - `backend`: Spring app on `8081` (proxied)
@@ -197,7 +197,7 @@ All commands below are run from `src/`.
 Quick start:
 
 ```bash
-cd /media/lvillager/ssd/work/DarLink/src
+cd /DarLink/src
 make build
 make up
 ```
@@ -205,10 +205,10 @@ make up
 Common lifecycle commands:
 
 ```bash
-cd /media/lvillager/ssd/work/DarLink/src
+cd /DarLink/src
 make up-d
 make ps
-make logs sr=backend
+make logs SERVICE=backend
 make down
 make clean
 ```
@@ -216,7 +216,7 @@ make clean
 Equivalent direct compose commands:
 
 ```bash
-cd /media/lvillager/ssd/work/DarLink/src
+cd /DarLink/src
 docker compose up --build
 docker compose up -d
 docker compose ps -a
@@ -357,16 +357,16 @@ make up
 Inspect service logs:
 
 ```bash
-cd /media/lvillager/ssd/work/DarLink/src
-make logs sr=frontend
-make logs sr=backend
-make logs sr=db
+cd /DarLink/src
+make logs SERVICE=frontend
+make logs SERVICE=backend
+make logs SERVICE=db
 ```
 
 Cleanup all volumes and images (destructive):
 
 ```bash
-cd /media/lvillager/ssd/work/DarLink/src
+cd /DarLink/src
 make fclean
 ```
 
