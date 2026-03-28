@@ -12,32 +12,32 @@ print:
 	@echo "  logs        Show logs for a specific service (set SERVICE variable)"
 
 build:
-	docker compose build
+	@docker compose build
 
 up:
-	docker compose up
+	@docker compose up
 
 run: build
-	docker compose up -d
+	@docker compose up -d
 	@echo "\033[32mContainers are up and running!\033[0m"
 	@echo "\033[32mhttps://localhost:1337\033[0m"
 
 up-d:
-	docker compose up -d
+	@docker compose up -d
 
 down:
-	docker compose down
+	@docker compose down
 
 clean:
-	docker compose down -v
-	docker volume prune
+	@docker compose down -v
+	@docker volume prune -f
 
 fclean: clean
-	docker compose down --rmi 'all' -v
-	docker image prune
+	@docker compose down --rmi 'all' -v
+	@docker image prune -f
 
 ps:
-	docker compose ps -a
+	@docker compose ps -a
 
 logs:
-	docker compose logs $(SERVICE)
+	@docker compose logs $(SERVICE)
