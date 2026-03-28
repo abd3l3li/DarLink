@@ -268,7 +268,7 @@ public class StayService {
     }
 
     public Page<StayResponse> getStaysPage(int page) {
-        Pageable pageable = PageRequest.of(page, 9, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(page, 6, Sort.by("createdAt").descending());
         return stayRepository.findAll(pageable).map(this::toResponse);
     }
 }
