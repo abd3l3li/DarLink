@@ -70,7 +70,7 @@ public class NotificationController {
         return res;
     }
 
-    // POST /api/notifications/read/{id} - mark specific notification as read
+    // POST /api/notifications/read.{id} - mark specific notification as read
     @PostMapping("/api/notifications/read.{id}")
     public ResponseEntity<String> markAsRead(@PathVariable Long id) {
         User user = getCurrentUser();

@@ -75,7 +75,7 @@ Frontend key folders:
 
 High-level flow:
 
-1. Browser hits `https://localhost:8443`.
+1. Browser hits `https://localhost:1337`.
 2. Nginx serves as entrypoint and reverse proxy.
 3. Requests are routed by path:
    - `/` -> frontend Vite app (`frontend:5173`)
@@ -160,8 +160,8 @@ From `src/compose.yml` + `src/nginx/nginx.conf`:
 
 User-facing URLs:
 
-- App UI: `https://localhost:8443/`
-- API through proxy: `https://localhost:8443/api/...`
+- App UI: `https://localhost:1337/`
+- API through proxy: `https://localhost:1337/api/...`
 - OAuth2 callback endpoint (backend): `/login/oauth2/code/{provider}`
 
 ## 7) Configuration and Secrets
@@ -309,7 +309,7 @@ OAuth2:
 
 - Providers configured: Google and 42.
 - Success handler creates/fetches local user and redirects frontend to:
-  - `https://localhost:8443/auth/callback?token=<jwt>`
+  - `https://localhost:1337/auth/callback?token=<jwt>`
 
 ## 13) Real-Time Messaging (WebSocket/STOMP)
 
@@ -372,7 +372,7 @@ make fclean
 
 ## 16) Troubleshooting Guide
 
-1. Browser shows certificate warning on `https://localhost:8443`
+1. Browser shows certificate warning on `https://localhost:1337`
    - Expected when using local self-signed certs in `src/nginx/ssl`.
 
 2. API returns `401 Unauthorized`

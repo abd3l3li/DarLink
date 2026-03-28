@@ -23,7 +23,7 @@ This document defines a full implementation plan for adding Two-Factor Authentic
 
 ### Frontend (React)
 - Login request from `Right_Side_2.jsx` to:
-  - `https://localhost:8443/api/auth/login`
+  - `https://localhost:1337/api/auth/login`
 - Token storage:
   - JWT saved in `localStorage` (e.g. `localStorage.setItem("token", data.token)`)
 - OAuth callback:
