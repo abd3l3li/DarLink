@@ -11,5 +11,7 @@ RUN npm ci
 # source code
 COPY . .
 
+EXPOSE 5173
+
 # build project
-RUN npm run build
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
