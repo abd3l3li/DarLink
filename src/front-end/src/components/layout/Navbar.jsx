@@ -1,20 +1,21 @@
 import { NavLink, Link } from "react-router-dom";
-import { useState } from "react";
 import logo from "../ui/logo.svg";
 import Bell from "../utils/bell.jsx";
 import Logged from "./logged.jsx";
 import NotLogged from "./notLogged.jsx";
 import User from "../utils/user.jsx";
+import { useDropdown, DROPDOWN_TYPES } from "../utils/dropdownContext.jsx";
 
 
 function Navbar({isLoggedIn = false, isCreating = false}) {
-    const [isOpen, setIsOpen] = useState(false);
+    const { activeDropdown, toggleDropdown, closeDropdown } = useDropdown();
+    const isOpen = activeDropdown === DROPDOWN_TYPES.MOBILE_MENU;
 
     return (
         <nav className="navbar fixed top-0 left-0 right-0 z-99 flex-shrink-0 bg-[var(--color-surface)] shadow-md">
             <div className="flex items-center justify-between min-w-0 max-w-[103rem] w-full mx-auto px-4 sm:px-7 py-2">
 
-                <Link to="/" className="logo md:block">
+                <Link to="/" className="logo md:block" onClick={closeDropdown}>
                     <img src={logo} alt="Logo" className="h-9 md:h-10 max-[300px]:hidden" draggable={false} />
                 </Link>
 
@@ -75,7 +76,10 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
                     {isLoggedIn && (
                         <button 
                             className="flex flex-col gap-1 p-2 group"
-                            onClick={() => setIsOpen(!isOpen)} >
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleDropdown(DROPDOWN_TYPES.MOBILE_MENU);
+                            }} >
 
                             <span className={`w-6 h-0.5 bg-[var(--color-text)] group-hover:bg-[var(--color-secondary)] transition-all ${isOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
                             <span className={`w-6 h-0.5 bg-[var(--color-text)] group-hover:bg-[var(--color-secondary)] transition-all ${isOpen ? 'opacity-0' : ''}`}></span>
@@ -88,13 +92,13 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
 
             {/* mobile menu */}
             {isOpen && (
-                <div className="md:hidden mt-5 px-5 pb-4">
+                <div className="md:hidden mt-5 px-5 pb-4" data-dropdown>
                     <ul className="flex flex-col gap-4 font-bold text-lg">
-                        <li className="hover:text-[var(--color-secondary)]"><Link to="/" onClick={() => setIsOpen(false)}>Home</Link></li>
-                        <li className="hover:text-[var(--color-secondary)]"><Link to="/slots" onClick={() => setIsOpen(false)}>Slots</Link></li>
+                        <li className="hover:text-[var(--color-secondary)]"><Link to="/" onClick={closeDropdown}>Home</Link></li>
+                        <li className="hover:text-[var(--color-secondary)]"><Link to="/slots" onClick={closeDropdown}>Slots</Link></li>
                         {/* <li className="hover:text-[var(--color-secondary)]"><Link to="/profile" onClick={() => setIsOpen(false)}>Profile</Link></li> */}
-                        <li className="hover:text-[var(--color-secondary)]"><Link to="/create-post" onClick={() => setIsOpen(false)}>Create</Link></li>
-                        <li className="hover:text-[var(--color-secondary)]"><Link to="/about" onClick={() => setIsOpen(false)}>About</Link></li>
+                        <li className="hover:text-[var(--color-secondary)]"><Link to="/create-post" onClick={closeDropdown}>Create</Link></li>
+                        <li className="hover:text-[var(--color-secondary)]"><Link to="/about" onClick={closeDropdown}>About</Link></li>
 
                     </ul>
 
