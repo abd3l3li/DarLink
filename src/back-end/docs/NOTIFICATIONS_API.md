@@ -104,23 +104,6 @@ Response: `200 OK`
 
 ---
 
-### PUT /api/notifications/{id}/read
-
-Marks a specific notification as read. Use this to mark individual notifications as read without affecting others.
-
-```
-PUT https://localhost:8443/api/notifications/{id}/read
-Authorization: Bearer {token}
-```
-
-Response: `200 OK`
-```
-"Notification marked as read"
-```
-
-
----
-
 ## Real Time Notifications via WebSocket
 
 In addition to fetching notifications via REST, the server pushes notifications in real time via WebSocket. Subscribe to the personal topic after login to receive them instantly.

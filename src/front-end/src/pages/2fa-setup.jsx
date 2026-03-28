@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function TwoFASetup() {
   const [qr, setQr] = useState("");
   const [code, setCode] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQR = async () => {
@@ -25,16 +27,19 @@ export default function TwoFASetup() {
   const verify = async () => {
     const token = localStorage.getItem("token");
 
-    await fetch("https://localhost:1337/api/auth/2fa/verify-setup", {
+    const res = await fetch("https://localhost:1337/api/auth/2fa/verify-setup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({ totpCode: code })
-    });
+    }).catch(() => alert("Invalid code"));
 
-    alert("2FA enabled!");
+    if (!res.ok)
+      alert("Invalid code");
+    else
+      navigate("/");
   };
 
   return (
