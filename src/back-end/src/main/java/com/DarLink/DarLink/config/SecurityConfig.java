@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -39,14 +40,16 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ Public: register & login
                         .requestMatchers("/api/auth/**").permitAll()
-                        // ✅ Public: WebSocket handshake
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/ws-test.html").permitAll()
-                        // ✅ Public: browsing stays (GET only — no token needed to view listings)
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/stays/**").permitAll()
-                        // 🔒 Everything else requires a valid JWT
+
+                        // Keep /mine protected (must be before the broad GET permitAll)
+                        .requestMatchers("/api/stays/mine").authenticated()
+
+                        // Public browsing stays
+                        .requestMatchers(HttpMethod.GET, "/api/stays/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
@@ -85,31 +88,3 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -7,11 +7,12 @@ import com.DarLink.DarLink.repository.UserRepository;
 import com.DarLink.DarLink.service.StayService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 @RestController
@@ -24,34 +25,16 @@ public class StayController {
 
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName(); // returns email from JWT principal
+        String email = auth.getName();
         return userRepository.findByEmail(email).orElseThrow();
     }
 
-    // POST /api/stays/create — host-only create
     @PostMapping("/create")
     public ResponseEntity<StayResponse> createStay(@Valid @RequestBody CreateStayRequest request) {
         User host = getCurrentUser();
         return ResponseEntity.ok(stayService.createStay(request, host));
     }
 
-    // GET /api/stays — list all, or filter by location/type/price bucket
-    @GetMapping
-    public ResponseEntity<List<StayResponse>> getStays(
-            @RequestParam(required = false) String location,
-            @RequestParam(required = false) String type,
-            @RequestParam(required = false) String price) {
-        return ResponseEntity.ok(stayService.searchStays(location, type, price));
-    }
-
-    // GET /api/stays/{id} — get one stay
-    @GetMapping("/{id}")
-    public ResponseEntity<StayResponse> getStayById(
-            @PathVariable Long id) {
-        return ResponseEntity.ok(stayService.getStayById(id));
-    }
-
-    // PUT /api/stays/{id} — host-only update
     @PutMapping("/{id}")
     public ResponseEntity<StayResponse> updateStay(
             @PathVariable Long id,
@@ -60,22 +43,56 @@ public class StayController {
         return ResponseEntity.ok(stayService.updateStay(id, request, currentUser));
     }
 
-    // DELETE /api/stays/{id} — host-only delete
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStay(@PathVariable Long id) {
         User currentUser = getCurrentUser();
         stayService.deleteStay(id, currentUser);
         return ResponseEntity.noContent().build();
     }
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+
+    @GetMapping
+    public ResponseEntity<List<StayResponse>> getStays(
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String price,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Double maxPrice) {
+
+        if (city != null || maxPrice != null) {
+            List<StayResponse> results = (city != null)
+                    ? stayService.filterByCity(city)
+                    : stayService.getAllStays();
+
+            if (maxPrice != null) {
+                results = results.stream()
+                        .filter(stay -> stay.getPricePerNight() != null && stay.getPricePerNight() <= maxPrice)
+                        .toList();
+            }
+            return ResponseEntity.ok(results);
+        }
+
+        return ResponseEntity.ok(stayService.searchStays(location, type, price));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<StayResponse> getStayById(@PathVariable Long id) {
+        return ResponseEntity.ok(stayService.getStayById(id));
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<StayResponse>> getMyListings() {
+        User currentUser = getCurrentUser();
+        return ResponseEntity.ok(stayService.getMyListings(currentUser));
+    }
 
     @GetMapping("/page")
     public ResponseEntity<Page<StayResponse>> getStaysPage(
             @RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.ok(stayService.getStaysPage(page));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

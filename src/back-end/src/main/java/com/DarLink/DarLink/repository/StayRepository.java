@@ -1,21 +1,22 @@
 package com.DarLink.DarLink.repository;
 
-import java.util.List;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.DarLink.DarLink.entity.Stay;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface StayRepository extends JpaRepository<Stay, Long>, JpaSpecificationExecutor<Stay> {
 
-    // Find all stays in a specific city (Useful for Phase 4 Search)
     List<Stay> findByCityIgnoreCase(String city);
 
-    // Find all stays hosted by a specific user
+    List<Stay> findByPricePerNightLessThan(Double price);
+
+    List<Stay> findByPricePerNightLessThanEqual(Double price);
+
     List<Stay> findByHostId(Long hostId);
 
-    // Find stays cheaper than a certain price
-    List<Stay> findByPricePerNightLessThan(Double pricePerNight);
+    List<Stay> findByRoomType(String roomType);
 }

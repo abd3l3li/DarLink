@@ -1,12 +1,17 @@
 package com.DarLink.DarLink.service;
 
+import com.DarLink.DarLink.dto.PatchMeRequest;
 import com.DarLink.DarLink.dto.UpdateProfileRequest;
 import com.DarLink.DarLink.dto.UserResponse;
 import com.DarLink.DarLink.entity.User;
 import com.DarLink.DarLink.exception.UserAlreadyExistsException;
 import com.DarLink.DarLink.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +22,8 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final TotpService totpService;
 
     public void registerUser(User user) {
         if (userRepository.existsUserByUsername(user.getUsername())) {
@@ -47,6 +54,7 @@ public class UserService {
         return toResponse(currentUser);
     }
 
+    // old endpoint compatibility
     public UserResponse updateMyProfile(User currentUser, UpdateProfileRequest request) {
         currentUser.setBio(request.getBio());
         currentUser.setCity(request.getCity());
@@ -54,6 +62,51 @@ public class UserService {
 
         User savedUser = userRepository.save(currentUser);
         return toResponse(savedUser);
+    }
+
+    // NEW: simple PATCH /api/users/me (replace provided fields only)
+    public UserResponse patchMe(User currentUser, PatchMeRequest request) {
+        if (request.getAvatarUrl() != null) {
+            currentUser.setAvatarUrl(normalizeNullable(request.getAvatarUrl()));
+        }
+
+        if (request.getUsername() != null) {
+            currentUser.setUsername(request.getUsername().trim());
+        }
+
+        if (request.getEmail() != null) {
+            currentUser.setEmail(request.getEmail().trim().toLowerCase());
+        }
+
+        // no current password check (simple mode)
+        if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
+            currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
+
+        // simple 2FA toggle (no totp verification)
+        if (request.getTwoFactorEnabled() != null) {
+            if (Boolean.TRUE.equals(request.getTwoFactorEnabled())) {
+                currentUser.setTwoFactorEnabled(true);
+                // if user enables 2FA and has no secret, generate one
+                if (currentUser.getTotpSecret() == null || currentUser.getTotpSecret().isBlank()) {
+                    currentUser.setTotpSecret(totpService.generateSecret());
+                }
+                // setup not verified in this simple mode
+                currentUser.setTwoFactorVerified(false);
+            } else {
+                currentUser.setTwoFactorEnabled(false);
+                currentUser.setTwoFactorVerified(false);
+                currentUser.setTotpSecret(null);
+            }
+        }
+
+        try {
+            User savedUser = userRepository.save(currentUser);
+            return toResponse(savedUser);
+        } catch (DataIntegrityViolationException ex) {
+            // Handles duplicate username/email unique constraints
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username or email already exists");
+        }
     }
 
     public UserResponse toResponse(User user) {
@@ -64,7 +117,15 @@ public class UserService {
         res.setBio(user.getBio());
         res.setCity(user.getCity());
         res.setAvatarUrl(user.getAvatarUrl());
+        res.setTwoFactorEnabled(user.getTwoFactorEnabled());
+        res.setTwoFactorVerified(user.getTwoFactorVerified());
         res.setCreatedAt(user.getCreatedAt());
         return res;
+    }
+
+    private String normalizeNullable(String value) {
+        String v = value == null ? null : value.trim();
+        if (v == null || v.isEmpty()) return null;
+        return v;
     }
 }

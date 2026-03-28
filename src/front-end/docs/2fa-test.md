@@ -1,31 +1,41 @@
-# 2FA Frontend Linking Guide
+# 2FA API Guide for Frontend
 
-This guide explains how the front-end should integrate the current 2FA backend flow.
+This document is the frontend reference for the current backend 2FA behavior.
+
+It is based on these backend routes:
+
+- `POST /api/auth/login`
+- `POST /api/auth/2fa/setup`
+- `POST /api/auth/2fa/verify-setup`
+- `POST /api/auth/2fa/verify-login`
+- `DELETE /api/auth/2fa/disable`
 
 ## Base URL
 
-Use your backend host, for example:
+Use one of these depending on your setup:
 
-- `http://localhost:8081` (common in this project)
-- `http://localhost:8080` (fallback if `SERVER_PORT` is not set)
+- `https://localhost:1337` (recommended if frontend proxy is running)
+- `http://localhost:8081` (direct backend)
+
+Examples in this doc use relative paths like `/api/auth/login`.
 
 ---
 
-## Quick Flow (Frontend)
+## Frontend Login Flow (Current)
 
-1. User logs in with email/password (`POST /api/auth/login`).
-2. If login returns a token, user is fully logged in.
-3. If login returns `token: null`, treat this as **2FA required** and show the TOTP screen.
-4. Submit TOTP with email to `POST /api/auth/2fa/verify-login`.
-5. Save returned JWT and continue normally.
+1. User submits email/password to `POST /api/auth/login`.
+2. If response has `token` string: user is fully authenticated.
+3. If response is `{ "token": null }`: user must complete 2FA.
+4. Show TOTP input UI and call `POST /api/auth/2fa/verify-login` with `email + totpCode`.
+5. Save returned JWT and continue to protected pages.
 
 ---
 
 ## Endpoint Contracts
 
-### 1) Login (first step)
+### 1) Login
 
-**POST** `/api/auth/login`
+**POST** `/api/auth/login` (public)
 
 Request:
 
@@ -36,7 +46,7 @@ Request:
 }
 ```
 
-Response when 2FA is not enabled:
+Success (no 2FA enabled):
 
 ```json
 {
@@ -44,7 +54,7 @@ Response when 2FA is not enabled:
 }
 ```
 
-Response when 2FA is enabled (current backend behavior):
+Success (2FA enabled):
 
 ```json
 {
@@ -52,16 +62,16 @@ Response when 2FA is enabled (current backend behavior):
 }
 ```
 
-Frontend rule:
+Frontend decision rule:
 
-- `token` exists -> login success.
-- `token` is `null` -> open 2FA verification UI.
+- `token` is a non-empty string: login done.
+- `token === null`: route to 2FA verification step.
 
 ---
 
-### 2) Setup 2FA (enable flow)
+### 2) Setup 2FA (Generate secret + QR URL)
 
-**POST** `/api/auth/2fa/setup`
+**POST** `/api/auth/2fa/setup` (protected)
 
 Headers:
 
@@ -69,9 +79,9 @@ Headers:
 Authorization: Bearer <jwt_token>
 ```
 
-Body: none.
+Body: none
 
-Success response:
+Success:
 
 ```json
 {
@@ -80,21 +90,22 @@ Success response:
 }
 ```
 
-Frontend use:
+Frontend usage:
 
-- Show QR using `qrCodeUrl`.
-- Optionally show `secret` for manual entry in authenticator app.
+- Render QR from `qrCodeUrl`.
+- Provide `secret` copy button for manual authenticator entry.
 
 ---
 
-### 3) Verify 2FA setup (enable confirmation)
+### 3) Verify setup and enable 2FA
 
-**POST** `/api/auth/2fa/verify-setup`
+**POST** `/api/auth/2fa/verify-setup` (protected)
 
 Headers:
 
 ```http
 Authorization: Bearer <jwt_token>
+Content-Type: application/json
 ```
 
 Request:
@@ -105,7 +116,7 @@ Request:
 }
 ```
 
-Success response:
+Success:
 
 ```json
 {
@@ -113,22 +124,16 @@ Success response:
 }
 ```
 
-Possible error:
+Common failures:
 
-- `400` with `"Invalid TOTP code"`
-
-Frontend use:
-
-- If success: mark account as 2FA enabled in UI.
-- If error: show inline message and allow retry.
+- `400` `Invalid TOTP code`
+- `400` `Error: User not found`
 
 ---
 
-### 4) Verify login with 2FA
+### 4) Verify login with TOTP
 
-**POST** `/api/auth/2fa/verify-login`
-
-Headers: none required (public endpoint in current security config).
+**POST** `/api/auth/2fa/verify-login` (public)
 
 Request:
 
@@ -139,7 +144,7 @@ Request:
 }
 ```
 
-Success response:
+Success:
 
 ```json
 {
@@ -147,20 +152,17 @@ Success response:
 }
 ```
 
-Possible errors:
+Common failures:
 
-- `400` `"Invalid TOTP code"`
-- `400` `"2FA not enabled for this user"`
-
-Frontend use:
-
-- On success, store token and continue to protected pages.
+- `400` `Invalid TOTP code`
+- `400` `2FA not enabled for this user`
+- `400` `Error: User not found`
 
 ---
 
 ### 5) Disable 2FA
 
-**DELETE** `/api/auth/2fa/disable`
+**DELETE** `/api/auth/2fa/disable` (protected)
 
 Headers:
 
@@ -168,7 +170,7 @@ Headers:
 Authorization: Bearer <jwt_token>
 ```
 
-Success response:
+Success:
 
 ```json
 {
@@ -178,49 +180,138 @@ Success response:
 
 ---
 
-## UI State Suggestions
+## Copy-Paste Frontend Snippets
 
-Use explicit states to avoid confusion:
+### Login step
+
+```js
+const res = await fetch("/api/auth/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password })
+});
+
+const data = await res.json();
+
+if (data.token) {
+  localStorage.setItem("token", data.token);
+  // navigate to app
+} else {
+  // token is null => ask for TOTP
+  setPending2faEmail(email);
+  setAuthStep("awaiting_2fa_code");
+}
+```
+
+### Verify login TOTP step
+
+```js
+const res = await fetch("/api/auth/2fa/verify-login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email: pending2faEmail, totpCode })
+});
+
+const data = await res.json();
+
+if (res.ok && data.token) {
+  localStorage.setItem("token", data.token);
+  // navigate to app
+} else {
+  setError(typeof data === "string" ? data : "Invalid code or expired code");
+}
+```
+
+---
+
+## Suggested UI States
 
 - `idle`
-- `loading`
+- `login_loading`
 - `awaiting_2fa_code`
-- `2fa_setup_pending_verification`
+- `setup_2fa_pending`
 - `authenticated`
 - `error`
 
-Recommended login transition:
+State transition for login:
 
-- Submit email/password -> `loading`
-- If `token` present -> `authenticated`
-- If `token === null` -> `awaiting_2fa_code`
-- On valid TOTP -> `authenticated`
-
----
-
-## Error Handling Map
-
-- `Invalid TOTP code` -> "The code is invalid or expired. Try the latest code."
-- `User not found` -> generic auth error (avoid leaking account details in UI copy)
-- `2FA not enabled for this user` -> return user to normal login path or account settings
-- Any other `400/401` -> show generic message + keep entered email
+- submit credentials -> `login_loading`
+- receive token -> `authenticated`
+- receive `token: null` -> `awaiting_2fa_code`
+- valid `verify-login` token -> `authenticated`
 
 ---
 
-## Postman Validation Sequence (before UI wiring)
+## Postman Test Steps (Quick)
 
-1. `POST /api/auth/register` -> copy token.
-2. `POST /api/auth/2fa/setup` with Bearer token -> get `qrCodeUrl` and `secret`.
-3. Add secret to Google Authenticator.
-4. `POST /api/auth/2fa/verify-setup` with Bearer token and fresh `totpCode` -> success message.
-5. `POST /api/auth/login` -> expect `{"token": null}` for this user.
-6. `POST /api/auth/2fa/verify-login` with `email + totpCode` -> receive final JWT.
+1) Register a user:
+
+`POST /api/auth/register`
+
+```json
+{
+  "username": "front2fa",
+  "email": "front2fa@example.com",
+  "password": "secret123"
+}
+```
+
+Copy returned JWT as `token`.
+
+2) Setup 2FA:
+
+`POST /api/auth/2fa/setup` with header `Authorization: Bearer <token>`
+
+Copy `secret` from response into Google Authenticator.
+
+3) Verify setup:
+
+`POST /api/auth/2fa/verify-setup` with Bearer token
+
+```json
+{
+  "totpCode": "123456"
+}
+```
+
+4) Test login now requires 2FA:
+
+`POST /api/auth/login`
+
+```json
+{
+  "email": "front2fa@example.com",
+  "password": "secret123"
+}
+```
+
+Expected response:
+
+```json
+{
+  "token": null
+}
+```
+
+5) Complete login with TOTP:
+
+`POST /api/auth/2fa/verify-login`
+
+```json
+{
+  "email": "front2fa@example.com",
+  "totpCode": "123456"
+}
+```
+
+Expected response contains final JWT token.
 
 ---
 
-## Frontend Notes
+## Important Notes
 
-- TOTP codes are time-based and expire quickly (usually 30 seconds), so retry with a new code when needed.
-- Keep login email in local component state so user does not retype it on the 2FA screen.
-- Do not log JWT or TOTP codes in production console logs.
+- TOTP codes change every ~30 seconds; always test with a fresh code.
+- Keep the login email in state between step 1 and step 2.
+- Do not log JWT, secret, or TOTP values in production logs.
+- Current `verify-login` takes only `email + totpCode` (no challenge token yet).
 

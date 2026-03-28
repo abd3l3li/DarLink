@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound.jsx";
 import Terms from "./components/layout/Terms.jsx";
 import Privacy from "./components/layout/Privacy.jsx";
 import Contact from "./components/layout/Contact.jsx";
+import AuthCallback from "./pages/AuthCallback.jsx";
 
 const router = createBrowserRouter([
   {
@@ -65,7 +66,12 @@ const router = createBrowserRouter([
     path: "/contact",
     element: <Contact />,
     errorElement: <NotFound />,
-  }
+  },
+  {
+    path: "/auth/callback",
+    element: <AuthCallback />,
+    errorElement: <NotFound />,
+  },
 
 
 ]);

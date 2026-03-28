@@ -16,5 +16,7 @@ public class UserResponse {
     private String bio;
     private String city;
     private String avatarUrl;
+    private Boolean twoFactorEnabled;
+    private Boolean twoFactorVerified;
     private LocalDateTime createdAt;
 }
