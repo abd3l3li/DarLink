@@ -9,7 +9,7 @@ This document covers the notification system. Notifications are stored in the da
 ## Base URL
 
 ```
-https://localhost:8443
+https://localhost:1337
 ```
 
 ---
@@ -40,7 +40,7 @@ User closes notification panel
 Returns all notifications for the authenticated user, newest first.
 
 ```
-GET https://localhost:8443/api/notifications
+GET https://localhost:1337/api/notifications
 Authorization: Bearer {token}
 ```
 
@@ -77,7 +77,7 @@ Response:
 Returns the count of unread notifications. Use this for the notification badge.
 
 ```
-GET https://localhost:8443/api/notifications/unread-count
+GET https://localhost:1337/api/notifications/unread-count
 Authorization: Bearer {token}
 ```
 
@@ -93,13 +93,29 @@ Response:
 Marks all notifications as read. Call this when the user opens the notification panel.
 
 ```
-POST https://localhost:8443/api/notifications/read
+POST https://localhost:1337/api/notifications/read
 Authorization: Bearer {token}
 ```
 
 Response: `200 OK`
 ```
 "All notifications marked as read"
+```
+
+---
+
+### POST /api/notifications/read.{id}
+
+Marks a specific notification as read.
+
+```
+POST https://localhost:1337/api/notifications/read.{id}
+Authorization: Bearer {token}
+```
+
+Response: `200 OK`
+```
+"Notification marked as read"
 ```
 
 ---

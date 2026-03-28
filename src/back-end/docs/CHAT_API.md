@@ -11,8 +11,8 @@ All requests must include a valid JWT token in the Authorization header.
 
 | Protocol | URL |
 |----------|-----|
-| HTTPS | `https://localhost:8443` |
-| WebSocket | `https://localhost:8443/ws` |
+| HTTPS | `https://localhost:1337` |
+| WebSocket | `https://localhost:1337/ws` |
 
 > HTTP requests to `http://localhost:8080` are automatically redirected to HTTPS.
 
@@ -42,7 +42,7 @@ If the room already exists throws an error.
 Sends a `room_updated` notification to both users.
 
 ```
-POST https://localhost:8443/api/rooms?user2Id={id}
+POST https://localhost:1337/api/rooms?user2Id={id}
 Authorization: Bearer {token}
 ```
 
@@ -58,7 +58,7 @@ Response: `200 OK`
 Returns all chat rooms the authenticated user belongs to.
 
 ```
-GET https://localhost:8443/api/rooms
+GET https://localhost:1337/api/rooms
 Authorization: Bearer {token}
 ```
 
@@ -84,7 +84,7 @@ Returns the chat room between the authenticated user and another user.
 Checks both directions automatically.
 
 ```
-GET https://localhost:8443/api/rooms/between?user2Id={id}
+GET https://localhost:1337/api/rooms/between?user2Id={id}
 Authorization: Bearer {token}
 ```
 
@@ -107,7 +107,7 @@ Response:
 Returns the full message history for a room.
 
 ```
-GET https://localhost:8443/api/rooms/messages?roomId={id}
+GET https://localhost:1337/api/rooms/messages?roomId={id}
 Authorization: Bearer {token}
 ```
 
@@ -134,7 +134,7 @@ Response:
 Connect using SockJS + STOMP client:
 
 ```javascript
-const socket = new SockJS('https://localhost:8443/ws');
+const socket = new SockJS('https://localhost:1337/ws');
 const stompClient = Stomp.over(socket);
 
 stompClient.connect(

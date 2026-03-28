@@ -67,8 +67,8 @@ make up
 ```
 
 - [ ] Containers are up (`make ps`).
-- [ ] Nginx listens on `8080` and `8443`.
-- [ ] App opens at `https://localhost:8443`.
+- [ ] Nginx listens on `8080` and `1337`.
+- [ ] App opens at `https://localhost:1337`.
 
 Useful commands:
 
@@ -204,7 +204,7 @@ make up
 
 You are fully onboarded when all are true:
 
-- [ ] App loads via `https://localhost:8443`.
+- [ ] App loads via `https://localhost:1337`.
 - [ ] You can register/login and receive JWT.
 - [ ] You can create a stay and a slot request.
 - [ ] You can access protected endpoints with token.

@@ -51,4 +51,14 @@ public class NotificationService {
         notifications.forEach(n -> n.setRead(true));
         notificationRepository.saveAll(notifications);
     }
+
+    public void markAsRead(Long notificationId, User user) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+        if (!notification.getRecipient().equals(user)) {
+            throw new RuntimeException("Unauthorized");
+        }
+        notification.setRead(true);
+        notificationRepository.save(notification);
+    }
 }

@@ -9,7 +9,7 @@ This document covers the OAuth2 login flow and JWT token usage.
 ## Base URL
 
 ```
-https://localhost:8443
+https://localhost:1337
 ```
 
 ---
@@ -19,8 +19,8 @@ https://localhost:8443
 The app supports two OAuth2 providers. Direct the user to one of these URLs:
 
 ```
-Login with Google → https://localhost:8443/oauth2/authorization/google
-Login with 42     → https://localhost:8443/oauth2/authorization/42
+Login with Google → https://localhost:1337/oauth2/authorization/google
+Login with 42     → https://localhost:1337/oauth2/authorization/42
 ```
 
 These URLs are generated automatically by Spring Boot. No backend code needed.
@@ -32,7 +32,7 @@ These URLs are generated automatically by Spring Boot. No backend code needed.
 After a successful login the server redirects the browser to:
 
 ```
-https://localhost:8443/auth/callback?token=eyJhbGc...
+https://localhost:1337/auth/callback?token=eyJhbGc...
 ```
 
 Read the token from the URL and store it:
