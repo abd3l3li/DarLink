@@ -2,36 +2,32 @@ import { useEffect, useState, useRef, useCallback } from "react";
 
 // ─── Exponential backoff config ───────────────────────────────────────────────
 const INITIAL_INTERVAL_MS = 30_000;
-const MAX_INTERVAL_MS = 300_000; // 5 min cap during outages
+const MAX_INTERVAL_MS = 300_000;
 const BACKOFF_MULTIPLIER = 1.5;
 
-// ─── Status definitions ───────────────────────────────────────────────────────
+// ─── Clean Status Definitions ─────────────────────────────────────────────────
 const STATUS = {
   healthy: {
     label: "All Systems Operational",
     badge: "Operational",
-    dotColor: "bg-green-500",
-    dotShadow: "shadow-[0_0_8px_rgba(34,197,94,0.8)]",
-    badgeBg: "bg-green-100 text-green-700 border-green-200",
-    textColor: "text-green-600",
-    barColor: "bg-green-500",
+    dotColor: "bg-emerald-500",
+    badgeBg: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20",
+    textColor: "text-emerald-600",
     icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+      <svg className="w-6 h-6 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
   },
   degraded: {
     label: "Partial System Degradation",
     badge: "Degraded",
-    dotColor: "bg-amber-400",
-    dotShadow: "shadow-[0_0_8px_rgba(245,158,11,0.8)]",
-    badgeBg: "bg-amber-100 text-amber-700 border-amber-200",
-    textColor: "text-amber-500",
-    barColor: "bg-amber-400",
+    dotColor: "bg-amber-500",
+    badgeBg: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20",
+    textColor: "text-amber-600",
     icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+      <svg className="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
     ),
   },
@@ -39,26 +35,22 @@ const STATUS = {
     label: "Major Outage Detected",
     badge: "Down",
     dotColor: "bg-red-500",
-    dotShadow: "shadow-[0_0_8px_rgba(239,68,68,0.8)]",
-    badgeBg: "bg-red-100 text-red-700 border-red-200",
-    textColor: "text-red-500",
-    barColor: "bg-red-500",
+    badgeBg: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/10",
+    textColor: "text-red-600",
     icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
     ),
   },
   loading: {
-    label: "Checking system status…",
+    label: "Checking system status...",
     badge: "Checking",
     dotColor: "bg-gray-400",
-    dotShadow: "",
-    badgeBg: "bg-gray-100 text-gray-500 border-gray-200",
-    textColor: "text-gray-400",
-    barColor: "bg-gray-300",
+    badgeBg: "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/10",
+    textColor: "text-gray-500",
     icon: (
-      <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+      <svg className="w-6 h-6 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
       </svg>
@@ -79,10 +71,9 @@ function buildComponents(data) {
   return Object.entries(data.components).map(([key, val]) => {
     const s = (val?.status || "UNKNOWN").toUpperCase();
     let status;
-    if (s === "UP")                            status = "healthy";
-    else if (s === "OUT_OF_SERVICE")           status = "degraded";
-    else if (s === "UNKNOWN")                  status = "degraded"; // expected before first backup run
-    else                                       status = "down";
+    if (s === "UP") status = "healthy";
+    else if (s === "OUT_OF_SERVICE" || s === "UNKNOWN") status = "degraded";
+    else status = "down";
     return {
       name: key.charAt(0).toUpperCase() + key.slice(1),
       status,
@@ -91,140 +82,114 @@ function buildComponents(data) {
   });
 }
 
-// Component name → friendly label + icon
 const COMPONENT_META = {
-  Db: { label: "Database", icon: "🗄️" },
-  Diskspace: { label: "Disk Space", icon: "💾" },
-  Ping: { label: "Connectivity", icon: "📡" },
-  Backup: { label: "Backup", icon: "🔒" },
-  Backuphealthindicator: { label: "Backup Age", icon: "🔒" },
-  Ssl: { label: "SSL / Certificates", icon: "🔐" },
+  Db: { label: "Database" },
+  Diskspace: { label: "Disk Space" },
+  Ping: { label: "Connectivity" },
+  Backup: { label: "Backup System" },
+  Backuphealthindicator: { label: "Backup Freshness" },
+  Ssl: { label: "SSL / Certificates" },
 };
 
 function getComponentMeta(name) {
   const key = name.replace(/\s/g, "");
-  return COMPONENT_META[key] || { label: name, icon: "⚙️" };
+  return COMPONENT_META[key] || { label: name };
 }
 
-// ─── Formatting helpers ────────────────────────────────────────────────────────
-
 function formatBytes(bytes) {
-  if (bytes === undefined || bytes === null || isNaN(bytes)) return 'Unknown';
-  if (bytes === 0) return '0 B';
+  if (bytes === undefined || bytes === null || isNaN(bytes)) return "Unknown";
+  if (bytes === 0) return "0 B";
   const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(Math.abs(bytes)) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
 
 function formatDate(isoString) {
-  if (!isoString) return 'Unknown';
+  if (!isoString) return "Unknown";
   try {
     const d = new Date(isoString);
     if (isNaN(d.getTime())) return isoString;
     return d.toLocaleString(undefined, {
-      year: 'numeric', month: 'short', day: 'numeric', 
-      hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+      year: "numeric", month: "short", day: "numeric",
+      hour: "2-digit", minute: "2-digit"
     });
   } catch (e) {
     return isoString;
   }
 }
 
+// Minimalist detail row
+function DetailRow({ label, value, isCode }) {
+  return (
+    <div className="flex justify-between items-center py-1.5 text-sm">
+      <span className="text-gray-500">{label}</span>
+      {isCode ? (
+        <code className="bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded text-xs border border-gray-200">
+          {value}
+        </code>
+      ) : (
+        <span className="text-gray-900 font-medium">{value}</span>
+      )}
+    </div>
+  );
+}
+
 function FormattedDetails({ name, details }) {
   const n = String(name).toLowerCase();
 
-  // Disk Space
-  if (n === 'diskspace') {
-    const displayPath = details.path === '/.' ? 'Root Directory (/)' : (details.path || 'N/A');
+  if (n === "diskspace") {
+    const displayPath = details.path === "/." ? "Root Directory (/)" : (details.path || "N/A");
     return (
-      <div className="grid gap-2 text-sm text-[var(--color-muted)]">
-        <p><strong className="text-[var(--color-text)] font-medium">Path:</strong> {displayPath}</p>
-        <p><strong className="text-[var(--color-text)] font-medium">Status:</strong> {details.exists ? 'Available' : 'Unavailable'}</p>
-        <p><strong className="text-[var(--color-text)] font-medium">Total Space:</strong> {formatBytes(details.total)}</p>
-        <p><strong className="text-[var(--color-text)] font-medium">Free Space:</strong> {formatBytes(details.free)}</p>
-        <p><strong className="text-[var(--color-text)] font-medium">Warning Threshold:</strong> {formatBytes(details.threshold)}</p>
+      <div className="pt-2 border-t border-gray-100 mt-2 space-y-1">
+        <DetailRow label="Path" value={displayPath} />
+        <DetailRow label="Total Space" value={formatBytes(details.total)} />
+        <DetailRow label="Free Space" value={formatBytes(details.free)} />
       </div>
     );
   }
 
-  // Backup
-  if (n === 'backup' || n === 'backuphealthindicator') {
+  if (n === "backup" || n === "backuphealthindicator") {
     return (
-      <div className="grid gap-2 text-sm text-[var(--color-muted)]">
-        {details.lastBackup && (
-          <p><strong className="text-[var(--color-text)] font-medium">Last Backup:</strong> {formatDate(details.lastBackup)}</p>
-        )}
-        {details.ageHours !== undefined && (
-          <p><strong className="text-[var(--color-text)] font-medium">Backup Age:</strong> {details.ageHours} {details.ageHours === 1 ? 'hour' : 'hours'} ago</p>
-        )}
-        {details.error && (
-          <p className="text-red-500"><strong className="font-medium">Error:</strong> {details.error}</p>
-        )}
+      <div className="pt-2 border-t border-gray-100 mt-2 space-y-1">
+        {details.lastBackup && <DetailRow label="Last Backup" value={formatDate(details.lastBackup)} />}
+        {details.ageHours !== undefined && <DetailRow label="Age" value={`${details.ageHours}h ago`} />}
+        {details.error && <DetailRow label="Error" value={<span className="text-red-600">{details.error}</span>} />}
       </div>
     );
   }
 
-  // Database / Db
-  if (n === 'db' || n === 'database') {
+  if (n === "db" || n === "database") {
     return (
-      <div className="grid gap-2 text-sm text-[var(--color-muted)]">
-        <p><strong className="text-[var(--color-text)] font-medium">System:</strong> {details.database || 'Unknown'}</p>
+      <div className="pt-2 border-t border-gray-100 mt-2 space-y-1">
+        <DetailRow label="System" value={details.database || "Unknown"} />
         {details.validationQuery && (
-          <p>
-            <strong className="text-[var(--color-text)] font-medium">Validation Check:</strong>
-            <span className="ml-1 text-[var(--color-text)]">
-              {details.validationQuery === 'isValid()' 
-                ? 'Built-in Driver Validation' 
-                : <code className="bg-[var(--color-bg)] px-1.5 py-0.5 rounded border border-[var(--color-border-gray)] text-xs">{details.validationQuery}</code>}
-            </span>
-          </p>
+          <DetailRow 
+            label="Validation" 
+            value={details.validationQuery === "isValid()" ? "Driver Native" : details.validationQuery} 
+            isCode={details.validationQuery !== "isValid()"}
+          />
         )}
       </div>
     );
   }
 
-  // SSL
-  if (n === 'ssl') {
+  if (n === "ssl") {
     const validCount = details.validChains?.length || 0;
     const invalidCount = details.invalidChains?.length || 0;
     return (
-      <div className="grid gap-2 text-sm text-[var(--color-muted)]">
-        <p>
-          <strong className="text-[var(--color-text)] font-medium">Valid Certificates:</strong> 
-          <span className="ml-1 text-[var(--color-text)]">
-            {validCount === 0 ? '0 (Pending Configuration)' : validCount}
-          </span>
-        </p>
-        <p>
-          <strong className="text-[var(--color-text)] font-medium">Invalid Certificates:</strong> 
-          <span className={`ml-1 ${invalidCount === 0 ? 'text-[var(--color-text)]' : 'text-red-500 font-medium'}`}>
-            {invalidCount === 0 ? '0 (Clean)' : `${invalidCount} Detected`}
-          </span>
-        </p>
+      <div className="pt-2 border-t border-gray-100 mt-2 space-y-1">
+        <DetailRow label="Valid Certs" value={validCount} />
+        <DetailRow label="Invalid Certs" value={<span className={invalidCount > 0 ? "text-red-600" : ""}>{invalidCount}</span>} />
       </div>
     );
   }
 
-  // Generic block for any other unexpected data
   return (
-    <div className="flex flex-col gap-2 text-sm text-[var(--color-muted)]">
+    <div className="pt-2 border-t border-gray-100 mt-2 space-y-1">
       {Object.entries(details).map(([k, v]) => {
-        if (typeof v === 'object' && v !== null && !Array.isArray(v)) {
-          return (
-            <div key={k} className="mt-1">
-              <strong className="text-[var(--color-text)] font-medium capitalize block mb-1">{k.replace(/([A-Z])/g, ' $1').trim()}:</strong>
-              <div className="pl-3 border-l-2 border-[var(--color-border-gray)]">
-                <FormattedDetails name={k} details={v} />
-              </div>
-            </div>
-          );
-        }
-        return (
-          <p key={k}>
-            <strong className="text-[var(--color-text)] font-medium capitalize">{k.replace(/([A-Z])/g, ' $1').trim()}:</strong> {String(v)}
-          </p>
-        );
+        if (typeof v === "object" && v !== null && !Array.isArray(v)) return null; // Simplified for clean cards
+        return <DetailRow key={k} label={k.replace(/([A-Z])/g, " $1").trim()} value={String(v)} />;
       })}
     </div>
   );
@@ -292,166 +257,100 @@ export default function StatusPage() {
   const cfg = STATUS[status] ?? STATUS.down;
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] font-[Inter,sans-serif]">
-      {/* ── Page header ── */}
-      <div className="border-b border-[var(--color-border-gray)] bg-[var(--color-surface)]">
-        <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-[var(--color-text)]">System Status</h1>
-            <p className="text-sm text-[var(--color-muted)] mt-0.5">DarLink platform health overview</p>
-          </div>
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-blue-100">
+      
+      {/* ── Header ── */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+          <h1 className="text-base font-semibold text-gray-900 tracking-tight">System Status</h1>
           <button
-            id="status-refresh-btn"
             onClick={() => {
               clearTimeout(timerRef.current);
               clearInterval(countRef.current);
               setStatus("loading");
               fetchHealth().then(scheduleNext);
             }}
-            className="flex items-center gap-2 text-sm text-[var(--color-primary)] border border-[var(--color-primary)]/30
-                       bg-[var(--color-primary)]/5 hover:bg-[var(--color-primary)]/10 
-                       px-4 py-2 rounded-full transition-colors duration-200 cursor-pointer"
+            className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors bg-white border border-gray-200 hover:bg-gray-50 px-3 py-1.5 rounded-md shadow-sm"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            <svg className={`w-4 h-4 ${status === 'loading' ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             Refresh
           </button>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
+      {/* ── Main Content ── */}
+      <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
 
-        {/* ── Overall status banner ── */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border-gray)] rounded-xl p-6
-                        flex flex-col sm:flex-row sm:items-center gap-4 shadow-sm">
-          <div className="flex items-center gap-4 flex-1 min-w-0">
-            {/* Pulsing dot */}
-            <span className="relative flex-shrink-0">
-              <span className={`block w-4 h-4 rounded-full ${cfg.dotColor} ${cfg.dotShadow}`} />
-              {status !== "loading" && (
-                <span className={`absolute inset-0 rounded-full ${cfg.dotColor} opacity-40 animate-ping`} />
-              )}
-            </span>
-            <div className="min-w-0">
-              <p className={`text-lg font-semibold ${cfg.textColor}`}>{cfg.label}</p>
-              {errorMsg && (
-                <p className="text-xs text-red-500 mt-0.5 truncate">
-                  {errorMsg}
-                </p>
+        {/* Hero Banner (Overall Status) */}
+        <section className="bg-white border border-gray-200 rounded-xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-full bg-gray-50 border border-gray-100 ${status === 'loading' ? 'animate-pulse' : ''}`}>
+              {cfg.icon}
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">{cfg.label}</h2>
+              {errorMsg ? (
+                <p className="text-sm text-red-600 mt-1">{errorMsg}</p>
+              ) : (
+                <p className="text-sm text-gray-500 mt-1">DarLink services and infrastructure</p>
               )}
             </div>
           </div>
-
-          <span className={`self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 
-                            text-xs font-semibold rounded-full border ${cfg.badgeBg}`}>
-            <span className={cfg.textColor}>{cfg.icon}</span>
-            {cfg.badge}
-          </span>
-        </div>
-
-        {/* ── Poll info bar ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs text-[var(--color-muted)] 
-                        bg-[var(--color-surface)] border border-[var(--color-border-gray)] rounded-lg px-4 py-3">
-          <div className="flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {lastChecked
-              ? <>Last checked: <strong className="text-[var(--color-text)] font-medium">{lastChecked.toLocaleTimeString()}</strong></>
-              : "Fetching status…"}
+          
+          <div className="text-right flex flex-col items-end gap-2">
+             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cfg.badgeBg}`}>
+                {cfg.badge}
+             </span>
+             <p className="text-xs text-gray-400">
+               Next update in {nextIn}s
+             </p>
           </div>
-          <span className="hidden sm:block text-[var(--color-border-gray)]">·</span>
-          <span>
-            Next check in <strong className={`font-medium ${cfg.textColor}`}>{nextIn}s</strong>
-          </span>
-          <span className="hidden sm:block text-[var(--color-border-gray)]">·</span>
-          <span>Exponential backoff active during outages (max {MAX_INTERVAL_MS / 60000} min)</span>
-        </div>
+        </section>
 
-        {/* ── Component breakdown ── */}
+        {/* Component Grid */}
         {components.length > 0 && (
-          <section>
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)] mb-3">
-              Component Health
-            </h2>
-            <div className="bg-[var(--color-surface)] border border-[var(--color-border-gray)] rounded-xl overflow-hidden shadow-sm divide-y divide-[var(--color-border-gray)]">
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-gray-900">System Components</h3>
+              <span className="text-xs text-gray-500">Last checked: {lastChecked ? lastChecked.toLocaleTimeString() : "..."}</span>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {components.map((c) => {
                 const ccfg = STATUS[c.status];
                 const meta = getComponentMeta(c.name);
                 const hasDetails = Object.keys(c.details).length > 0;
+                
                 return (
-                  <details key={c.name} className="group">
-                    <summary className={`flex items-center gap-4 px-5 py-4 cursor-pointer 
-                                        hover:bg-[var(--color-bg)] transition-colors duration-150
-                                        ${hasDetails ? "" : "pointer-events-none"}`}>
-                      {/* Status dot */}
-                      <span className="relative flex-shrink-0">
-                        <span className={`block w-2.5 h-2.5 rounded-full ${ccfg.dotColor}`} />
-                      </span>
-
-                      {/* Icon + name */}
-                      <span className="text-lg flex-shrink-0 select-none" aria-hidden>{meta.icon}</span>
-                      <span className="flex-1 font-medium text-sm text-[var(--color-text)]">{meta.label}</span>
-
-                      {/* Badge */}
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 
-                                        text-xs font-semibold rounded-full border ${ccfg.badgeBg}`}>
-                        <span className={ccfg.textColor}>{ccfg.icon}</span>
+                  <div key={c.name} className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow transition-shadow">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2.5">
+                        <span className={`w-2 h-2 rounded-full ${ccfg.dotColor}`} />
+                        <h4 className="text-sm font-medium text-gray-900">{meta.label}</h4>
+                      </div>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${ccfg.badgeBg}`}>
                         {ccfg.badge}
                       </span>
-
-                      {/* Expand chevron */}
-                      {hasDetails && (
-                        <svg className="w-4 h-4 text-[var(--color-muted)] transition-transform group-open:rotate-180 flex-shrink-0"
-                             fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg>
-                      )}
-                    </summary>
-
-                    {/* Detail pane */}
-                    {hasDetails && (
-                      <div className="px-5 pb-4 pt-1 bg-[var(--color-bg)]">
-                        <div className="bg-[var(--color-surface)] border border-[var(--color-border-gray)] rounded-lg p-4">
-                          <FormattedDetails name={c.name} details={c.details} />
-                        </div>
+                    </div>
+                    
+                    {/* Render details directly in the card if they exist */}
+                    {hasDetails ? (
+                      <FormattedDetails name={c.name} details={c.details} />
+                    ) : (
+                      <div className="pt-2 border-t border-gray-100 mt-2">
+                        <p className="text-xs text-gray-400 italic">No additional details</p>
                       </div>
                     )}
-                  </details>
+                  </div>
                 );
               })}
             </div>
           </section>
         )}
 
-        {/* ── Uptime legend ── */}
-        <section>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)] mb-3">
-            Status Legend
-          </h2>
-          <div className="bg-[var(--color-surface)] border border-[var(--color-border-gray)] rounded-xl p-5 shadow-sm
-                          grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-            {["healthy", "degraded", "down"].map((s) => {
-              const sc = STATUS[s];
-              return (
-                <div key={s} className="flex items-center gap-3">
-                  <span className={`w-3 h-3 rounded-full flex-shrink-0 ${sc.dotColor} ${sc.dotShadow}`} />
-                  <div>
-                    <p className={`font-semibold ${sc.textColor}`}>{sc.badge}</p>
-                    <p className="text-xs text-[var(--color-muted)]">
-                      {s === "healthy" && "All components UP"}
-                      {s === "degraded" && "Some components impacted or pending first run"}
-                      {s === "down" && "Critical failure / unreachable"}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-      </div>
+      </main>
     </div>
   );
 }
