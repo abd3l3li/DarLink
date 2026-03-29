@@ -14,15 +14,15 @@ export default function AuthCallback() {
     console.log("require2fa:", require2fa);
 
     if (token) {
-      localStorage.setItem("token", token);
-
       if (require2fa && email) {
-        // User has 2FA enabled, redirect to 2FA verification
+        // User has 2FA enabled, store token temporarily in sessionStorage
+        sessionStorage.setItem("tempToken", token);
         localStorage.setItem("pendingEmail", email);
         console.log("2FA required, redirecting to /2fa");
         navigate("/2fa", { replace: true });
       } else {
-        // No 2FA, normal login
+        // No 2FA, save token to localStorage and navigate to home
+        localStorage.setItem("token", token);
         console.log("saved token, navigating to /");
         navigate("/", { replace: true });
       }
