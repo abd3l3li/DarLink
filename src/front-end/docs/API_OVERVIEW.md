@@ -114,6 +114,7 @@ Backend chat messages use:
 
 - `API_AUTH_USERS.md`
 - `API_LISTINGS_STAYS.md`
+- `API_UPLOADS.md`
 - `API_SEARCH_FILTERS.md`
 - `API_SLOT_REQUESTS.md`
 - `API_CHAT_AND_FRIENDS.md`

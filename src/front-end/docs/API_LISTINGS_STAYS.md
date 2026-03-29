@@ -205,15 +205,21 @@ Returns stays where the logged-in user is the host.
 
 ---
 
-## Photos (optional but recommended)
+## Photos upload (implemented)
 
-If you want to support `photos` upload from the frontend (data URLs / file picker), consider:
+Use the implemented endpoint:
 
-### POST `/api/uploads/photos` (protected)
+### POST `/api/uploads/images` (protected)
 
-`multipart/form-data` with one or more files.
+`multipart/form-data` with one or more files using field key `files`.
 
-**Response `200`**
+Returns:
+
 ```json
-{ "urls": ["https://cdn.../photo1.jpg", "https://cdn.../photo2.jpg"] }
+{ "urls": ["/uploads/uuid-1.jpg", "/uploads/uuid-2.png"] }
 ```
+
+Then pass those URLs in `photos` when creating/updating a stay.
+
+See complete frontend upload guide in `src/front-end/docs/API_UPLOADS.md`.
+
