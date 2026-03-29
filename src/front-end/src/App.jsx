@@ -17,6 +17,7 @@ import Contact from "./components/layout/Contact.jsx";
 import AuthCallback from "./pages/AuthCallback.jsx";
 import TwoFA from "./pages/TwoFA.jsx";
 import TwoFASetup from "./pages/2fa-setup.jsx";
+import StatusPage from "./pages/StatusPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,12 @@ const router = createBrowserRouter([
   ,{
     path: "/2fa-setup",
     element: <TwoFASetup />,
+    errorElement: <NotFound />,
+  },
+  {
+    // OPS: public system status page — no auth required
+    path: "/status",
+    element: <StatusPage />,
     errorElement: <NotFound />,
   }
 
