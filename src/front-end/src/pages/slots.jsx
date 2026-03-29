@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Search from "../components/stays/searchBar.jsx";
 import Card from "../components/stays/card.jsx";
 import { fetchStays } from "../lib/staysApi.js";
@@ -8,12 +8,21 @@ import { getDisplaySlots } from "../lib/stays.js";
 const PAGE_SIZE = 6;
 
 export default function Slots() {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [page, setPage] = useState(0);
 
     const [filters, setFilters] = useState({ location: "", type: "", price: "" });
     const [stays, setStays] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const parseFiltersFromUrl = () => {
+        return {
+            location: searchParams.get("location") ?? "",
+            type: searchParams.get("type") ?? "",
+            price: searchParams.get("price") ?? "",
+        };
+    };
 
     const load = async (nextFilters) => {
         setLoading(true);
@@ -30,14 +39,25 @@ export default function Slots() {
     };
 
     useEffect(() => {
-        load(filters);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const onSearch = (nextFilters) => {
+        const nextFilters = parseFiltersFromUrl();
         setFilters(nextFilters);
         setPage(0);
         load(nextFilters);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
+
+    const onSearch = (nextFilters) => {
+        setPage(0);
+
+        const nextParams = {};
+        Object.entries(nextFilters || {}).forEach(([key, value]) => {
+            if (value == null) return;
+            const str = String(value).trim();
+            if (!str) return;
+            nextParams[key] = str;
+        });
+
+        setSearchParams(nextParams);
     };
     
     const availableStays = stays.filter((item) => getDisplaySlots(item) > 0);
@@ -54,13 +74,13 @@ export default function Slots() {
             </div>
 
             {loading && (
-                <div className="w-full max-w-7xl mx-auto px-5 mt-6 text-[var(--color-muted)]">Loading stays…</div>
+                <div className="w-full max-w-7xl mx-auto px-5 mt-6 text-(--color-muted)">Loading stays…</div>
             )}
             {!loading && error && (
                 <div className="w-full max-w-7xl mx-auto px-5 mt-6 text-red-500">{error}</div>
             )}
             {!loading && !error && availableStays.length === 0 && (
-                <div className="w-full max-w-7xl mx-auto px-5 mt-6 text-[var(--color-muted)]">No stays found.</div>
+                <div className="w-full max-w-7xl mx-auto px-5 mt-6 text-(--color-muted)">No stays found.</div>
             )}
 
             <div className="grid grid-cols-1 place-items-center md:grid-cols-2 md:gap-10 
@@ -78,19 +98,19 @@ export default function Slots() {
                         type="button"
                         onClick={() => setPage((p) => p - 1)}
                         disabled={!hasPrev}
-                        className="px-4 py-2 rounded-md bg-[var(--color-secondary)] text-white 
+                        className="px-4 py-2 rounded-md bg-(--color-secondary) text-white 
                                     disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all duration-300"
                     >
                         Previous
                     </button>
-                    <span className="py-2 text-[var(--color-muted)]">
+                    <span className="py-2 text-(--color-muted)">
                         {page + 1} / {totalPages}
                     </span>
                     <button
                         type="button"
                         onClick={() => setPage((p) => p + 1)}
                         disabled={!hasNext}
-                        className="px-4 py-2 rounded-md bg-[var(--color-secondary)] text-white 
+                        className="px-4 py-2 rounded-md bg-(--color-secondary) text-white 
                                     disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-all duration-300"
                     >
                         Next

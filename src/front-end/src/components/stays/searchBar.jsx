@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const filterOptions = [
 	{ name: "location", label: "Location", placeholder: "Select City", options: ["Casablanca", "Rabat", "Marrakech", "Fès", "Tanger", "Agadir", "Oujda", "Kenitra", "Ben Guerir"] },
@@ -9,23 +9,27 @@ const filterOptions = [
 export default function FloatingSearchBar({ onSearch, initialFilters }) {
 	const [filters, setFilters] = useState(initialFilters ?? { location: "", type: "", price: "" });
 
+	useEffect(() => {
+		setFilters(initialFilters ?? { location: "", type: "", price: "" });
+	}, [initialFilters]);
+
 	const handleChange = (e) => setFilters({ ...filters, [e.target.name]: e.target.value });
 
 	return (
 
-		<div className="mt-16 w-full max-w-7xl z-30 rounded-2xl bg-[var(--color-surface)] p-7 shadow-2xl">
+		<div className="mt-16 w-full max-w-7xl z-30 rounded-2xl bg-(--color-surface) p-7 shadow-2xl">
 			<div className="grid grid-cols-1 gap-4 md:grid-cols-4 lg:gap-6">
 
 				{filterOptions.map(({ name, label, placeholder, options }) => (
 					<div key={name} className="flex flex-col text-left">
-						<label className="mb-2 pl-2 text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
+						<label className="mb-2 pl-2 text-xs font-bold uppercase tracking-wider text-(--color-muted)">
 							{label}
 						</label>
 						<select
 							name={name}
 							value={filters[name]}
 							onChange={handleChange}
-							className="bg-[var(--color-bg)] px-4 py-4 font-medium shadow-sm rounded-lg transition-all focus:ring-2 focus:ring-[var(--color-secondary)] focus:outline-none"
+							className="bg-(--color-bg) px-4 py-4 font-medium shadow-sm rounded-lg transition-all focus:ring-2 focus:ring-(--color-secondary) focus:outline-none"
 						>
 							<option value="">{placeholder}</option>
 							{options.map((opt) => (
@@ -41,7 +45,7 @@ export default function FloatingSearchBar({ onSearch, initialFilters }) {
 				<div className="flex items-end">
 					<button
 						onClick={() => (typeof onSearch === "function" ? onSearch(filters) : console.log("Selected filters:", filters))}
-						className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-secondary)] px-8 py-4 font-bold text-[var(--color-surface)] shadow-lg shadow-[var(--color-secondary)]/30 transition-all hover:scale-[1.01] active:scale-100"
+						className="flex w-full items-center justify-center gap-2 rounded-xl bg-(--color-secondary) px-8 py-4 font-bold text-(--color-surface) shadow-lg shadow-(--color-secondary)/30 transition-all hover:scale-[1.01] active:scale-100"
 					>
 						{/* <span className="material-symbols-outlined">search</span> */}
 						Search
