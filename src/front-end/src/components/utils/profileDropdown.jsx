@@ -11,6 +11,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         name: "",
         email: "",
         image: "",
+        twoFactorEnabled: false,
+        twoFactorVerified: false,
     });
     const [formData, setFormData] = useState({
         name: "",
@@ -21,7 +23,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
     useEffect(() => {
 
-        const res = fetch("https://localhost:1337/api/users/me", {
+        fetch("https://localhost:1337/api/users/me", {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             }
@@ -38,6 +40,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                 name: data.username,
                 email: data.email,
                 image: data.avatarUrl || "",
+                twoFactorEnabled: data.twoFactorEnabled || false,
+                twoFactorVerified: data.twoFactorVerified || false,
             });
             setFormData((prev) => ({
                 ...prev,
@@ -159,6 +163,35 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         onClose();
     };
 
+    const handleEnable2FA = () => {
+        // Navigate to 2FA setup page
+        window.location.href = "/2fa-setup";
+    };
+
+    const handleDisable2FA = async () => {
+        const token = localStorage.getItem("token");
+        try {
+            const res = await fetch("https://localhost:1337/api/auth/2fa/disable", {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                // Update profile state
+                setProfile(prev => ({ ...prev, twoFactorEnabled: false, twoFactorVerified: false }));
+                alert("2FA disabled successfully");
+            } else {
+                const errorText = await res.text();
+                alert("Failed to disable 2FA: " + errorText);
+            }
+        } catch (error) {
+            console.error("Error disabling 2FA:", error);
+            alert("An error occurred while disabling 2FA");
+        }
+    };
+
     const getInitial = (name) => {
         if (!name) return "?";
         return name.trim().charAt(0).toUpperCase();
@@ -249,6 +282,22 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                             className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] 
                                         bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
                         />
+                    </div>
+
+                    {/* 2FA Section */}
+                    <div className="pt-2 border-t border-[var(--color-border-gray)]">
+                        <label className="text-sm font-medium text-[var(--color-text)]">Two-Factor Authentication</label>
+                        <div className="mt-2 flex items-center justify-between">
+                            <span className="text-xs text-[var(--color-muted)]">
+                                {profile.twoFactorEnabled ? "Enabled" : "Disabled"}
+                            </span>
+                            <button
+                                onClick={profile.twoFactorEnabled ? handleDisable2FA : handleEnable2FA}
+                                className="px-3 py-1 text-xs bg-[var(--color-secondary)] text-white rounded hover:opacity-90 transition-opacity"
+                            >
+                                {profile.twoFactorEnabled ? "Disable" : "Enable"}
+                            </button>
+                        </div>
                     </div>
 
                     <button

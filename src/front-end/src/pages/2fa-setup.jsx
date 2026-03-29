@@ -8,7 +8,8 @@ export default function TwoFASetup() {
 
   useEffect(() => {
     const fetchQR = async () => {
-      const token = localStorage.getItem("token");
+      // For new users, token is in sessionStorage; for existing users, it's in localStorage
+      const token = sessionStorage.getItem("tempToken") || localStorage.getItem("token");
 
       const res = await fetch("https://localhost:1337/api/auth/2fa/setup", {
         method: "POST",
@@ -25,7 +26,8 @@ export default function TwoFASetup() {
   }, []);
 
   const verify = async () => {
-    const token = localStorage.getItem("token");
+    // For new users, token is in sessionStorage; for existing users, it's in localStorage
+    const token = sessionStorage.getItem("tempToken") || localStorage.getItem("token");
 
     const res = await fetch("https://localhost:1337/api/auth/2fa/verify-setup", {
       method: "POST",
@@ -38,8 +40,12 @@ export default function TwoFASetup() {
 
     if (!res.ok)
       alert("Invalid code");
-    else
+    else {
+      // Save token to localStorage only after successful 2FA setup
+      localStorage.setItem("token", token);
+      sessionStorage.removeItem("tempToken");
       navigate("/");
+    }
   };
 
   return (

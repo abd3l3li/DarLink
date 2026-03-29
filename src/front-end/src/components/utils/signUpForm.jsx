@@ -52,8 +52,8 @@ export default function Right_side() {
         throw new Error("No token received from server");
       }
 
-      // 🚀 Redirect to 2FA setup (IMPORTANT)
-      navigate("/2fa-setup");
+      // 🚀 Redirect to home (user is logged in)
+      navigate("/");
 
     } catch (err) {
       setError(err.message);

@@ -35,6 +35,18 @@ export default function Right_side_2() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 403) {
+          const message = data.message;
+          if (message === "2FA required") {
+            localStorage.setItem("pendingEmail", form.email);
+            navigate("/2fa");
+            return;
+          } else if (message === "2FA setup required") {
+            localStorage.setItem("pendingEmail", form.email);
+            navigate("/2fa-setup");
+            return;
+          }
+        }
         throw new Error(
           typeof data === "string"
             ? data
