@@ -43,7 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/ws-test.html").permitAll()
-
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/uploads/**").authenticated()
                         // Keep /mine protected (must be before the broad GET permitAll)
                         .requestMatchers("/api/stays/mine").authenticated()
 
