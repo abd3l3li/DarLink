@@ -32,6 +32,7 @@ if ! docker ps --format '{{.Names}}' | grep -q "^${DB_CONTAINER}$"; then
   exit 1
 fi
 
+
 echo "📦  Starting backup of '${DB_NAME}' → ${DUMP_FILE}"
 
 # ── Run pg_dump inside the container and pipe into gzip ──────────────────────

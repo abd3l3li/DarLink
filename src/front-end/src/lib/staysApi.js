@@ -80,47 +80,47 @@ export async function fetchMyStays(token) {
   return normalizeStays(data);
 }
 
-export async function createStay(payload, token) {
-  const res = await fetch(buildUrl("/api/stays/create"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(token),
-    },
-    body: JSON.stringify(payload),
-  });
+// export async function createStay(payload, token) {
+//   const res = await fetch(buildUrl("/api/stays/create"), {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//       ...authHeaders(token),
+//     },
+//     body: JSON.stringify(payload),
+//   });
 
-  if (!res.ok) {
-    const body = await readErrorBody(res);
-    throw new Error(
-      typeof body === "string" && body ? body : `Failed to create stay (${res.status})`,
-    );
-  }
+//   if (!res.ok) {
+//     const body = await readErrorBody(res);
+//     throw new Error(
+//       typeof body === "string" && body ? body : `Failed to create stay (${res.status})`,
+//     );
+//   }
 
-  const data = await res.json();
-  return normalizeStay(data);
-}
+//   const data = await res.json();
+//   return normalizeStay(data);
+// }
 
-export async function updateStay(id, payload, token) {
-  const res = await fetch(buildUrl(`/api/stays/${id}`), {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(token),
-    },
-    body: JSON.stringify(payload),
-  });
+// export async function updateStay(id, payload, token) {
+//   const res = await fetch(buildUrl(`/api/stays/${id}`), {
+//     method: "PUT",
+//     headers: {
+//       "Content-Type": "application/json",
+//       ...authHeaders(token),
+//     },
+//     body: JSON.stringify(payload),
+//   });
 
-  if (!res.ok) {
-    const body = await readErrorBody(res);
-    throw new Error(
-      typeof body === "string" && body ? body : `Failed to update stay (${res.status})`,
-    );
-  }
+//   if (!res.ok) {
+//     const body = await readErrorBody(res);
+//     throw new Error(
+//       typeof body === "string" && body ? body : `Failed to update stay (${res.status})`,
+//     );
+//   }
 
-  const data = await res.json();
-  return normalizeStay(data);
-}
+//   const data = await res.json();
+//   return normalizeStay(data);
+// }
 
 export async function deleteStay(id, token) {
   const res = await fetch(buildUrl(`/api/stays/${id}`), {
