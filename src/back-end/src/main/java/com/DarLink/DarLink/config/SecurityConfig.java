@@ -43,12 +43,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/ws-test.html").permitAll()
-
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/uploads/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/uploads/**").authenticated()
                         // Keep /mine protected (must be before the broad GET permitAll)
                         .requestMatchers("/api/stays/mine").authenticated()
 
                         // Public browsing stays
                         .requestMatchers(HttpMethod.GET, "/api/stays/**").permitAll()
+
+                        // OPS: Actuator — only /health and /info are public, all others are denied
+                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/**").denyAll()
 
                         .anyRequest().authenticated()
                 )
@@ -69,7 +74,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

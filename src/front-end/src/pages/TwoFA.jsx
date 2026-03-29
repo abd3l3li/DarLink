@@ -38,21 +38,24 @@ export default function TwoFA() {
         <h2 className="text-2xl font-bold mb-4">
           Enter 2FA Code
         </h2>
-
-        <input
-          type="text"
-          maxLength={6}
-          className="w-full p-2 border rounded text-center text-xl tracking-widest"
-          onChange={(e) => setCode(e.target.value)}
-        />
-
+        <div className="relative mb-4">
+            <input
+              type="text"
+              maxLength={6}
+              className="w-full border-b border-gray-300 py-2  bg-transparent focus:outline-none"
+              onChange={(e) => setCode(e.target.value)}
+            />
+        </div>
+       <div className="flex justify-center mt-6">
         <button
           onClick={handleVerify}
-          className="mt-4 w-full bg-green-600 text-white py-2 rounded"
+          className="bg-[var(--color-primary)] text-[var(--color-surface)]
+            px-4 py-2 flex items-center justify-center rounded-full font-bold
+            transition-all duration-300 h-11 w-34 hover:shadow-lg hover:-translate-y-0.5"
         >
           Verify
         </button>
-
+      </div>
       </div>
 
     </div>

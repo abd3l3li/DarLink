@@ -43,28 +43,81 @@ export default function TwoFASetup() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center px-6">
+    <div className="bg-[var(--color-surface)] rounded-2xl shadow-sm 
+        border border-[var(--color-border-gray)] 
+        max-w-[1000px] w-full flex items-center justify-between 
+        p-16 gap-16">
+      <div className="flex-1 flex justify-center">
+        {qr && (
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qr)}`}
+              alt="QR Code"
+              className="w-[260px] object-contain"
+              draggable={false}
+            />
+          )}
+      </div>
 
-      <h2 className="text-2xl mb-4">Setup 2FA</h2>
+      <div className="flex-1">
+         <h2 className="text-2xl mb-4">Setup 2FA</h2>
+         <h4 className=" mb-4"> Scan the QR code with google authenticator app and enter the 6-digit code below to verify.</h4>
+          <div className=" mb-4" >
+            <input
+              type="text"
+              placeholder="Enter code"
+              onChange={(e) => setCode(e.target.value)}
+              className="w-full border-b border-gray-300 py-2 bg-transparent focus:outline-none"
 
-      {qr && (
-        <img
-          src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qr)}`}
-          alt="QR Code"
-        />
-      )}
+            />
+          </div>
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={verify}
+              className="bg-[var(--color-primary)] text-[var(--color-surface)]
+              px-4 py-2 flex items-center justify-center rounded-full font-bold
+              transition-all duration-300 h-11 w-34 hover:shadow-lg hover:-translate-y-0.5"
+            >
+              Verify
+            </button>
+          </div>
+      </div> 
+    </div>  
+  </div>
 
-      <input
-        type="text"
-        placeholder="Enter code"
-        onChange={(e) => setCode(e.target.value)}
-        className="mt-4 border p-2"
-      />
 
-      <button onClick={verify} className="mt-4 bg-green-600 text-white px-4 py-2">
-        Verify
-      </button>
 
-    </div>
+    // <div className="min-h-screen flex items-center justify-center px-6">
+    //   {/* Card */}
+    //   <div className="bg-(--color-surface) rounded-2xl shadow-sm border border-(--color-border-gray) max-w-[1000px] w-full flex flex-col md:flex-row items-center md:items-start justify-between p-8 md:p-12 gap-10">
+    //     <div className="w-full md:w-1/2">
+    //       <h2 className="text-2xl mb-4">Setup 2FA</h2>
+
+    //       <input
+    //         type="text"
+    //         placeholder="Enter code"
+    //         onChange={(e) => setCode(e.target.value)}
+    //         className="mt-4 w-full border border-(--color-border-gray) rounded-lg p-2 bg-transparent text-(--color-text)"
+    //       />
+
+    //       <button
+    //         onClick={verify}
+    //         className="bg-(--color-primary) text-(--color-surface) px-4 py-2 flex items-center justify-center rounded-full font-bold transition-all duration-300 h-11 w-32"
+    //       >
+    //         Verify
+    //       </button>
+    //     </div>
+
+    //     <div className="w-full md:w-1/2 flex items-center justify-center">
+    //       {qr && (
+    //         <img
+    //           src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qr)}`}
+    //           alt="QR Code"
+    //           className="h-40 w-40 md:h-56 md:w-56"
+    //         />
+    //       )}
+    //     </div>
+    //   </div>
+    // </div>
   );
 }

@@ -1,29 +1,55 @@
-import { useState } from "react"; 
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-// (will come from backend)
-const userData = {
-    name: "abel-baz",
-    email: "abel-baz@figma.me",
-    image: "https://preview.redd.it/new-cat-reaction-meme-v0-9w0fho1j6luf1.png?width=1080&crop=smart&auto=webp&s=ad1615470e1ee3b38d8dd17b1872be32440d9ddb",
-};
 
 export default function ProfileDropdown({ isOpen, onClose }) {
 
     const [showEditProfile, setShowEditProfile] = useState(false);
 
+
     const [profile, setProfile] = useState({
-        name: userData.name,
-        email: userData.email,
-        image: userData.image || "",
+        name: "",
+        email: "",
+        image: "",
     });
     const [formData, setFormData] = useState({
-        name: userData.name,
-        email: userData.email,
+        name: "",
+        email: "",
         password: "************",
-        authOption: "option2",
-        image: userData.image || "",
+        image: "",
     });
+
+    useEffect(() => {
+
+        const res = fetch("https://localhost:1337/api/users/me", {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Failed to fetch user profile");
+            }
+            return res;
+        })
+        .then(res => res.json())
+        .then(data => {
+            setProfile({
+                name: data.username,
+                email: data.email,
+                image: data.avatarUrl || "",
+            });
+            setFormData((prev) => ({
+                ...prev,
+                name: data.username,
+                email: data.email,
+                image: data.avatarUrl || "",
+            }));
+        })
+        .catch(err => {
+            console.error("Failed to fetch user profile:", err);
+        });
+    }, []);
 
     const handleEditClick = () => {
 
@@ -72,8 +98,34 @@ export default function ProfileDropdown({ isOpen, onClose }) {
             image: formData.image || "",
         }));
 
-        // TODO: send data to backend
-        console.log("Saving changes:", formData);
+        const token = localStorage.getItem("token");
+        console.log("token:", token);
+        fetch("https://localhost:1337/api/users/me", {
+            
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                username: formData.name,
+                email: formData.email,
+                avatarUrl: formData.image,
+                password: formData.password
+            }),
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error("Failed to update profile");
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log("Profile updated successfully:", data);
+        })
+        .catch(err => {
+            console.error("Failed", err);
+        });
 
         setShowEditProfile(false);
         onClose();
@@ -191,20 +243,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                             className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] 
                                         bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
                         />
-                    </div>
-                    <div>
-                        <label className="text-sm font-medium text-[var(--color-text)]">authOption</label>
-                        <select
-                            name="authOption"
-                            value={formData.authOption}
-                            onChange={handleInputChange}
-                            className="w-full mt-1 px-3 py-2 rounded-lg border border-[var(--color-border-gray)] 
-                                        bg-[var(--color-bg)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-secondary)]"
-                        >
-                            <option value="option1">Option 1</option>
-                            <option value="option2">Option 2</option>
-                            <option value="option3">Option 3</option>
-                        </select>
                     </div>
 
                     <button
