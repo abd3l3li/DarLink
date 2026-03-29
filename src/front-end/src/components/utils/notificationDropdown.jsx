@@ -1,12 +1,18 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotifications, NOTIFICATION_TYPES } from "./notificationContext";
 
 export default function NotificationDropdown({ isOpen, onClose }) {
 
-    const { notifications, markAsRead, markAllAsRead } = useNotifications();
+    const { notifications, markAsRead, markAllAsRead, refreshNotifications, refreshUnreadCount, loading, error } = useNotifications();
     const navigate = useNavigate();
 
     if (!isOpen) return null;
+
+    useEffect(() => {
+        refreshNotifications();
+        refreshUnreadCount();
+    }, [refreshNotifications, refreshUnreadCount]);
 
     const handleNotificationClick = (notification) => {
         markAsRead(notification.id);
@@ -52,7 +58,16 @@ export default function NotificationDropdown({ isOpen, onClose }) {
             </div>
 
             <div className="max-h-80 overflow-y-auto">
-                {notifications.length === 0 ? (
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-10 px-4">
+                        <p className="font-semibold text-(--color-text)">Loading...</p>
+                    </div>
+                ) : error ? (
+                    <div className="flex flex-col items-center justify-center py-10 px-4">
+                        <p className="font-semibold text-(--color-text)">Couldn't load notifications</p>
+                        <p className="text-sm text-(--color-muted) text-center mt-2">{error}</p>
+                    </div>
+                ) : notifications.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-10 px-4">
                         <p className="font-semibold text-[var(--color-text)]">No new notifications</p>
                         <p className="text-sm text-[var(--color-muted)] text-center mt-2">
