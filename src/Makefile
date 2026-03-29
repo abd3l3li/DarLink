@@ -35,11 +35,9 @@ down:
 
 clean:
 	@docker compose down -v
-	@docker volume prune -f
 
 fclean: clean
 	@docker compose down --rmi 'all' -v
-	@docker image prune -f
 
 ps:
 	@docker compose ps -a

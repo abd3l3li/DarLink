@@ -1,12 +1,17 @@
 import bell from "../ui/bell.svg";
+import { useEffect } from "react";
 import { useNotifications } from "./notificationContext";
 import NotificationDropdown from "./notificationDropdown";
 import { useDropdown, DROPDOWN_TYPES } from "./dropdownContext";
 
 export default function Bell({ className = "" }) {
-    const { hasUnread } = useNotifications();
+    const { hasUnread, refreshUnreadCount } = useNotifications();
     const { activeDropdown, toggleDropdown, closeDropdown } = useDropdown();
     const isOpen = activeDropdown === DROPDOWN_TYPES.NOTIFICATIONS;
+
+    useEffect(() => {
+        refreshUnreadCount();
+    }, [refreshUnreadCount]);
 
     return (
         <div className={`relative ${className}`} data-dropdown>
