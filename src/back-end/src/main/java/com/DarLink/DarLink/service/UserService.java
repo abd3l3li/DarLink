@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.DarLink.DarLink.security.JwtService;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
+    private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TotpService totpService;
@@ -36,8 +37,10 @@ public class UserService {
         }
         userRepository.save(user);
     }
-    
-    
+
+    private boolean isOauthUser(User user) {
+        return "OAUTH2".equals(user.getPassword());
+    }
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findUserByUsername(username);
@@ -70,6 +73,8 @@ public class UserService {
 
     // NEW: simple PATCH /api/users/me (replace provided fields only)
     public UserResponse patchMe(User currentUser, PatchMeRequest request) {
+        String newEmail = null;
+
         if (request.getAvatarUrl() != null) {
             currentUser.setAvatarUrl(normalizeNullable(request.getAvatarUrl()));
         }
@@ -79,23 +84,27 @@ public class UserService {
         }
 
         if (request.getEmail() != null) {
-            currentUser.setEmail(request.getEmail().trim().toLowerCase());
+            if (isOauthUser(currentUser)) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "Email cannot be changed for OAuth accounts"
+                );
+            }
+
+            newEmail = request.getEmail().trim().toLowerCase();
+            currentUser.setEmail(newEmail);
         }
 
-        // no current password check (simple mode)
         if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
             currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }
 
-        // simple 2FA toggle (no totp verification)
         if (request.getTwoFactorEnabled() != null) {
             if (Boolean.TRUE.equals(request.getTwoFactorEnabled())) {
                 currentUser.setTwoFactorEnabled(true);
-                // if user enables 2FA and has no secret, generate one
                 if (currentUser.getTotpSecret() == null || currentUser.getTotpSecret().isBlank()) {
                     currentUser.setTotpSecret(totpService.generateSecret());
                 }
-                // setup not verified in this simple mode
                 currentUser.setTwoFactorVerified(false);
             } else {
                 currentUser.setTwoFactorEnabled(false);
@@ -106,13 +115,19 @@ public class UserService {
 
         try {
             User savedUser = userRepository.save(currentUser);
-            return toResponse(savedUser);
+            UserResponse response = toResponse(savedUser);
+
+            // If email changed, generate new token with new email
+            if (newEmail != null) {
+                String newToken = jwtService.generateToken(newEmail);
+                response.setToken(newToken);
+            }
+
+            return response;
         } catch (DataIntegrityViolationException ex) {
-            // Handles duplicate username/email unique constraints
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username or email already exists");
         }
     }
-
     public UserResponse toResponse(User user) {
         UserResponse res = new UserResponse();
         res.setId(user.getId());

@@ -97,6 +97,10 @@ public class TwoFactorController {
                 return ResponseEntity.badRequest().body("2FA not enabled for this user");
             }
 
+            if (user.getTotpSecret() == null || user.getTotpSecret().isEmpty()) {
+                return ResponseEntity.badRequest().body("2FA not set up. Please set up 2FA first.");
+            }
+
             // Verify the TOTP code
             boolean isValid = totpService.verifyCode(request.getTotpCode(), user.getTotpSecret());
 

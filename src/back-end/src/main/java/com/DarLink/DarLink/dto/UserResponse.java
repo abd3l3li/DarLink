@@ -19,4 +19,5 @@ public class UserResponse {
     private Boolean twoFactorEnabled;
     private Boolean twoFactorVerified;
     private LocalDateTime createdAt;
+    private String token;  // ADD THIS
 }

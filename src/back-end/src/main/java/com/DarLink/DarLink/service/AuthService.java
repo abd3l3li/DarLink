@@ -63,6 +63,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         if (user.getTwoFactorEnabled()) {
+            if (!user.getTwoFactorVerified()) {
+                // 2FA is enabled but not verified, user needs to set it up first
+                throw new RuntimeException("2FA_SETUP_REQUIRED");
+            }
             // 2FA is enabled → ask for TOTP code
             // Return a special response indicating 2FA is required
             return new AuthResponse(null); // Return special status (see Step 6)

@@ -33,6 +33,9 @@ public class AuthController {
             if ("2FA_REQUIRED".equals(e.getMessage())) {
                 return ResponseEntity.status(403).body(new ApiResponse("2FA required"));
             }
+            if ("2FA_SETUP_REQUIRED".equals(e.getMessage())) {
+                return ResponseEntity.status(403).body(new ApiResponse("2FA setup required"));
+            }
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
