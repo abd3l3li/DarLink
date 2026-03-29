@@ -140,7 +140,7 @@ export default function SlotShow({ isOwner = false }) {
                                             justify-center text-left gap-10 py-10 max-w-7xl ">
 
                         {loading && (
-                               <div className="w-full px-5 text-(--color-muted)">Loading stay…</div>
+                            <div className="w-full px-5 text-(--color-muted)">Loading stay…</div>
                         )}
                         {!loading && error && (
                             <div className="w-full px-5 text-red-500">{error}</div>

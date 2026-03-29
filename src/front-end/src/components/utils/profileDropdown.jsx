@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { uploadImages } from "@/lib/uploadsApi.js";
 
 
 export default function ProfileDropdown({ isOpen, onClose }) {
@@ -21,9 +22,11 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         image: "",
     });
 
+    const [selectedAvatarFile, setSelectedAvatarFile] = useState(null);
+
     useEffect(() => {
 
-        fetch("https://localhost:1337/api/users/me", {
+        fetch("/api/users/me", {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
             }
@@ -49,6 +52,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                 email: data.email,
                 image: data.avatarUrl || "",
             }));
+            setSelectedAvatarFile(null);
         })
         .catch(err => {
             console.error("Failed to fetch user profile:", err);
@@ -74,6 +78,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     const handleImageChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        setSelectedAvatarFile(file);
 
         const reader = new FileReader();
         reader.onload = () => {
@@ -93,7 +98,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         setShowEditProfile(false);
     };
 
-    const handleSaveChanges = () => {
+    const handleSaveChanges = async () => {
 
         setProfile((prev) => ({
             ...prev,
@@ -104,32 +109,50 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
         const token = localStorage.getItem("token");
         console.log("token:", token);
-        fetch("https://localhost:1337/api/users/me", {
-            
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                username: formData.name,
-                email: formData.email,
-                avatarUrl: formData.image,
-                password: formData.password
-            }),
-        })
-        .then(res => {
+        try {
+            if (!token) throw new Error("Missing token");
+
+            const uploadedUrls = selectedAvatarFile
+                ? await uploadImages([selectedAvatarFile], token)
+                : [];
+            const avatarUrl = uploadedUrls[0] || profile.image || "";
+
+            const res = await fetch("/api/users/me", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    username: formData.name,
+                    email: formData.email,
+                    avatarUrl,
+                    password: formData.password
+                }),
+            });
+
             if (!res.ok) {
-                throw new Error("Failed to update profile");
+                const text = await res.text().catch(() => "");
+                throw new Error(text || "Failed to update profile");
             }
-            return res.json();
-        })
-        .then(data => {
+            const data = await res.json().catch(() => null);
             console.log("Profile updated successfully:", data);
-        })
-        .catch(err => {
+
+            setProfile((prev) => ({
+                ...prev,
+                name: formData.name,
+                email: formData.email,
+                image: avatarUrl,
+            }));
+            setFormData((prev) => ({
+                ...prev,
+                image: avatarUrl,
+            }));
+            setSelectedAvatarFile(null);
+        } catch (err) {
             console.error("Failed", err);
-        });
+            alert(err instanceof Error ? err.message : "Failed to update profile");
+        }
 
         setShowEditProfile(false);
         onClose();
@@ -138,7 +161,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     const handleLogout = () => {
         console.log("Logging out...");
         const token = localStorage.getItem("token");
-        fetch("https://localhost:1337/api/users/me/logout", {
+        fetch("/api/users/me/logout", {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${token}`
@@ -171,7 +194,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     const handleDisable2FA = async () => {
         const token = localStorage.getItem("token");
         try {
-            const res = await fetch("https://localhost:1337/api/auth/2fa/disable", {
+            const res = await fetch("/api/auth/2fa/disable", {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`
