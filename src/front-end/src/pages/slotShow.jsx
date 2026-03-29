@@ -119,6 +119,11 @@ export default function SlotShow({ isOwner = false }) {
         stay && (isOwner || stay.admin || (me?.id != null && stay.owner?.id != null && me.id === stay.owner.id)),
     );
 
+    const getInitial = (name) => {
+        if (!name) return "?";
+        return String(name).trim().charAt(0).toUpperCase() || "?";
+    };
+
 
     return (
         <>
@@ -285,7 +290,20 @@ export default function SlotShow({ isOwner = false }) {
                                     <div className="flex flex-col items-start mb-3 gap-10">
                                         <h2 className="text-xl text-left font-bold text-(--color-text)">Owner</h2>
                                         <div className="flex items-center gap-5">
-                                            <img src={stay.owner?.image || ""} alt={stay.owner?.name || ""} className="w-16 h-16 rounded-full" draggable={false}/>
+                                            {stay.owner?.image && String(stay.owner.image).trim().length > 0 ? (
+                                                <img
+                                                    src={stay.owner.image}
+                                                    alt={stay.owner?.name || "Owner"}
+                                                    className="w-16 h-16 rounded-full object-cover border-2 border-(--color-border-gray)"
+                                                    draggable={false}
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="w-16 h-16 rounded-full border-2 border-(--color-border-gray) bg-(--color-bg) flex items-center justify-center text-2xl font-semibold text-(--color-text)"
+                                                >
+                                                    {getInitial(stay.owner?.name)}
+                                                </div>
+                                            )}
                                             <p className="text-italic font-semibold text-(--color-text)">{stay.owner?.name || "N/A"}</p>
 
                                             {!canManage && (
