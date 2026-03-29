@@ -1,6 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getStayById } from "../components/stays/staysTemp.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ShowGallery from "../components/stays/showGallery.jsx";
 import CreatePost from "./createPost";
 import mapLogo from "../components/ui/map-pinned.svg";
@@ -9,24 +8,97 @@ import deleteButton from "../components/ui/deleteButton.svg";
 import editButton from "../components/ui/editButton.svg";
 import checkMark from "../components/ui/checkMark.svg";
 import { useNotifications, NOTIFICATION_TYPES } from "../components/utils/notificationContext.jsx";
+import { deleteStay, fetchMe, fetchStayById } from "../lib/staysApi.js";
 
 export default function SlotShow({ isOwner = false }) {
     const params = useParams();
-    const stay = getStayById(params.slotId) || {};
     const navigate = useNavigate();
     const { addNotification } = useNotifications();
 
     const [editMode, setEditMode] = useState(false);
+    const [stay, setStay] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [meState, setMeState] = useState(null);
+
+    const token = localStorage.getItem("token");
+    const stayId = Number(params.slotId);
+    const me = token ? meState : null;
+
+    const loadMe = async () => {
+        if (!token) return;
+        const data = await fetchMe(token);
+        setMeState(data);
+    };
+
+    const loadStay = async () => {
+        setError("");
+        setLoading(true);
+
+        if (!Number.isFinite(stayId)) {
+            setStay(null);
+            setError("Invalid stay id");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const data = await fetchStayById(stayId);
+            setStay(data);
+        } catch (e) {
+            setStay(null);
+            setError(e instanceof Error ? e.message : "Failed to load stay");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        let cancelled = false;
+        loadMe().catch(() => {
+            if (!cancelled) setMeState(null);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [token]);
+
+    useEffect(() => {
+        let cancelled = false;
+        loadStay().catch(() => {
+            if (!cancelled) {
+                setStay(null);
+                setLoading(false);
+                setError("Failed to load stay");
+            }
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [stayId]);
 
     const editHandler = () => {
         setEditMode(true);
     }
-    const deleteHandler = () => {
-        console.log("delete request sent");
+    const deleteHandler = async () => {
+        if (!stay?.id) return;
+        if (!token) {
+            setError("You must be logged in to delete a listing.");
+            return;
+        }
+        try {
+            await deleteStay(stay.id, token);
+            navigate("/my-listings");
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Failed to delete stay");
+        }
     }
     const reqHandle = () => {
+        if (!stay?.id || !stay?.owner?.id) return;
         // auto-message
-        const autoMessage = `Hi! Is the stay in ${stay.city} (${stay.type}, ${stay.price} MAD) still available?`;
+        const displayType = stay.type || stay.roomType || "Room";
+        const displayPrice = stay.price ?? stay.pricePerNight;
+        const autoMessage = `Hi! Is the stay in ${stay.city} (${displayType}, ${displayPrice ?? "N/A"} MAD) still available?`;
         
         sessionStorage.setItem("pendingChatMessage", JSON.stringify({
             ownerId: stay.owner?.id,
@@ -43,19 +115,43 @@ export default function SlotShow({ isOwner = false }) {
         navigate(`/chat/${stay.owner?.id}/${stay.id}`);
     }
 
+    const canManage = Boolean(
+        stay && (isOwner || stay.admin || (me?.id != null && stay.owner?.id != null && me.id === stay.owner.id)),
+    );
+
 
     return (
         <>
             {
                 editMode ? 
                 (
-                    <CreatePost stay={stay}/>
+                    <CreatePost
+                        stay={stay}
+                        onSuccess={(updated) => {
+                            setEditMode(false);
+                            if (updated) setStay(updated);
+                        }}
+                    />
                 ) :
                 (
                     <div className="min-h-screen flex flex-col">
                         <main className="flex-1 flex flex-col items-start md:mt-10
                                             justify-center text-left gap-10 py-10 max-w-7xl ">
+
+                        {loading && (
+                            <div className="w-full px-5 text-[var(--color-muted)]">Loading stay…</div>
+                        )}
+                        {!loading && error && (
+                            <div className="w-full px-5 text-red-500">{error}</div>
+                        )}
+                        {!loading && !error && !stay && (
+                            <div className="w-full px-5 text-[var(--color-muted)]">
+                                Stay not found. <Link className="underline" to="/slots">Back to slots</Link>
+                            </div>
+                        )}
                             
+                            {stay && (
+                            <>
                             <div className="flex flex-col md:flex-row items-center justify-start gap-10 w-full max-w-7xl px-5 text-left">
 
                                 <ShowGallery photos={stay.photos || []} />
@@ -68,7 +164,7 @@ export default function SlotShow({ isOwner = false }) {
                                     <div className="my-2 border-t border-[var(--color-muted)] opacity-50 w-full"></div>
 
                                     <span className="ml-1 text-2xl font-semibold text-[var(--color-text)]">
-                                        {stay.price ? `${stay.price} MAD` : "N/A"}
+									{(stay.price ?? stay.pricePerNight) != null ? `${stay.price ?? stay.pricePerNight} MAD` : "N/A"}
                                     </span>
 
                                     <div className="my-2 border-t border-[var(--color-muted)] opacity-50 w-full"></div>
@@ -78,7 +174,7 @@ export default function SlotShow({ isOwner = false }) {
                                         <span className="relative flex items-center gap-2 text-lg font-bold text-[var(--color-text)]">
                                             <img src={slotsCircle} alt="slots" draggable={false}/>
                                             <span className="absolute left-1/2 top-1/2 -ml-4 -translate-x-1/2 -translate-y-1/2 text-[var(--color-text)]">
-                                                {stay.avSlots}
+										{stay.avSlots ?? stay.availableSlots ?? 0}
                                             </span>
                                         </span>
                                     </div>
@@ -89,8 +185,8 @@ export default function SlotShow({ isOwner = false }) {
                                         <p className="text-sm text-[var(--color-muted)]">Type</p>
 
                                             <button className="flex items-center gap-2 text-lg mt-2 ml-1 font-semibold text-[var(--color-text)] bg-[var(--color-border-gray)] px-3 py-2 rounded-lg">
-                                                <input type="checkbox" checked={true} value="type" disabled="true"/>
-                                                {stay.type}
+											<input type="checkbox" checked={true} value="type" disabled />
+											{stay.type || stay.roomType || "N/A"}
                                             </button>
                                     </div>
 
@@ -99,7 +195,7 @@ export default function SlotShow({ isOwner = false }) {
                                     <div className="Buttons flex flex-col items-center justify-center w-full">
                                         {
                                             // edit and delete buttons for admin (post owner)
-                                            (stay.admin || isOwner) ? (
+                                            canManage ? (
 
                                                 <div className="flex items-center gap-7 mt-12">
                                                     <img src={deleteButton} alt="Delete" className="hover:scale-103 active:scale-98 transition-transform duration-200" onClick={deleteHandler} draggable={false}/>
@@ -130,7 +226,7 @@ export default function SlotShow({ isOwner = false }) {
                                         <h2 className="text-xl text-left font-bold text-[var(--color-text)]">What’s Included</h2>
                                         <div>
                                         {
-                                            (stay.included) ? (
+                                            (stay.included && stay.included.length > 0) ? (
                                                 <ul className="text-[var(--color-text)] space-y-2">
                                                     {stay.included.map((item, index) => (
                                                         <li key={index}>
@@ -152,7 +248,7 @@ export default function SlotShow({ isOwner = false }) {
                                         <h2 className="text-xl text-left font-bold text-[var(--color-text)]">House Rules & Expectations</h2>
                                         <div>
                                         {
-                                            stay.expectations ? (
+                                            (stay.expectations && stay.expectations.length > 0) ? (
                                                 <ul className="text-[var(--color-text)] space-y-2">
                                                     {stay.expectations.map((item, index) => (
                                                         <li key={index}>
@@ -191,7 +287,7 @@ export default function SlotShow({ isOwner = false }) {
                                             <img src={stay.owner?.image || ""} alt={stay.owner?.name || ""} className="w-16 h-16 rounded-full" draggable={false}/>
                                             <p className="text-italic font-semibold text-[var(--color-text)]">{stay.owner?.name || "N/A"}</p>
 
-                                            {!stay.admin && (
+                                            {!canManage && (
                                                 <Link to={`/chat/${stay.owner?.id}/${stay.id}`}>
                                                     <button className="bg-[var(--color-secondary)] text-[var(--color-surface)] px-6 py-2 
                                                                         rounded-full ml-4 hover:bg-[var(--color-secondary-hover)] 
@@ -202,6 +298,8 @@ export default function SlotShow({ isOwner = false }) {
                                         </div>
                                     </div>
                             </div>
+                            </>
+                            )}
                         </main>
                     </div>   
                 )

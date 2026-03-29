@@ -122,28 +122,43 @@ Update the logged-in user's profile.
 ## 3. Stays (Listings) — `/api/stays`
 
 ### 🔓 GET `/api/stays`
-Get all stays. Optionally filter by city or max price.
+Get stays. Supports two query styles:
+
+1) **UI filters (recommended):** `location`, `type`, `price` (can be combined)
+2) **Legacy filters:** `city`, `maxPrice` (can be combined)
+
+> Note: if either `city` or `maxPrice` is provided, the backend uses the legacy branch and ignores `location/type/price`.
 
 **Query Params (optional):**
 
 | Param | Type | Example |
 |---|---|---|
+| `location` | string | `?location=Casablanca` |
+| `type` | string | `?type=Private` |
+| `price` | string | `?price=0%20-%201000%20DH` |
 | `city` | string | `?city=Casablanca` |
-| `maxPrice` | number | `?maxPrice=200` |
+| `maxPrice` | number | `?maxPrice=2000` |
 
 **Success Response `200`:** Array of stay objects
 ```json
 [
   {
     "id": 1,
-    "name": "Cozy Room in Casablanca",
+    "name": "Private in Casablanca",
     "description": "Nice and clean room near the center.",
     "city": "Casablanca",
     "address": "12 Rue Hassan II",
+    "roomType": "Private",
     "pricePerNight": 150.0,
+    "avSlots": 2,
     "photoUrl": "https://example.com/photo.jpg",
+    "photos": ["https://example.com/photo.jpg"],
+    "included": ["Wi-Fi"],
+    "expectations": ["Quiet at night"],
     "hostId": 3,
     "hostUsername": "host_user",
+    "hostAvatarUrl": "https://example.com/avatar.jpg",
+    "owner": { "id": 3, "name": "host_user", "image": "https://example.com/avatar.jpg" },
     "createdAt": "2025-02-01T10:00:00"
   }
 ]
@@ -152,7 +167,7 @@ Get all stays. Optionally filter by city or max price.
 ---
 
 ### 🔓 GET `/api/stays/page?page=0`
-Get stays paginated — **9 stays per page**.
+Get stays paginated — **6 stays per page**.
 
 **Query Params:**
 
@@ -163,11 +178,11 @@ Get stays paginated — **9 stays per page**.
 **Success Response `200`:**
 ```json
 {
-  "content": [ ...9 stay objects... ],
+  "content": [ "...stay objects..." ],
   "totalPages": 5,
   "totalElements": 43,
   "number": 0,
-  "size": 9,
+  "size": 6,
   "first": true,
   "last": false
 }
@@ -183,6 +198,15 @@ Get a single stay by ID.
 **Success Response `200`:** Single stay object (same shape as above)
 
 **Error `404`** — stay not found
+
+---
+
+### 🔒 GET `/api/stays/mine`
+Get the logged-in user's listings (host's stays).
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Success Response `200`:** Array of stay objects (same shape as `GET /api/stays`)
 
 ---
 

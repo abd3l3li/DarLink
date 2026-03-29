@@ -10,19 +10,25 @@ This file documents only the stay search/filter behavior for frontend button-bas
 
 ## 1) Backend-supported query params (current code)
 
+Recommended (UI filters):
+
+- `location` as string (matches `Stay.city`, case-insensitive)
+- `type` as string (matches `Stay.roomType`, case-insensitive; use `Both` to disable)
+- `price` as string enum: `0 - 1000 DH` | `1000 - 2000 DH` | `2000+ DH`
+
+Legacy (still supported):
+
 - `city` as string
 - `maxPrice` as number
 
 Examples:
-- `GET /api/stays?city=Casablanca`
-- `GET /api/stays?maxPrice=1000`
+- `GET /api/stays?location=Casablanca&type=Private&price=0%20-%201000%20DH`
+- `GET /api/stays?location=Rabat&price=2000%2B%20DH`
+- `GET /api/stays?city=Casablanca&maxPrice=1000`
 
 > Current backend logic in `StayController#getStays`:
-> - If `city` exists, returns city results.
-> - Else if `maxPrice` exists, returns max-price results.
-> - Else returns all stays.
->
-> So if both are sent, `city` takes priority and `maxPrice` is ignored.
+> - If `city` or `maxPrice` is present, it uses the legacy branch (and **ignores** `location/type/price`).
+> - Otherwise, it uses the UI filter branch and combines `location/type/price`.
 
 ---
 
@@ -51,30 +57,20 @@ const filterOptions = [
 ```
 
 ### location -> `city`
-Send selected location as `city` directly.
+Send selected location as `location`.
 
 Example:
-- Selected `Rabat` -> `GET /api/stays?city=Rabat`
+- Selected `Rabat` -> `GET /api/stays?location=Rabat`
 
 ### price -> `maxPrice`
-Convert price label to numeric `maxPrice`:
+Send price as the `price` label string (backend parses it into min/max bounds).
 
-- `0 - 1000 DH` -> `maxPrice=1000`
-- `1000 - 2000 DH` -> `maxPrice=2000`
-- `2000+ DH` -> no strict backend support for min-only filter in current API
-
-Recommended current behavior for `2000+ DH`:
-- Option A: do not send price filter and show all stays.
-- Option B: extend backend to support `minPrice` (recommended for production).
+- `0 - 1000 DH` -> `GET /api/stays?price=0%20-%201000%20DH`
+- `1000 - 2000 DH` -> `GET /api/stays?price=1000%20-%202000%20DH`
+- `2000+ DH` -> `GET /api/stays?price=2000%2B%20DH`
 
 ### type
-Current `Stay` model has no `type` field, so backend cannot filter by room type yet.
-
-Recommended current behavior:
-- Ignore `type` when calling API, or handle type in frontend only if you have local metadata.
-
-Recommended production behavior:
-- Add `roomType` column in `Stay` + filter param (`type`), then query by it in DB.
+Send type as `type` (matches `Stay.roomType`). Use `Both` to disable the filter.
 
 ---
 
@@ -82,12 +78,12 @@ Recommended production behavior:
 
 ### Get by location (example)
 ```http
-GET http://localhost:8081/api/stays?city=Casablanca
+GET http://localhost:8081/api/stays?location=Casablanca
 ```
 
 ### Get by max price (example)
 ```http
-GET http://localhost:8081/api/stays?maxPrice=2000
+GET http://localhost:8081/api/stays?city=Casablanca&maxPrice=2000
 ```
 
 ### Get all stays (no filters)
@@ -122,6 +118,6 @@ GET http://localhost:8081/api/stays
 
 1. Build query params from selected buttons.
 2. Send only supported backend params: `city`, `maxPrice`.
-3. Do not send `type` until backend supports it.
-4. For `2000+ DH`, either skip price filter or add backend `minPrice` support.
+2b. Prefer UI params: `location`, `type`, `price`.
+3. Don’t mix legacy (`city/maxPrice`) with UI (`location/type/price`) in the same request.
 
