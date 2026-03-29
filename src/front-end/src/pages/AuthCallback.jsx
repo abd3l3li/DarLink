@@ -7,13 +7,25 @@ export default function AuthCallback() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
+    const require2fa = params.get("require2fa") === "true";
+    const email = params.get("email");
+
     console.log("token:", token);
+    console.log("require2fa:", require2fa);
 
     if (token) {
-      localStorage.setItem("token", token);
-      console.log("saved token, navigating to /");
-      
-      navigate("/", { replace: true });
+      if (require2fa && email) {
+        // User has 2FA enabled, store token temporarily in sessionStorage
+        sessionStorage.setItem("tempToken", token);
+        localStorage.setItem("pendingEmail", email);
+        console.log("2FA required, redirecting to /2fa");
+        navigate("/2fa", { replace: true });
+      } else {
+        // No 2FA, save token to localStorage and navigate to home
+        localStorage.setItem("token", token);
+        console.log("saved token, navigating to /");
+        navigate("/", { replace: true });
+      }
     } else {
       const stored = localStorage.getItem("token");
       console.log("stored token:", stored);
@@ -23,6 +35,7 @@ export default function AuthCallback() {
         navigate("/log-in", { replace: true });
       }
     }
-  }, []);
+  }, [navigate]);
+
   return <div>Logging you in...</div>;
 }
