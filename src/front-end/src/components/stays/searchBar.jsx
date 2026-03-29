@@ -2,13 +2,12 @@ import { useState } from "react";
 
 const filterOptions = [
 	{ name: "location", label: "Location", placeholder: "Select City", options: ["Casablanca", "Rabat", "Marrakech", "Fès", "Tanger", "Agadir", "Oujda", "Kenitra", "Ben Guerir"] },
-	{ name: "type", label: "Room Type", placeholder: "Shared or Private", options: ["Private Room", "Shared Room", "Both"] },
+	{ name: "type", label: "Room Type", placeholder: "Shared or Private", options: ["Private", "Shared", "Both"] },
 	{ name: "price", label: "Price Range", placeholder: "Select range", options: ["0 - 1000 DH", "1000 - 2000 DH", "2000+ DH"] },
 ];
 
-export default function FloatingSearchBar() {
-
-	const [filters, setFilters] = useState({ location: "", type: "", price: "" });
+export default function FloatingSearchBar({ onSearch, initialFilters }) {
+	const [filters, setFilters] = useState(initialFilters ?? { location: "", type: "", price: "" });
 
 	const handleChange = (e) => setFilters({ ...filters, [e.target.name]: e.target.value });
 
@@ -41,7 +40,7 @@ export default function FloatingSearchBar() {
 
 				<div className="flex items-end">
 					<button
-						onClick={() => console.log("Selected filters:", filters)}
+						onClick={() => (typeof onSearch === "function" ? onSearch(filters) : console.log("Selected filters:", filters))}
 						className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-secondary)] px-8 py-4 font-bold text-[var(--color-surface)] shadow-lg shadow-[var(--color-secondary)]/30 transition-all hover:scale-[1.01] active:scale-100"
 					>
 						{/* <span className="material-symbols-outlined">search</span> */}

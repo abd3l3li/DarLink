@@ -65,10 +65,17 @@ Examples:
     "description": "Near city center",
     "city": "Casablanca",
     "address": "12 Rue Hassan II",
+    "roomType": "Private",
     "pricePerNight": 1500.0,
     "photoUrl": "https://example.com/photo.jpg",
+    "photos": ["https://example.com/photo.jpg"],
+    "included": ["Wi-Fi"],
+    "expectations": ["Quiet at night"],
+    "avSlots": 2,
     "hostId": 3,
     "hostUsername": "host_user",
+    "hostAvatarUrl": "https://example.com/avatar.jpg",
+    "owner": { "id": 3, "name": "host_user", "image": "https://example.com/avatar.jpg" },
     "createdAt": "2026-03-20T10:00:00"
   }
 ]
@@ -80,14 +87,14 @@ Examples:
 |---|---|---|
 | `id` | `id` | number in backend |
 | `city` | `city` | |
-| `type` | `roomType` (not present yet) | backend doesn’t provide in current response |
-| `avSlots` | (not present yet) | backend doesn’t provide in current response |
+| `type` | `roomType` | frontend can map `roomType -> type` |
+| `avSlots` | `avSlots` | returned as `avSlots` in JSON |
 | `price` | `pricePerNight` | |
-| `photos[0]` | `photoUrl` | backend has single URL |
+| `photos[]` | `photos` (fallback `photoUrl`) | |
 | `details` | `description` | |
-| `owner.name` | `hostUsername` | consider calling `/api/users/{id}` for avatar |
+| `owner` | `owner` | includes `id`, `name`, `image` |
 
-> If you want the backend to match the UI perfectly, extend the stay DTO to include: `roomType`, `availableSlots`, `photos[]`, `included[]`, `expectations[]`, and `hostAvatarUrl`.
+Backend already includes the UI fields above; the frontend only needs minor key normalization (`roomType -> type`, `pricePerNight -> price`, `description -> details`).
 
 ---
 
@@ -205,15 +212,21 @@ Returns stays where the logged-in user is the host.
 
 ---
 
-## Photos (optional but recommended)
+## Photos upload (implemented)
 
-If you want to support `photos` upload from the frontend (data URLs / file picker), consider:
+Use the implemented endpoint:
 
-### POST `/api/uploads/photos` (protected)
+### POST `/api/uploads/images` (protected)
 
-`multipart/form-data` with one or more files.
+`multipart/form-data` with one or more files using field key `files`.
 
-**Response `200`**
+Returns:
+
 ```json
-{ "urls": ["https://cdn.../photo1.jpg", "https://cdn.../photo2.jpg"] }
+{ "urls": ["/uploads/uuid-1.jpg", "/uploads/uuid-2.png"] }
 ```
+
+Then pass those URLs in `photos` when creating/updating a stay.
+
+See complete frontend upload guide in `src/front-end/docs/API_UPLOADS.md`.
+

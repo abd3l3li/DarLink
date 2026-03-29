@@ -35,7 +35,7 @@ public final class StaySpecifications {
     public static Specification<Stay> maxPrice(Double maxPrice) {
         return (root, query, cb) -> maxPrice == null
                 ? cb.conjunction()
-                : cb.lessThan(root.get("pricePerNight"), maxPrice);
+                : cb.lessThanOrEqualTo(root.get("pricePerNight"), maxPrice);
     }
 }
 

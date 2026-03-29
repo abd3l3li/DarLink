@@ -5,6 +5,11 @@ import stateLogo from "../ui/stateLogo.svg";
 
 export default function Card({ stay, isOwner = false }) {
 
+    const coverUrl = stay?.photos?.[0] || stay?.photoUrl || "";
+    const displayType = stay?.type || stay?.roomType || "N/A";
+    const displayPrice = stay?.price ?? stay?.pricePerNight;
+    const displaySlots = stay?.avSlots ?? stay?.availableSlots ?? 0;
+
     return (
 
         <div className="rounded-2xl overflow-hidden col-span-1
@@ -13,12 +18,16 @@ export default function Card({ stay, isOwner = false }) {
         >
             
             <div className="relative w-full h-48 overflow-hidden">
-                <img
-                    src={stay.photos[0]}
-                    alt={stay.city}
-                    className="w-full h-full object-cover"
-                    draggable={false}
-                />
+                {coverUrl ? (
+                    <img
+                        src={coverUrl}
+                        alt={stay?.city || "Stay"}
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                    />
+                ) : (
+                    <div className="w-full h-full bg-[var(--color-bg)]" />
+                )}
             </div>
 
                 <div className="p-5 space-y-4">
@@ -35,17 +44,17 @@ export default function Card({ stay, isOwner = false }) {
                         <div className="flex items-center gap-2">
                             <img src={bedLogo} alt="bed" className="w-5 h-5 opacity-70" draggable={false}/>
                             <span>
-                                {stay.avSlots
-                                ? stay.avSlots > 1
-                                    ? `${stay.avSlots} Slots`
-                                    : `${stay.avSlots} Slot`
+                                    {displaySlots
+                                    ? displaySlots > 1
+                                        ? `${displaySlots} Slots`
+                                        : `${displaySlots} Slot`
                                 : "0 Slots"}
                             </span>
                         </div>
 
                         <div className="flex items-center gap-2">
                             <img src={stateLogo} alt="state" className="w-5 h-5 opacity-80" draggable={false}/>
-                            <span>{stay.type}</span>
+                            <span>{displayType}</span>
                         </div>
 
                     </div>
@@ -55,7 +64,7 @@ export default function Card({ stay, isOwner = false }) {
                     <div className="flex items-center justify-between">
                         {!isOwner && <ReqButton stay={stay} />}
                         <span className="text-lg font-bold text-[var(--color-text)]">
-                        {stay.price ? `${stay.price} MAD` : "N/A"}
+                        {displayPrice != null ? `${displayPrice} MAD` : "N/A"}
                         </span>
                     </div>
 
