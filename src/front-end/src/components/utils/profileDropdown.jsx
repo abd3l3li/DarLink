@@ -133,20 +133,26 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
     const handleLogout = () => {
         console.log("Logging out...");
-        localStorage.removeItem("token");
+        const token = localStorage.getItem("token");
         fetch("https://localhost:1337/api/users/me/logout", {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
+                Authorization: `Bearer ${token}`
             }
         }).then(response => {
             if (response.ok) {
                 console.log("Logged out successfully");
+                localStorage.removeItem("token");
                 window.location.href = "/";
             } else {
-                console.error("Logout failed");
-                alert("Logout failed. Please try again.");
-            }        }).catch(error => {
+                response.text().then(text => {
+                    console.error("Logout failed:", text);
+                    alert("Logout failed. Please try again.");
+                }).catch(() => {
+                    alert("Logout failed. Please try again.");
+                });
+            }
+        }).catch(error => {
             console.error("Error during logout:", error);
             alert("An error occurred during logout. Please try again.");
         });
@@ -310,8 +316,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--color-bg)] transition-colors"
                 >
                     <svg className="w-5 h-5 text-[var(--color-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 
-                                                012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v2M7 7h10" />
                     </svg>
                     <span className="text-[var(--color-text)]">Show your listings</span>
                 </Link>
@@ -322,8 +327,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--color-bg)] transition-colors text-left"
                 >
                     <svg className="w-5 h-5 text-[var(--color-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16h6a5 5 0 005-5V7a2 2 0 00-2-2H6a2 
-                                                2 0 00-2 2v4a5 5 0 005 5z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16h6a5 5 0 005-5V7a2 2 0 00-2-2H6a2 2 0 00-2 2v4a5 5 0 005 5z" />
                     </svg>
                     <span className="text-[var(--color-text)]">Chat</span>
                 </Link>
