@@ -31,6 +31,26 @@ export default function Footer() {
                         <Link to="/contact" className="hover:text-[var(--color-secondary)] transition-colors">
                             Contact
                         </Link>
+                        {/* OPS: system status link — additive only, no existing links modified */}
+                        <Link
+                            to="/status"
+                            className="hover:text-[var(--color-secondary)] transition-colors flex items-center gap-1.5"
+                            title="System Status"
+                        >
+                            <span
+                                style={{
+                                    display: "inline-block",
+                                    width: "7px",
+                                    height: "7px",
+                                    borderRadius: "50%",
+                                    background: "#22c55e",
+                                    boxShadow: "0 0 5px rgba(34,197,94,0.7)",
+                                    animation: "pulse 2s infinite",
+                                    flexShrink: 0,
+                                }}
+                            />
+                            System Status
+                        </Link>
                     </div>
 
                     <p className="text-xs md:text-sm text-center md:text-right ">

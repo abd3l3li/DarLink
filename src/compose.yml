@@ -15,7 +15,8 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
   backend:
     build:
@@ -30,7 +31,19 @@ services:
     env_file:
       - back-end/.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    # OPS: share the backup volume so BackupHealthIndicator can read last_backup
+    volumes:
+      - db-backups:/var/backups/darlink
+    # OPS: Actuator /health probed every 30s; backend is only "healthy" once Spring
+    # has fully started and the DB connection pool is live.
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8081/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   db:
     #image: postgres:18
@@ -40,6 +53,8 @@ services:
       - db-password
     volumes:
       - db-data:/var/lib/postgresql/18/main
+      # OPS: backup output directory mounted into db container for pg_dump access
+      - db-backups:/var/backups/darlink
     networks:
       - darlink
     environment:
@@ -58,6 +73,8 @@ services:
 
 volumes:
   db-data:
+  # OPS: named volume for database backups — survives container restarts
+  db-backups:
 secrets:
   db-password:
     file: db/secrets/password.txt

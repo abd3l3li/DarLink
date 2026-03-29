@@ -13,5 +13,12 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: 5173,
+    proxy: {
+      // OPS: proxy actuator calls to backend during local dev
+      "/actuator": {
+        target: "http://localhost:8081",
+        changeOrigin: true,
+      },
+    },
   },
 });
