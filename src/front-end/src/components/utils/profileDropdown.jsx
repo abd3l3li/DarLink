@@ -66,7 +66,9 @@ export default function ProfileDropdown({ isOpen, onClose }) {
             name: profile.name,
             email: profile.email,
             image: profile.image || "",
+            password: "",
         }));
+        setSelectedAvatarFile(null);
         setShowEditProfile(true);
     };
 
@@ -94,23 +96,44 @@ export default function ProfileDropdown({ isOpen, onClose }) {
             name: profile.name,
             email: profile.email,
             image: profile.image || "",
+            password: "",
         }));
+        setSelectedAvatarFile(null);
         setShowEditProfile(false);
     };
 
     const handleSaveChanges = async () => {
 
-        setProfile((prev) => ({
-            ...prev,
-            name: formData.name,
-            email: formData.email,
-            image: formData.image || "",
-        }));
-
         const token = localStorage.getItem("token");
         console.log("token:", token);
         try {
             if (!token) throw new Error("Missing token");
+
+            const emailChanged =
+                typeof formData.email === "string" &&
+                formData.email.trim().length > 0 &&
+                formData.email.trim() !== (profile.email || "").trim();
+
+            const passwordChanged =
+                typeof formData.password === "string" &&
+                formData.password.trim().length > 0 &&
+                formData.password !== "************";
+
+            const logoutAndRedirect = async () => {
+                try {
+                    await fetch("/api/users/me/logout", {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+                } catch {
+                    // ignore
+                } finally {
+                    localStorage.removeItem("token");
+                    window.location.href = "/log-in";
+                }
+            };
 
             const uploadedUrls = selectedAvatarFile
                 ? await uploadImages([selectedAvatarFile], token)
@@ -127,7 +150,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     username: formData.name,
                     email: formData.email,
                     avatarUrl,
-                    password: formData.password
+                    newPassword: passwordChanged ? formData.password : undefined
                 }),
             });
 
@@ -137,6 +160,15 @@ export default function ProfileDropdown({ isOpen, onClose }) {
             }
             const data = await res.json().catch(() => null);
             console.log("Profile updated successfully:", data);
+
+            // if email or password changed, force re-auth.
+            // email change may also cause backend to mint a new token, but we intentionally log out.
+            const serverEmail = data?.email;
+            const serverEmailChanged = emailChanged && typeof serverEmail === "string" && serverEmail !== profile.email;
+            if (serverEmailChanged || passwordChanged) {
+                await logoutAndRedirect();
+                return;
+            }
 
             setProfile((prev) => ({
                 ...prev,
