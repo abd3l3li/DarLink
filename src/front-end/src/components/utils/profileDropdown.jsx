@@ -134,7 +134,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     const handleLogout = () => {
         console.log("Logging out...");
         localStorage.removeItem("token");
-        fetch("https:localhost:1337/api/users/me/logout", {
+        fetch("https://localhost:1337/api/users/me/logout", {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`
