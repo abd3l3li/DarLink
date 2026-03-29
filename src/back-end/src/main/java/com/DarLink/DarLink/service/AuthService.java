@@ -43,6 +43,10 @@ public class AuthService {
         // 3. Save to database
         userRepository.save(user);
 
+        // Set user online status after registration
+        user.setOnline(true);
+        userRepository.save(user);
+
         // 4. Print the ID Card (JWT) and return it
         String token = jwtService.generateToken(user.getEmail());
         return new AuthResponse(token);
@@ -57,11 +61,15 @@ public class AuthService {
         // 2. If we get here, the password was correct! Find the user.
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        
         if (user.getTwoFactorEnabled()) {
             // 2FA is enabled → ask for TOTP code
             // Return a special response indicating 2FA is required
             return new AuthResponse(null); // Return special status (see Step 6)
         }
+        // Set user online status
+        user.setOnline(true);
+        userRepository.save(user);
         // 3. Print a new ID Card (JWT) and return it
         String token = jwtService.generateToken(user.getEmail());
         return new AuthResponse(token);

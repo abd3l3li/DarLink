@@ -9,6 +9,8 @@ import com.DarLink.DarLink.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,6 +36,8 @@ public class UserService {
         }
         userRepository.save(user);
     }
+    
+    
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findUserByUsername(username);
@@ -127,5 +131,16 @@ public class UserService {
         String v = value == null ? null : value.trim();
         if (v == null || v.isEmpty()) return null;
         return v;
+    }
+
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findByEmail(auth.getName()).orElseThrow();
+    }
+
+    public void logout(String token) {
+        User user = getCurrentUser();
+        user.setOnline(false);
+        userRepository.save(user);
     }
 }

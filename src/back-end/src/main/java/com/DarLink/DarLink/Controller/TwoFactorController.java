@@ -104,6 +104,10 @@ public class TwoFactorController {
                 return ResponseEntity.badRequest().body("Invalid TOTP code");
             }
 
+            // Set user online status
+            user.setOnline(true);
+            userRepository.save(user);
+
             // Generate JWT and return
             String token = jwtService.generateToken(user.getEmail());
             return ResponseEntity.ok(new AuthResponse(token));

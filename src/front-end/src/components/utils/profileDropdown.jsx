@@ -82,7 +82,22 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     const handleLogout = () => {
         console.log("Logging out...");
         localStorage.removeItem("token");
-        window.location.href = "/";
+        fetch("https:localhost:1337/api/users/me/logout", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+        }).then(response => {
+            if (response.ok) {
+                console.log("Logged out successfully");
+                window.location.href = "/";
+            } else {
+                console.error("Logout failed");
+                alert("Logout failed. Please try again.");
+            }        }).catch(error => {
+            console.error("Error during logout:", error);
+            alert("An error occurred during logout. Please try again.");
+        });
         onClose();
     };
 

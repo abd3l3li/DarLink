@@ -35,4 +35,17 @@ public class UserController {
     public ResponseEntity<UserResponse> patchMyProfile(@Valid @RequestBody PatchMeRequest request) {
         return ResponseEntity.ok(userService.patchMe(getCurrentUser(), request));
     }
+
+    // logout
+    @PostMapping("/me/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+        try {
+            userService.logout(token);
+        } catch (Exception e) {
+            // respond with message invalid token
+            return ResponseEntity.status(401).body("Invalid token");
+        }
+        // Invalidate the token on the client side as well (e.g., by removing it from localStorage)
+        return ResponseEntity.ok("Logged out successfully");
+    }
 }

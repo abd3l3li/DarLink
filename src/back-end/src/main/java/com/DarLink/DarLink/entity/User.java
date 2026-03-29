@@ -62,6 +62,9 @@ public class User {
     @Column(name = "two_factor_verified", nullable = false)
     private Boolean twoFactorVerified = false; // Flag to check if user verified the setup
 
+    @Column(name = "online", nullable = false)
+    private Boolean online = false; // Flag to indicate if user is online
+
     // Getters and Setters
     public String getTotpSecret() { return totpSecret; }
     public void setTotpSecret(String totpSecret) { this.totpSecret = totpSecret; }
@@ -72,12 +75,14 @@ public class User {
     public Boolean getTwoFactorVerified() { return twoFactorVerified; }
     public void setTwoFactorVerified(Boolean twoFactorVerified) { this.twoFactorVerified = twoFactorVerified; }
 
+    public Boolean getOnline() { return online; }
+    public void setOnline(Boolean online) { this.online = online; }
+
     // Lifecycle Hook: Sets date before saving to DB
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
     // --- Getters and Setters (No Lombok) ---
 
     public Long getId() { return id; }
