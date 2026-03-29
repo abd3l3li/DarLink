@@ -3,7 +3,9 @@ import letterIcon from "@/components/ui/letter.svg";
 import cancelButton from "@/components/ui/cancelButton.svg";
 import publishButton from "@/components/ui/publishButton.svg";
 import { useState, useEffect } from "react";
-
+import { createStay, updateStay } from "@/lib/staysApi.js";
+import { useNavigate } from "react-router-dom";
+import { uploadImages } from "@/lib/uploadsApi.js";
 
 
 const Options = [
@@ -27,33 +29,39 @@ const INITIAL_VALUES = { location: "", type: "", price: "", avSlots: "" };
 
 
 
-export default function CreatePost( { stay } ) {
+export default function CreatePost({ stay, onSuccess, onCancel }) {
 
     const [values, setValues] = useState(INITIAL_VALUES);
     const [included, setIncluded] = useState([]);
     const [expectations, setExpectations] = useState([]);
     const [details, setDetails] = useState("");
+    const [selectedFiles, setSelectedFiles] = useState([]);
     // lifted up from Gallery.jsx
     const [photos, setPhotos] = useState([]);
+    const navigate = useNavigate();
 
     // Prefill logic
     useEffect(() => {
         if (stay && Object.keys(stay).length > 0) {
             setValues({
                 location: stay.city || "",
-                type: stay.type || "",
-                price: stay.price || "",
-                avSlots: stay.avSlots || "",
+                type: stay.type || stay.roomType || "",
+                price: String(stay.price ?? stay.pricePerNight ?? ""),
+                avSlots: String(stay.avSlots ?? stay.availableSlots ?? ""),
             });
-            setIncluded(stay.included || []);
-            setExpectations(stay.expectations || []);
-            setDetails(stay.details || "");
-            setPhotos(stay.photos || []);
+            setIncluded(Array.isArray(stay.included) ? stay.included : []);
+            setExpectations(Array.isArray(stay.expectations) ? stay.expectations : []);
+            setDetails(stay.details || stay.description || "");
+            setPhotos(Array.isArray(stay.photos) ? stay.photos : []);
+            setSelectedFiles([]);
         }
     }, [stay]);
 
-    const handlePhotoAdd = (dataUrl) => {
-        setPhotos((prev) => (prev.length < 5 ? [...prev, dataUrl] : prev));
+    const handlePhotoAdd = ({ file, preview }) => {
+        if (file) {
+            setSelectedFiles((prev) => (prev.length < 5 ? [...prev, file] : prev));
+        }
+        setPhotos((prev) => (prev.length < 5 ? [...prev, preview] : prev));
     };
 
     const handleChange = (e) => setValues({ ...values, [e.target.name]: e.target.value });
@@ -68,8 +76,11 @@ export default function CreatePost( { stay } ) {
         setIncluded([]);
         setExpectations([]);
         setDetails("");
+        setSelectedFiles([]);
         setPhotos([]);
     };
+
+    const isEditing = Boolean(stay?.id);
 
     const publishHandler = async () => {
 
@@ -77,10 +88,10 @@ export default function CreatePost( { stay } ) {
             alert("Please fill in location, room type, price, and available slots.");
             return;
         }
-        // if (photos.length === 0) {
-        //     alert("Please upload at least one photo.");
-        //     return;
-        // }
+        if (photos.length === 0) {
+            alert("Please upload at least one photo.");
+            return;
+        }
 
         const token = localStorage.getItem("token");
         if (!token) {
@@ -92,41 +103,38 @@ export default function CreatePost( { stay } ) {
         const availableSlots = Number.parseInt(values.avSlots, 10) || 0;
         const city = values.location;
 
+        const uploadedUrls = selectedFiles.length > 0 ? await uploadImages(selectedFiles, token) : [];
+        const finalPhotos = uploadedUrls.length > 0 ? [...photos.filter((photo) => !String(photo).startsWith("data:")), ...uploadedUrls] : photos;
+
         const payload = {
             name: `${values.type} room in ${city}`,
             description: details,
             city,
             address: "",
+            roomType: values.type,
             pricePerNight: Number.isFinite(pricePerNight) ? pricePerNight : 0,
-            photoUrl: photos[0] || "",
+            photoUrl: finalPhotos[0] || "",
+            photos: finalPhotos,
+            availableSlots,
+            included,
+            expectations,
         };
 
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "https://localhost:1337";
-
         try {
-            const res = await fetch(`${apiBaseUrl}/api/stays/create`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-            });
+            const saved = isEditing
+                ? await updateStay(stay.id, payload, token)
+                : await createStay(payload, token);
 
-            const data = await res.json().catch(() => null);
-
-            if (!res.ok) {
-                const message =
-                    typeof data === "string"
-                        ? data
-                        : data?.message || `Failed to publish (HTTP ${res.status})`;
-                throw new Error(message);
+            if (typeof onSuccess === "function") {
+                onSuccess(saved);
             }
 
-            console.log("Stay created:", data);
-            console.log("Extra UI-only fields not sent:", { availableSlots, included, expectations, photos });
             resetForm();
-            alert("Published successfully!");
+            alert(isEditing ? "Updated successfully!" : "Published successfully!");
+            if (!isEditing) {
+                navigate("/slots");
+            }
+            
         } catch (err) {
             alert(err.message || "Failed to publish");
         }
@@ -247,7 +255,13 @@ export default function CreatePost( { stay } ) {
                     <img
                         src={cancelButton} alt="Cancel"
                         className="cursor-pointer hover:opacity-80 hover:scale-103 transition-transform duration-300 active:scale-95"
-                        onClick={resetForm}
+                        onClick={() => {
+                            if (isEditing && typeof onCancel === "function") {
+                                onCancel();
+                            } else {
+                                resetForm();
+                            }
+                        }}
                         draggable={false}
                     />
                     <img

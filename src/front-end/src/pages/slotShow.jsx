@@ -131,6 +131,7 @@ export default function SlotShow({ isOwner = false }) {
                             setEditMode(false);
                             if (updated) setStay(updated);
                         }}
+                        onCancel={() => setEditMode(false)}
                     />
                 ) :
                 (
@@ -139,13 +140,13 @@ export default function SlotShow({ isOwner = false }) {
                                             justify-center text-left gap-10 py-10 max-w-7xl ">
 
                         {loading && (
-                            <div className="w-full px-5 text-[var(--color-muted)]">Loading stay…</div>
+                               <div className="w-full px-5 text-(--color-muted)">Loading stay…</div>
                         )}
                         {!loading && error && (
                             <div className="w-full px-5 text-red-500">{error}</div>
                         )}
                         {!loading && !error && !stay && (
-                            <div className="w-full px-5 text-[var(--color-muted)]">
+                                <div className="w-full px-5 text-(--color-muted)">
                                 Stay not found. <Link className="underline" to="/slots">Back to slots</Link>
                             </div>
                         )}
@@ -157,40 +158,40 @@ export default function SlotShow({ isOwner = false }) {
                                 <ShowGallery photos={stay.photos || []} />
                                 <div className="space-y-2 flex flex-col items-start gap-3 ml-2 w-full md:w-xl max-w-md">
                                     <img src={mapLogo} alt="map" className="mr-4 w-7 h-7 opacity-80" draggable={false} />
-                                    <span className="text-2xl font-semibold text-[var(--color-text)]">
+                                        <span className="text-2xl font-semibold text-(--color-text)">
                                         {stay.city}
                                     </span>
 
-                                    <div className="my-2 border-t border-[var(--color-muted)] opacity-50 w-full"></div>
+                                    <div className="my-2 border-t border-(--color-muted) opacity-50 w-full"></div>
 
-                                    <span className="ml-1 text-2xl font-semibold text-[var(--color-text)]">
+                                    <span className="ml-1 text-2xl font-semibold text-(--color-text)">
 									{(stay.price ?? stay.pricePerNight) != null ? `${stay.price ?? stay.pricePerNight} MAD` : "N/A"}
                                     </span>
 
-                                    <div className="my-2 border-t border-[var(--color-muted)] opacity-50 w-full"></div>
+                                    <div className="my-2 border-t border-(--color-muted) opacity-50 w-full"></div>
 
                                     <div className="relative">
-                                        <p className="mb-2 text-sm text-[var(--color-muted)]">Available Slots</p>
-                                        <span className="relative flex items-center gap-2 text-lg font-bold text-[var(--color-text)]">
+                                        <p className="mb-2 text-sm text-(--color-muted)">Available Slots</p>
+                                        <span className="relative flex items-center gap-2 text-lg font-bold text-(--color-text)">
                                             <img src={slotsCircle} alt="slots" draggable={false}/>
-                                            <span className="absolute left-1/2 top-1/2 -ml-4 -translate-x-1/2 -translate-y-1/2 text-[var(--color-text)]">
+                                            <span className="absolute left-1/2 top-1/2 -ml-4 -translate-x-1/2 -translate-y-1/2 text-(--color-text)">
 										{stay.avSlots ?? stay.availableSlots ?? 0}
                                             </span>
                                         </span>
                                     </div>
 
-                                    <div className="my-2 border-t border-[var(--color-muted)] opacity-50 w-full"></div>
+                                    <div className="my-2 border-t border-(--color-muted) opacity-50 w-full"></div>
 
                                     <div>
-                                        <p className="text-sm text-[var(--color-muted)]">Type</p>
+                                        <p className="text-sm text-(--color-muted)">Type</p>
 
-                                            <button className="flex items-center gap-2 text-lg mt-2 ml-1 font-semibold text-[var(--color-text)] bg-[var(--color-border-gray)] px-3 py-2 rounded-lg">
+                                            <button className="flex items-center gap-2 text-lg mt-2 ml-1 font-semibold text-(--color-text) bg-(--color-border-gray) px-3 py-2 rounded-lg">
 											<input type="checkbox" checked={true} value="type" disabled />
 											{stay.type || stay.roomType || "N/A"}
                                             </button>
                                     </div>
 
-                                    <div className="my-2 border-t border-[var(--color-muted)] opacity-50 w-full"></div>
+                                    <div className="my-2 border-t border-(--color-muted) opacity-50 w-full"></div>
 
                                     <div className="Buttons flex flex-col items-center justify-center w-full">
                                         {
@@ -204,7 +205,7 @@ export default function SlotShow({ isOwner = false }) {
                                             ) :
                                             (
                                                 <button className="flex items-center gap-2 text-lg mt-2 ml-1 
-                                                        font-semibold text-[var(--color-surface)] bg-[var(--color-secondary)] 
+                                                    font-semibold text-(--color-surface) bg-(--color-secondary) 
                                                         px-18 py-2 rounded-2xl hover:scale-103 active:scale-98 
                                                         transition-transform duration-200 border-none"
                                                         onClick={reqHandle}>
@@ -220,14 +221,14 @@ export default function SlotShow({ isOwner = false }) {
                             <div className=" md:max-w-1/2 w-full px-5 mt-10 md:mx-30 
                                             flex flex-col items-start justify-center gap-5">
                                 {/* next here */}
-                                    <div className="my-2 border-t border-[var(--color-muted)] opacity-80 w-full "></div>
+                                    <div className="my-2 border-t border-(--color-muted) opacity-80 w-full "></div>
 
                                     <div className="flex flex-col items-start mb-3 gap-10">
-                                        <h2 className="text-xl text-left font-bold text-[var(--color-text)]">What’s Included</h2>
+                                        <h2 className="text-xl text-left font-bold text-(--color-text)">What’s Included</h2>
                                         <div>
                                         {
                                             (stay.included && stay.included.length > 0) ? (
-                                                <ul className="text-[var(--color-text)] space-y-2">
+                                                <ul className="text-(--color-text) space-y-2">
                                                     {stay.included.map((item, index) => (
                                                         <li key={index}>
                                                             <img src={checkMark} alt="check" className="inline w-4 h-4 mr-2 opacity-80" draggable={false}/>
@@ -236,20 +237,20 @@ export default function SlotShow({ isOwner = false }) {
                                                     ))}
                                                 </ul>
                                             ) : (
-                                                <p className="text-[var(--color-muted)]">No information provided.</p>
+                                                <p className="text-(--color-muted)">No information provided.</p>
                                             )
                                         }
                                         </div>
                                     </div>
 
-                                    <div className="my-2 border-t border-[var(--color-muted)] opacity-80 w-full "></div>
+                                    <div className="my-2 border-t border-(--color-muted) opacity-80 w-full "></div>
 
                                     <div className="flex flex-col items-start mb-3 gap-10">
-                                        <h2 className="text-xl text-left font-bold text-[var(--color-text)]">House Rules & Expectations</h2>
+                                        <h2 className="text-xl text-left font-bold text-(--color-text)">House Rules & Expectations</h2>
                                         <div>
                                         {
                                             (stay.expectations && stay.expectations.length > 0) ? (
-                                                <ul className="text-[var(--color-text)] space-y-2">
+                                                <ul className="text-(--color-text) space-y-2">
                                                     {stay.expectations.map((item, index) => (
                                                         <li key={index}>
                                                             <img src={checkMark} alt="check" className="inline w-4 h-4 mr-2 opacity-80" draggable={false}/>
@@ -258,39 +259,39 @@ export default function SlotShow({ isOwner = false }) {
                                                     ))}
                                                 </ul>
                                             ) : (
-                                                <p className="text-[var(--color-muted)]">No information provided.</p>
+                                                <p className="text-(--color-muted)">No information provided.</p>
                                             )
                                         }
                                         </div>
                                     </div>
                                 
-                                    <div className="my-2 border-t border-[var(--color-muted)] opacity-80 w-full "></div>
+                                    <div className="my-2 border-t border-(--color-muted) opacity-80 w-full "></div>
 
                                     <div className="flex flex-col items-start mb-3 gap-10">
-                                        <h2 className="text-xl text-left font-bold text-[var(--color-text)]">Room Details</h2>
+                                        <h2 className="text-xl text-left font-bold text-(--color-text)">Room Details</h2>
                                         <div>
                                         {
                                             stay.details ? (
-                                                <p className="text-italic font-semibold text-[var(--color-text)]">{stay.details}</p>
+                                                <p className="text-italic font-semibold text-(--color-text)">{stay.details}</p>
                                             ) : (
-                                                <p className="text-italic font-semibold text-[var(--color-muted)]">No information provided.</p>
+                                                <p className="text-italic font-semibold text-(--color-muted)">No information provided.</p>
                                             )
                                         }
                                         </div>
                                     </div>
                                     
-                                    <div className="my-2 border-t border-[var(--color-muted)] opacity-80 w-full "></div>
+                                    <div className="my-2 border-t border-(--color-muted) opacity-80 w-full "></div>
 
                                     <div className="flex flex-col items-start mb-3 gap-10">
-                                        <h2 className="text-xl text-left font-bold text-[var(--color-text)]">Owner</h2>
+                                        <h2 className="text-xl text-left font-bold text-(--color-text)">Owner</h2>
                                         <div className="flex items-center gap-5">
                                             <img src={stay.owner?.image || ""} alt={stay.owner?.name || ""} className="w-16 h-16 rounded-full" draggable={false}/>
-                                            <p className="text-italic font-semibold text-[var(--color-text)]">{stay.owner?.name || "N/A"}</p>
+                                            <p className="text-italic font-semibold text-(--color-text)">{stay.owner?.name || "N/A"}</p>
 
                                             {!canManage && (
                                                 <Link to={`/chat/${stay.owner?.id}/${stay.id}`}>
-                                                    <button className="bg-[var(--color-secondary)] text-[var(--color-surface)] px-6 py-2 
-                                                                        rounded-full ml-4 hover:bg-[var(--color-secondary-hover)] 
+                                                    <button className="bg-(--color-secondary) text-(--color-surface) px-6 py-2 
+                                                                        rounded-full ml-4 hover:bg-(--color-secondary-hover) 
                                                                         hover:scale-103 transition-transform duration-300"
                                                     >Contact</button>
                                                 </Link>
