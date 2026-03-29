@@ -84,15 +84,13 @@ public class UserService {
         }
 
         if (request.getEmail() != null) {
-            if (isOauthUser(currentUser)) {
-                throw new ResponseStatusException(
-                        HttpStatus.FORBIDDEN,
-                        "Email cannot be changed for OAuth accounts"
-                );
-            }
+            String requestedEmail = request.getEmail().trim().toLowerCase();
 
-            newEmail = request.getEmail().trim().toLowerCase();
-            currentUser.setEmail(newEmail);
+            // OAuth accounts keep provider-owned email; ignore incoming email patch.
+            if (!isOauthUser(currentUser) && !requestedEmail.equals(currentUser.getEmail())) {
+                newEmail = requestedEmail;
+                currentUser.setEmail(newEmail);
+            }
         }
 
         if (request.getNewPassword() != null && !request.getNewPassword().isBlank()) {
@@ -117,7 +115,7 @@ public class UserService {
             User savedUser = userRepository.save(currentUser);
             UserResponse response = toResponse(savedUser);
 
-            // If email changed, generate new token with new email
+            // Refresh token only when local-account email is actually changed.
             if (newEmail != null) {
                 String newToken = jwtService.generateToken(newEmail);
                 response.setToken(newToken);
