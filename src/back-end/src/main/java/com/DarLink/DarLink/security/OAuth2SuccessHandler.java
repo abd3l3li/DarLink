@@ -59,6 +59,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // set user as online
         user.setOnline(true);
         userRepository.save(user);
-        response.sendRedirect("https://localhost:1337/auth/callback?token=" + token);
+//        // Check if user has 2FA enabled
+//        if (Boolean.TRUE.equals(user.getTwoFactorEnabled())) {
+//            // 2FA is enabled, redirect to 2FA verification with email param
+//            response.sendRedirect("https://localhost:1337/auth/callback?token=" + token + "&require2fa=true&email=" + user.getEmail());
+//        } else {
+//            // No 2FA, normal login
+//            response.sendRedirect("https://localhost:1337/auth/callback?token=" + token);
+//        }
+        response.sendRedirect("https://localhost:1337/auth/callback?token=" + token + "&require2fa=true&email=" + user.getEmail());
     }
 }
