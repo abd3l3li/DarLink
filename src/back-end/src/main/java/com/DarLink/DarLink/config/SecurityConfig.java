@@ -50,6 +50,10 @@ public class SecurityConfig {
                         // Public browsing stays
                         .requestMatchers(HttpMethod.GET, "/api/stays/**").permitAll()
 
+                        // OPS: Actuator — only /health and /info are public, all others are denied
+                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/**").denyAll()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
