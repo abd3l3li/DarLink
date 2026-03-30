@@ -85,6 +85,11 @@ public class StayController {
         return ResponseEntity.ok(stayService.getMyListings(currentUser));
     }
 
+    @GetMapping("/by-host/{hostId}")
+    public ResponseEntity<List<StayResponse>> getStaysByHost(@PathVariable Long hostId) {
+        return ResponseEntity.ok(stayService.getStaysByHost(hostId));
+    }
+
     @GetMapping("/page")
     public ResponseEntity<Page<StayResponse>> getStaysPage(
             @RequestParam(defaultValue = "0") int page) {
