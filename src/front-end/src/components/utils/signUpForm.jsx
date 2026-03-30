@@ -18,6 +18,37 @@ export default function Right_side() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const getReadableErrorMessage = ({ res, data, fallback }) => {
+    if (!res) {
+      return "Can't reach the server. Check your connection and try again.";
+    }
+
+    const rawMessage =
+      typeof data === "string"
+        ? data
+        : data?.message || data?.error || "";
+
+    switch (res.status) {
+      // case 400:
+      case 422:
+        return rawMessage || "Please check your details and try again.";
+      // case 401:
+      case 403:
+        return "You are not allowed to register right now. Please try again.";
+      case 409:
+        return rawMessage || "This email is already in use. Try logging in instead.";
+      case 413:
+        return "Your request is too large. Try a shorter input and retry.";
+      // case 500:
+      // case 502:
+      // case 503:
+      case 504:
+        return "Server error. Please try again in a moment.";
+      default:
+        return rawMessage || fallback || `Registration failed (HTTP ${res.status}).`;
+    }
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -29,20 +60,23 @@ export default function Right_side() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://localhost:1337/api/auth/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
-      const data = await res.json();
+      const text = await res.text().catch(() => "");
+      const data = text ? (() => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return text;
+        }
+      })() : null;
 
       if (!res.ok) {
-        throw new Error(
-          typeof data === "string"
-            ? data
-            : data.message || "Registration failed"
-        );
+        throw new Error(getReadableErrorMessage({ res, data, fallback: "Registration failed." }));
       }
 
       // ✅ Save token safely
@@ -56,7 +90,7 @@ export default function Right_side() {
       navigate("/");
 
     } catch (err) {
-      setError(err.message);
+      setError(err?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -113,16 +147,22 @@ export default function Right_side() {
 
           {/* Error */}
           {error && (
-            <p className="text-red-500 text-sm">{error}</p>
+            <div
+              role="alert"
+              aria-live="polite"
+              className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
+              {error}
+            </div>
           )}
 
           {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className={`bg-[var(--color-primary)] text-[var(--color-surface)]
+            className={`bg-(--color-primary) text-(--color-surface)
             px-4 py-2 flex items-center justify-center rounded-full font-bold
-            transition-all duration-300 h-11 w-34
+            transition-all duration-300 h-11 w-32
             ${loading ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg hover:-translate-y-0.5"}`}
           >
             {loading ? "..." : "SIGN UP"}
