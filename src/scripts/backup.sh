@@ -35,6 +35,9 @@ fi
 
 echo "📦  Starting backup of '${DB_NAME}' → ${DUMP_FILE}"
 
+# ── Ensure backup directory exists inside the container ──────────────────────
+# docker exec "${DB_CONTAINER}" mkdir -p "${BACKUP_DIR}"
+
 # ── Run pg_dump inside the container and pipe into gzip ──────────────────────
 docker exec "${DB_CONTAINER}" bash -c \
   "pg_dump -U ${DB_USER} -d ${DB_NAME} --format=custom \

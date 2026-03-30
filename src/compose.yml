@@ -33,6 +33,7 @@ services:
       - db
     volumes:
       - ./uploads:/app/uploads
+      - db-backups:/var/backups/darlink
   db:
     #image: postgres:18
     build: db
@@ -41,6 +42,7 @@ services:
       - db-password
     volumes:
       - db-data:/var/lib/postgresql/
+      - db-backups:/var/backups/darlink
     networks:
       - darlink
     environment:
@@ -59,6 +61,7 @@ services:
 
 volumes:
   db-data:
+  db-backups:
   node_modules:
 secrets:
   db-password:
