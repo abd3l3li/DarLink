@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
 @Service
 public class AuthService {
 
@@ -18,13 +19,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final NotificationService notificationService;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       JwtService jwtService, AuthenticationManager authenticationManager) {
+                       JwtService jwtService, AuthenticationManager authenticationManager,
+                       NotificationService notificationService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.notificationService = notificationService;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -49,6 +53,14 @@ public class AuthService {
 
         // 4. Print the ID Card (JWT) and return it
         String token = jwtService.generateToken(user.getEmail());
+        notificationService.sendNotification(
+                user,
+                "welcome",
+                "DarLink Team",
+                null,
+                "Welcome to DarLink, " + user.getUsername() + "!",
+                "/profile"
+        );
         return new AuthResponse(token);
     }
 
@@ -76,6 +88,14 @@ public class AuthService {
         userRepository.save(user);
         // 3. Print a new ID Card (JWT) and return it
         String token = jwtService.generateToken(user.getEmail());
+        notificationService.sendNotification(
+                user,
+                "welcome",
+                "DarLink Team",
+                null,
+                "Welcome back, " + user.getUsername() + "!",
+                "/"
+        );
         return new AuthResponse(token);
     }
 }
