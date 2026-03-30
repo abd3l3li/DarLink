@@ -20,9 +20,8 @@ export default function NotificationDropdown({ isOpen, onClose }) {
 
         switch (notification.type) {
             case NOTIFICATION_TYPES.MESSAGE:
-                if (notification.link) {
-                    navigate(notification.link);
-                }
+            case "new_message":
+                navigate("/chat");
                 break;
                 
             // to be implemented
@@ -42,18 +41,18 @@ export default function NotificationDropdown({ isOpen, onClose }) {
 
     return (
         <div 
-            className="absolute right-0 top-14 w-80 bg-[var(--color-surface)] rounded-2xl shadow-xl 
-                        border border-[var(--color-border-gray)] z-50 overflow-hidden"
+            className="absolute right-0 top-14 w-80 bg-(--color-surface) rounded-2xl shadow-xl 
+                        border border-(--color-border-gray) z-50 overflow-hidden"
             data-dropdown
             onClick={(e) => e.stopPropagation()}
         >
             
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border-gray)]">
-                <button onClick={onClose} className="text-[var(--color-muted)] hover:text-[var(--color-text)]">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-(--color-border-gray)">
+                <button onClick={onClose} className="text-(--color-muted) hover:text-(--color-text)">
                     <span className="text-xl">×</span>
                 </button>
 
-                <span className="font-semibold text-[var(--color-text)]">Slot & Notifications</span>
+                <span className="font-semibold text-(--color-text)">Slot & Notifications</span>
 
                 <div className="w-5"></div>
             </div>
@@ -70,8 +69,8 @@ export default function NotificationDropdown({ isOpen, onClose }) {
                     </div>
                 ) : notifications.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-10 px-4">
-                        <p className="font-semibold text-[var(--color-text)]">No new notifications</p>
-                        <p className="text-sm text-[var(--color-muted)] text-center mt-2">
+                        <p className="font-semibold text-(--color-text)">No new notifications</p>
+                        <p className="text-sm text-(--color-muted) text-center mt-2">
                             You've got a blank state (for now). We will let you know when updates arrive
                         </p>
                     </div>
@@ -82,14 +81,14 @@ export default function NotificationDropdown({ isOpen, onClose }) {
                                 key={notification.id}
                                 onClick={() => handleNotificationClick(notification)}
                                 className={`flex items-center justify-between px-4 py-3 cursor-pointer 
-                                            hover:bg-[var(--color-bg)] transition-colors
-                                            ${!notification.read ? "bg-[var(--color-bg)]" : ""}`}
+                                            hover:bg-(--color-bg) transition-colors
+                                            ${!notification.read ? "bg-(--color-bg)" : ""}`}
                             >
-                                <span className="text-[var(--color-text)] text-sm">
+                                <span className="text-(--color-text) text-sm">
                                     {notification.message}
                                 </span>
                                 {!notification.read && (
-                                    <span className="w-2 h-2 bg-green-500 rounded-full ml-2 flex-shrink-0"></span>
+                                    <span className="w-2 h-2 bg-green-500 rounded-full ml-2 shrink-0"></span>
                                 )}
                             </div>
                         ))}
@@ -98,12 +97,12 @@ export default function NotificationDropdown({ isOpen, onClose }) {
             </div>
 
             {notifications.length > 0 && (
-                <div className="border-t border-[var(--color-border-gray)] px-4 py-2">
+                <div className="border-t border-(--color-border-gray) px-4 py-2">
                     <button
                         onClick={() => {
                             markAllAsRead();
                         }}
-                        className="text-sm text-[var(--color-secondary)] hover:underline"
+                        className="text-sm text-(--color-secondary) hover:underline"
                     >
                         Mark all as read
                     </button>

@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 import { clearStoredAuth, getStoredToken, isAuthRejectedStatus } from "@/lib/auth.js";
 
 const NotificationContext = createContext();
@@ -47,6 +49,8 @@ export function NotificationProvider({ children }) {
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [currentUser, setCurrentUser] = useState(null);
+    const stompClient = useRef(null);
 
     const addNotification = useCallback((notification) => {
         const newNotification = {
@@ -57,7 +61,96 @@ export function NotificationProvider({ children }) {
         };
         setNotifications((prev) => [newNotification, ...prev]);
         setUnreadCount((c) => c + 1);
+
+        // Trigger browser notification if supported
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+                new Notification(newNotification.message, {
+                    body: 'Click to view',
+                    icon: '/favicon.ico', // or your icon
+                });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification(newNotification.message, {
+                            body: 'Click to view',
+                            icon: '/favicon.ico',
+                        });
+                    }
+                });
+            }
+        }
     }, []);
+
+    const fetchCurrentUser = useCallback(async () => {
+        const token = getToken();
+        if (!token) {
+            setCurrentUser(null);
+            return;
+        }
+
+        try {
+            const res = await fetch(buildApiUrl("/api/users/me"), {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (res.ok) {
+                const user = await res.json();
+                setCurrentUser(user);
+            } else {
+                setCurrentUser(null);
+            }
+        } catch {
+            setCurrentUser(null);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchCurrentUser();
+    }, [fetchCurrentUser]);
+
+    useEffect(() => {
+        if (!currentUser || !currentUser.email) {
+            if (stompClient.current) {
+                stompClient.current.deactivate();
+                stompClient.current = null;
+            }
+            return;
+        }
+
+        const token = getToken();
+        if (!token) return;
+
+        const socketUrl = `${getApiBaseUrl()}/ws`;
+        const client = new Client({
+            webSocketFactory: () => new SockJS(socketUrl),
+            connectHeaders: { Authorization: `Bearer ${token}` },
+            onConnect: () => {
+                console.log("Connected to WebSocket for notifications");
+                client.subscribe(`/topic/user.${currentUser.email}`, (message) => {
+                    const data = JSON.parse(message.body);
+                    // data: { type, roomId, senderUsername }
+                    let notification = {
+                        type: data.type,
+                        message: `${data.senderUsername} sent you a message`,
+                        link: `/chat/${data.roomId}`,
+                    };
+                    addNotification(notification);
+                });
+            },
+            onStompError: (frame) => {
+                console.error("Notification WS error: " + frame.headers['message']);
+            },
+        });
+
+        client.activate();
+        stompClient.current = client;
+
+        return () => {
+            client.deactivate();
+        };
+    }, [currentUser, addNotification]);
 
     const refreshNotifications = useCallback(async () => {
         const token = getToken();
