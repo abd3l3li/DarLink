@@ -41,8 +41,10 @@ public class ChatRoomService {
         res.setCreatedAt(room.getCreatedAt());
         res.setUser1Id(room.getUser1().getId());
         res.setUsername1(room.getUser1().getUsername());
+        res.setAvatarUrl1(room.getUser1().getAvatarUrl());
         res.setUser2Id(room.getUser2().getId());
         res.setUsername2(room.getUser2().getUsername());
+        res.setAvatarUrl2(room.getUser2().getAvatarUrl());
         return res;
     }
 
