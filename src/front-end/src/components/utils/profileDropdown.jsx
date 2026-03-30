@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { uploadImages } from "@/lib/uploadsApi.js";
+import { clearStoredAuth, getStoredToken, handleAuthRejected } from "@/lib/auth.js";
 
 
 export default function ProfileDropdown({ isOpen, onClose }) {
@@ -26,19 +27,26 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
     useEffect(() => {
 
+        const token = getStoredToken();
+        if (!token) return;
+
         fetch("/api/users/me", {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
+                Authorization: `Bearer ${token}`
             }
         })
         .then(res => {
+            if (handleAuthRejected(res)) {
+                return null;
+            }
             if (!res.ok) {
                 throw new Error("Failed to fetch user profile");
             }
             return res;
         })
-        .then(res => res.json())
+        .then(res => (res ? res.json() : null))
         .then(data => {
+            if (!data) return;
             setProfile({
                 name: data.username,
                 email: data.email,
@@ -130,7 +138,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                 } catch {
                     // ignore
                 } finally {
-                    localStorage.removeItem("token");
+                    clearStoredAuth();
                     window.location.href = "/log-in";
                 }
             };
@@ -153,6 +161,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     newPassword: passwordChanged ? formData.password : undefined
                 }),
             });
+
+            if (handleAuthRejected(res)) return;
 
             if (!res.ok) {
                 const text = await res.text().catch(() => "");
@@ -192,29 +202,23 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
     const handleLogout = () => {
         console.log("Logging out...");
-        const token = localStorage.getItem("token");
+        const token = getStoredToken();
+        // Best-effort server logout; always clear local auth to avoid being stuck.
         fetch("/api/users/me/logout", {
             method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }).then(response => {
-            if (response.ok) {
-                console.log("Logged out successfully");
-                localStorage.removeItem("token");
-                window.location.href = "/";
-            } else {
-                response.text().then(text => {
-                    console.error("Logout failed:", text);
-                    alert("Logout failed. Please try again.");
-                }).catch(() => {
-                    alert("Logout failed. Please try again.");
-                });
-            }
-        }).catch(error => {
-            console.error("Error during logout:", error);
-            alert("An error occurred during logout. Please try again.");
-        });
+            headers: token
+                ? {
+                    Authorization: `Bearer ${token}`
+                }
+                : {},
+        })
+            .catch(() => {
+                // ignore
+            })
+            .finally(() => {
+                clearStoredAuth();
+                window.location.href = "/log-in";
+            });
         onClose();
     };
 
@@ -224,7 +228,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     };
 
     const handleDisable2FA = async () => {
-        const token = localStorage.getItem("token");
+        const token = getStoredToken();
         try {
             const res = await fetch("/api/auth/2fa/disable", {
                 method: "DELETE",
@@ -232,6 +236,8 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                     Authorization: `Bearer ${token}`
                 }
             });
+
+            if (handleAuthRejected(res)) return;
 
             if (res.ok) {
                 // Update profile state

@@ -1,4 +1,5 @@
 import { normalizeStay, normalizeStays } from "./stays";
+import { clearStoredAuth, isAuthRejectedStatus } from "./auth";
 
 async function readErrorBody(res) {
   const text = await res.text().catch(() => "");
@@ -146,6 +147,11 @@ export async function fetchMe(token) {
       ...authHeaders(token),
     },
   });
+
+  if (isAuthRejectedStatus(res.status)) {
+    clearStoredAuth();
+    return null;
+  }
 
   if (!res.ok) return null;
   return res.json();

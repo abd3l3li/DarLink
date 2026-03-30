@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { useEffect } from "react";
 import Layout from "./components/layout/Layout.jsx";
 import Home from "./pages/home.jsx";
 import Slots from "./pages/slots.jsx";
@@ -18,6 +19,7 @@ import AuthCallback from "./pages/AuthCallback.jsx";
 import TwoFA from "./pages/TwoFA.jsx";
 import TwoFASetup from "./pages/2fa-setup.jsx";
 import StatusPage from "./pages/StatusPage.jsx";
+import { getStoredToken, handleAuthRejected } from "@/lib/auth.js";
 
 const router = createBrowserRouter([
   {
@@ -97,6 +99,25 @@ const router = createBrowserRouter([
 
 
 export default function App() {
+  useEffect(() => {
+    const token = getStoredToken();
+    if (!token) return;
+
+    fetch("/api/users/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => {
+        // If backend was reset, ensure we don't keep a dead token around.
+        const redirectTo = window.location.pathname === "/" ? null : "/log-in";
+        handleAuthRejected(res, { redirectTo });
+      })
+      .catch(() => {
+        // ignore network errors
+      });
+  }, []);
+
   return (
       <div className="app">
         <LangButton />

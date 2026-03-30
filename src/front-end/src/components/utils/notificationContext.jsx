@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
+import { clearStoredAuth, getStoredToken, isAuthRejectedStatus } from "@/lib/auth.js";
 
 const NotificationContext = createContext();
 
@@ -17,7 +18,7 @@ function getApiBaseUrl() {
 }
 
 function getToken() {
-    return localStorage.getItem("token");
+    return getStoredToken();
 }
 
 async function parseJsonSafe(res) {
@@ -64,6 +65,13 @@ export function NotificationProvider({ children }) {
                 },
             });
 
+            if (isAuthRejectedStatus(res.status)) {
+                clearStoredAuth();
+                setNotifications([]);
+                setUnreadCount(0);
+                return;
+            }
+
             const data = await parseJsonSafe(res);
             if (!res.ok) {
                 const message =
@@ -97,6 +105,12 @@ export function NotificationProvider({ children }) {
                     Authorization: `Bearer ${token}`,
                 },
             });
+
+            if (isAuthRejectedStatus(res.status)) {
+                clearStoredAuth();
+                setUnreadCount(0);
+                return;
+            }
             const data = await parseJsonSafe(res);
             if (!res.ok) return;
             const count = typeof data?.count === "number" ? data.count : 0;
