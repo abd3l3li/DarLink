@@ -1,9 +1,9 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Return from "../components/utils/return_home.jsx";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { getStoredToken } from "@/lib/auth.js";
 import { fetchRooms, fetchMessages, ensureRoom, fetchRoomBetween, fetchMe, fetchStaysByHostId } from "@/lib/chatApi.js";
-import { getStayById, getStaysByOwnerId } from "../components/stays/staysTemp.js";
+import { fetchStayById } from "@/lib/staysApi.js";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
@@ -99,13 +99,6 @@ function ProfileModal({ contact, listings, onClose, onSelectListing }) {
 
         {/* info */}
         <div className="space-y-4 text-sm w-full">
-          <div>
-            <p className="text-[var(--color-muted)]">Location:</p>
-            <p className="font-semibold text-[var(--color-secondary)]">
-              {contact.location || "Unknown"}
-            </p>
-          </div>
-          
           {/* listings section*/}
           <div>
             <p className="text-[var(--color-muted)] mb-2">Listings ({listings?.length || 0}):</p>
@@ -121,7 +114,7 @@ function ProfileModal({ contact, listings, onClose, onSelectListing }) {
                   >
                     <p className="font-semibold text-sm">{listing.city}</p>
                     <p className="text-xs opacity-80">
-                      {listing.roomType} • {listing.availableSlots} slots • {listing.pricePerNight} MAD
+                      {listing.roomType || listing.type || "Stay"} • {listing.availableSlots ?? listing.avSlots ?? 0} slots • {listing.pricePerNight ?? listing.price ?? "N/A"} MAD
                     </p>
                   </button>
                 ))}
@@ -145,10 +138,10 @@ function ListingView({ listing, onBack }) {
                         shadow-[0_0_0_1px_rgba(37,99,235,0.25)] p-6 flex flex-col 
                         items-center text-center">
         
-        {listing.photoUrl && (
+        {(listing.photoUrl || listing.photos?.[0]) && (
           <div className="w-full h-40 rounded-xl overflow-hidden mb-4">
             <img 
-              src={listing.photoUrl} 
+              src={listing.photoUrl || listing.photos?.[0]} 
               alt={listing.city} 
               className="w-full h-full object-cover"
             />
@@ -160,7 +153,7 @@ function ListingView({ listing, onBack }) {
         </h2>
         
         <p className="text-sm text-[var(--color-muted)] mb-4">
-          {listing.roomType} • {listing.availableSlots} slots available • {listing.pricePerNight} MAD
+          {listing.roomType || listing.type || "Stay"} • {listing.availableSlots ?? listing.avSlots ?? 0} slots available • {listing.pricePerNight ?? listing.price ?? "N/A"} MAD
         </p>
 
         {listing.description && (
@@ -206,6 +199,7 @@ function ListingView({ listing, onBack }) {
 
 export default function ChatPage() {
   const { ownerId, stayId } = useParams();
+  const navigate = useNavigate();
   const token = getStoredToken();
   
   const [currentUser, setCurrentUser] = useState(null);
@@ -213,6 +207,7 @@ export default function ChatPage() {
   const [activeRoom, setActiveRoom] = useState(null);
   const [messages, setMessages] = useState([]);
   const [activeContactStays, setActiveContactStays] = useState([]);
+  const [contextStay, setContextStay] = useState(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -283,6 +278,62 @@ export default function ChatPage() {
     }
     init();
   }, [token, ownerId]);
+
+  // Resolve stay context from route (`/chat/:ownerId/:stayId`) for both guest and owner views
+  useEffect(() => {
+    if (!stayId) {
+      setContextStay(null);
+      return;
+    }
+
+    const parsedStayId = Number(stayId);
+    if (!Number.isFinite(parsedStayId)) {
+      setContextStay(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function resolveContextStay() {
+      // First, try already loaded partner stays (fast path)
+      const fromPartner = activeContactStays.find((s) => Number(s.id) === parsedStayId);
+      if (fromPartner) {
+        if (!cancelled) setContextStay(fromPartner);
+        return;
+      }
+
+      // Then, try direct stay endpoint
+      try {
+        const stay = await fetchStayById(parsedStayId);
+        if (stay) {
+          if (!cancelled) setContextStay(stay);
+          return;
+        }
+      } catch (err) {
+        console.warn("Failed to load stay context directly", err);
+      }
+
+      // Owner fallback: fetch the current user's stays and match by stayId
+      if (token && currentUser?.id != null) {
+        try {
+          const ownerStays = await fetchStaysByHostId(currentUser.id, token);
+          const fromOwner = ownerStays.find((s) => Number(s.id) === parsedStayId) || null;
+          if (!cancelled) setContextStay(fromOwner);
+          return;
+        } catch (err) {
+          console.warn("Failed to load owner stay context", err);
+        }
+      }
+
+      if (!cancelled) setContextStay(null);
+    }
+
+    resolveContextStay();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [stayId, activeContactStays, currentUser?.id, token]);
 
   // Fetch messages and partner stays when active room changes
   useEffect(() => {
@@ -385,11 +436,15 @@ export default function ChatPage() {
       const isUser1 = room.user1Id === currentUser?.id;
       const otherUsername = isUser1 ? room.username2 : room.username1;
       const otherId = isUser1 ? room.user2Id : room.user1Id;
+      const otherAvatar = isUser1
+        ? (room.avatarUrl2 || room.user2AvatarUrl || room.otherAvatarUrl || null)
+        : (room.avatarUrl1 || room.user1AvatarUrl || room.otherAvatarUrl || null);
       
       return {
         id: otherId,
         roomId: room.id,
         name: otherUsername,
+        image: otherAvatar,
         online: false,
         preview: "Chat about stays...",
         unread: 0,
@@ -401,17 +456,24 @@ export default function ChatPage() {
   const activeContact = useMemo(() => {
     if (!activeRoom) return contacts[0];
     const contact = contacts.find(c => c.roomId === activeRoom.id);
-    if (contact && activeContactStays.length > 0) {
-       // Enrich with real data from stays if available
-       const firstStay = activeContactStays[0];
-       return {
-         ...contact,
-         location: firstStay.city,
-         image: firstStay.hostAvatarUrl
-       };
-    }
-    return contact;
-  }, [activeRoom, contacts, activeContactStays]);
+    if (!contact) return contact;
+
+    const firstStayOwnedByContact =
+      activeContactStays.find((s) => Number(s.owner?.id ?? s.hostId) === Number(contact.id)) || null;
+
+    return {
+      ...contact,
+      // Avatar: prefer room payload, then verified contact-owned stay/context.
+      image:
+        contact.image ||
+        (contextStay?.owner?.id != null && Number(contextStay.owner.id) === Number(contact.id)
+          ? (contextStay.owner?.image || contextStay.hostAvatarUrl)
+          : null) ||
+        firstStayOwnedByContact?.owner?.image ||
+        firstStayOwnedByContact?.hostAvatarUrl ||
+        null,
+    };
+  }, [activeRoom, contacts, activeContactStays, contextStay]);
 
   const chatMessages = messages.map(m => ({
     id: m.id,
@@ -438,22 +500,55 @@ export default function ChatPage() {
     setInput("");
   }
 
-  function handleClickHere() {
+  async function handleClickHere() {
     // If we have a stayId in URL, use it
     if (stayId) {
-       const found = activeContactStays.find(s => s.id.toString() === stayId);
+       const parsedOwnerId = Number(ownerId);
+       const isOwnerViewer = Number.isFinite(parsedOwnerId) && Number(currentUser?.id) === parsedOwnerId;
+
+       // Owner flow: redirect to the stay page.
+       if (isOwnerViewer) {
+        navigate(`/slot-show/${stayId}`);
+        return;
+       }
+
+       let found = activeContactStays.find(s => s.id.toString() === stayId) ||
+         (contextStay && contextStay.id?.toString() === stayId ? contextStay : null);
+
+       if (!found) {
+        const parsedStayId = Number(stayId);
+        if (Number.isFinite(parsedStayId)) {
+          try {
+            found = await fetchStayById(parsedStayId);
+            if (found) setContextStay(found);
+          } catch {
+            // ignore and fallback below
+          }
+        }
+       }
+
        if (found) {
          setSelectedListing(found);
          setView("listing");
          return;
        }
+
+       // fallback if listing context is unavailable
+       navigate(`/slot-show/${stayId}`);
+       return;
     }
     
-    // Fallback to first listing or contextListing if available
+    // Fallback to first available stay context
     if (activeContactStays.length > 0) {
       setSelectedListing(activeContactStays[0]);
+      setView("listing");
+    } else if (contextStay) {
+      setSelectedListing(contextStay);
+      setView("listing");
+    } else {
+      setSelectedListing(null);
+      setView("chat");
     }
-    setView("listing");
   }
 
   function handleSelectListingFromProfile(listing) {
