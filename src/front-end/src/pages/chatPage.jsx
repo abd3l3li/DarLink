@@ -1,13 +1,16 @@
 import { useParams, Link } from "react-router-dom";
-import { contacts as INITIAL_CONTACTS, messages as INITIAL_MESSAGES, getOwnerById,
-  getStaysByOwnerId, getStayById } from "../components/stays/staysTemp.js";
-  import Return from "../components/utils/return_home.jsx";
-  
+import Return from "../components/utils/return_home.jsx";
 import { useState, useRef, useEffect, useMemo } from "react";
+import { getStoredToken } from "@/lib/auth.js";
+import { fetchRooms, fetchMessages, ensureRoom, fetchRoomBetween, fetchMe, fetchStaysByHostId } from "@/lib/chatApi.js";
+import { getStayById, getStaysByOwnerId } from "../components/stays/staysTemp.js";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
-// Heplper functions
+// Helper functions
 
 function getInitials(name) {
+  if (!name) return "??";
   return name
     .split(" ")
     .map((word) => word[0])
@@ -16,13 +19,21 @@ function getInitials(name) {
     .toUpperCase();
 }
 
-function Avatar({ name, online }) {
+function Avatar({ name, online, image }) {
   return (
     <div className="relative">
-      <div className="w-10 h-10 rounded-full bg-blue-100 text-[var(--color-primary)] flex 
-                        items-center justify-center font-semibold text-sm">
-        {getInitials(name)}
-      </div>
+      {image ? (
+        <img
+          src={image}
+          alt={name}
+          className="w-10 h-10 rounded-full object-cover border border-[var(--color-border-gray)]"
+        />
+      ) : (
+        <div className="w-10 h-10 rounded-full bg-blue-100 text-[var(--color-primary)] flex 
+                          items-center justify-center font-semibold text-sm">
+          {getInitials(name)}
+        </div>
+      )}
 
       {online && (
         <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full 
@@ -51,11 +62,8 @@ function FriendButton({ status, onAction }) {
   );
 }
 
-function ProfileModal({ contact, onClose, onSelectListing }) {
+function ProfileModal({ contact, listings, onClose, onSelectListing }) {
   if (!contact) return null;
-
-  // get listings for this contact
-  const listings = getStaysByOwnerId(contact.id);
 
   return (
     <div
@@ -81,10 +89,8 @@ function ProfileModal({ contact, onClose, onSelectListing }) {
         <h2 className="text-sm font-semibold mb-6 text-[var(--color-text)]">Profile</h2>
 
         {/* avatar */}
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full 
-                        bg-[var(--color-bg)] border border-[var(--color-primary)] 
-                        text-lg font-semibold text-[var(--color-text)]">
-          {getInitials(contact.name)}
+        <div className="mb-4">
+           <Avatar name={contact.name} image={contact.image} />
         </div>
 
         <p className="text-base font-semibold text-[var(--color-text)] mb-4">
@@ -102,20 +108,20 @@ function ProfileModal({ contact, onClose, onSelectListing }) {
           
           {/* listings section*/}
           <div>
-            <p className="text-[var(--color-muted)] mb-2">Listings ({listings.length}):</p>
-            {listings.length > 0 ? (
+            <p className="text-[var(--color-muted)] mb-2">Listings ({listings?.length || 0}):</p>
+            {listings && listings.length > 0 ? (
               <div className="space-y-2">
                 {listings.map((listing) => (
                   <button
                     key={listing.id}
                     onClick={() => onSelectListing(listing)}
                     className="w-full p-3 bg-[var(--color-bg)] rounded-xl text-left 
-                              hover:bg-[var(--color-primary)] hover:text-[var(--color-surface)]
-                              transition-colors duration-200"
+                               hover:bg-[var(--color-primary)] hover:text-[var(--color-surface)]
+                               transition-colors duration-200"
                   >
                     <p className="font-semibold text-sm">{listing.city}</p>
                     <p className="text-xs opacity-80">
-                      {listing.type} • {listing.avSlots} slots • {listing.price} MAD
+                      {listing.roomType} • {listing.availableSlots} slots • {listing.pricePerNight} MAD
                     </p>
                   </button>
                 ))}
@@ -139,10 +145,10 @@ function ListingView({ listing, onBack }) {
                         shadow-[0_0_0_1px_rgba(37,99,235,0.25)] p-6 flex flex-col 
                         items-center text-center">
         
-        {listing.photos?.[0] && (
+        {listing.photoUrl && (
           <div className="w-full h-40 rounded-xl overflow-hidden mb-4">
             <img 
-              src={listing.photos[0]} 
+              src={listing.photoUrl} 
               alt={listing.city} 
               className="w-full h-full object-cover"
             />
@@ -154,33 +160,33 @@ function ListingView({ listing, onBack }) {
         </h2>
         
         <p className="text-sm text-[var(--color-muted)] mb-4">
-          {listing.type} • {listing.avSlots} slots available • {listing.price} MAD
+          {listing.roomType} • {listing.availableSlots} slots available • {listing.pricePerNight} MAD
         </p>
 
-        {listing.details && (
+        {listing.description && (
           <p className="text-sm text-[var(--color-text)] mb-4 text-left w-full">
-            {listing.details}
+            {listing.description}
           </p>
         )}
 
-        {listing.included && listing.included.length > 0 && (
+        {listing.included && (
           <div className="w-full text-left mb-4">
             <p className="text-sm font-semibold text-[var(--color-text)] mb-2">What's Included:</p>
             <ul className="text-xs text-[var(--color-muted)] space-y-1">
-              {listing.included.map((item, idx) => (
+              {Array.isArray(listing.included) ? listing.included.map((item, idx) => (
                 <li key={idx}>• {item}</li>
-              ))}
+              )) : <li>• {listing.included}</li>}
             </ul>
           </div>
         )}
 
-        {listing.expectations && listing.expectations.length > 0 && (
+        {listing.expectations && (
           <div className="w-full text-left mb-4">
             <p className="text-sm font-semibold text-[var(--color-text)] mb-2">House Rules:</p>
             <ul className="text-xs text-[var(--color-muted)] space-y-1">
-              {listing.expectations.map((item, idx) => (
+              {Array.isArray(listing.expectations) ? listing.expectations.map((item, idx) => (
                 <li key={idx}>• {item}</li>
-              ))}
+              )) : <li>• {listing.expectations}</li>}
             </ul>
           </div>
         )}
@@ -198,152 +204,266 @@ function ListingView({ listing, onBack }) {
   );
 }
 
-
-
-
-
-
-
 export default function ChatPage() {
+  const { ownerId, stayId } = useParams();
+  const token = getStoredToken();
   
-  const params = useParams();
-  const { ownerId, stayId } = params;
-  
-  // from staysTemp.js
-  const targetOwner = getOwnerById(ownerId);
-  const contextListing = stayId ? getStayById(stayId) : null;
-  
-  // initialize contacts
-  // Boolean for tracking falsy values
-  const initialContacts = useMemo(() => {
-    const contactsList = targetOwner 
-      ? [INITIAL_CONTACTS.find(c => c.id === ownerId), ...INITIAL_CONTACTS.filter(c => c.id !== ownerId)].filter(Boolean)
-      : [...INITIAL_CONTACTS];
-    
-    if (contactsList.length > 0) {
-      contactsList[0] = { ...contactsList[0], unread: 0 };
-    }
-    return contactsList;
-  }, [ownerId, targetOwner]);
-
-  const [contacts, setContacts] = useState(initialContacts);
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
-  const [activeId, setActiveId] = useState(ownerId || initialContacts[0]?.id);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [rooms, setRooms] = useState([]);
+  const [activeRoom, setActiveRoom] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [activeContactStays, setActiveContactStays] = useState([]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [showProfile, setShowProfile] = useState(false);
-  const [view, setView] = useState("chat"); // "chat" or "listing"
+  const [view, setView] = useState("chat");
   const [selectedListing, setSelectedListing] = useState(null);
 
+  const stompClient = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  const activeContact = contacts.find((c) => c.id === activeId) || contacts[0];
-  const chatMessages = messages[activeId] || [];
-
-  // pending message from Request button
+  // Initialize: Current User & Rooms
   useEffect(() => {
-    const pending = sessionStorage.getItem("pendingChatMessage");
-    if (pending) {
-      try {
-        const { ownerId: pendingOwnerId, message } = JSON.parse(pending);
-        if (pendingOwnerId === activeId && message) {
-          
-          const newMsg = { id: Date.now(), text: message, from: "me" };
-          setMessages((prev) => ({
-            ...prev,
-            [activeId]: [...(prev[activeId] || []), newMsg],
-          }));
-          setContacts((prev) =>
-            prev.map((c) => (c.id === activeId ? { ...c, preview: message } : c))
-          );
-        }
-      } catch (e) {
-        console.error("Error parsing pending message", e);
-      }
-      sessionStorage.removeItem("pendingChatMessage");
+    if (!token) {
+      window.location.href = "/log-in";
+      return;
     }
-  }, [activeId]);
+
+    async function init() {
+      try {
+        const user = await fetchMe(token);
+        if (!user) {
+           window.location.href = "/log-in";
+           return;
+        }
+        setCurrentUser(user);
+        
+        const allRooms = await fetchRooms(token);
+        setRooms(allRooms);
+
+        // If ownerId is provided, handle active room
+        if (ownerId) {
+          let room = allRooms.find(r => 
+            (r.user1Id === parseInt(ownerId) || r.user2Id === parseInt(ownerId))
+          );
+
+          if (!room) {
+            try {
+              await ensureRoom(ownerId, token);
+              room = await fetchRoomBetween(ownerId, token);
+              setRooms(prev => [...prev, room]);
+            } catch (err) {
+              if (err.message.includes("401")) {
+                 window.location.href = "/log-in";
+                 return;
+              }
+              throw err;
+            }
+          }
+          setActiveRoom(room);
+        } else if (allRooms.length > 0) {
+          setActiveRoom(allRooms[0]);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    init();
+  }, [token, ownerId]);
+
+  // Fetch messages and partner stays when active room changes
+  useEffect(() => {
+    if (!activeRoom || !token) return;
+
+    async function loadData() {
+      try {
+        const [msgs, partnerStays] = await Promise.all([
+          fetchMessages(activeRoom.id, token),
+          fetchStaysByHostId(activeRoom.user1Id === currentUser?.id ? activeRoom.user2Id : activeRoom.user1Id, token)
+        ]);
+        setMessages(msgs);
+        setActiveContactStays(partnerStays);
+      } catch (err) {
+        console.error("Failed to load room data", err);
+      }
+    }
+    loadData();
+  }, [activeRoom, token, currentUser?.id]);
+
+  // WebSocket Integration & Pending Message Logic
+  useEffect(() => {
+    if (!token) return;
+
+    const socketUrl = `${import.meta.env.VITE_API_BASE_URL || ""}/ws`;
+    const client = new Client({
+      webSocketFactory: () => new SockJS(socketUrl),
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      onConnect: () => {
+        console.log("Connected to WebSocket");
+        if (activeRoom) {
+          client.subscribe(`/topic/room.${activeRoom.id}`, (message) => {
+            const newMsg = JSON.parse(message.body);
+            setMessages((prev) => {
+               if (prev.find(m => m.id === newMsg.id)) return prev;
+               return [...prev, newMsg];
+            });
+          });
+
+          // Check for pending message precisely after connection is ready
+          const pending = sessionStorage.getItem("pendingChatMessage");
+          if (pending) {
+            try {
+              const { ownerId: pendingOwnerId, message } = JSON.parse(pending);
+              if (pendingOwnerId.toString() === ownerId?.toString()) {
+                client.publish({
+                  destination: `/app/chat/${activeRoom.id}`,
+                  body: JSON.stringify({ content: message }),
+                });
+                sessionStorage.removeItem("pendingChatMessage");
+              }
+            } catch (e) {
+              console.error("Error parsing pending message", e);
+            }
+          }
+        }
+      },
+      onStompError: (frame) => {
+        console.error("Broker reported error: " + frame.headers['message']);
+        console.error("Additional details: " + frame.body);
+      },
+    });
+
+    client.activate();
+    stompClient.current = client;
+
+    return () => {
+      client.deactivate();
+    };
+  }, [token, activeRoom?.id, ownerId]);
+
+  // Polling Fallback for sidebar previews
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(async () => {
+      try {
+        const freshRooms = await fetchRooms(token);
+        setRooms(prev => {
+          return freshRooms.map(fr => {
+            const old = prev.find(p => p.id === fr.id);
+            return old ? { ...old, ...fr } : fr;
+          });
+        });
+      } catch (e) {
+        console.warn("Polling fallback failed", e);
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [token]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     inputRef.current?.focus();
-  }, [chatMessages, activeId]);
+  }, [messages, activeRoom]);
 
-  // no contacts
-  if (!activeContact) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-[var(--color-bg)]">
-        <p className="text-[var(--color-muted)]">No contacts available</p>
-      </div>
-    );
-  }
+  // UI Mapping
+  const contacts = useMemo(() => {
+    return rooms.map(room => {
+      const isUser1 = room.user1Id === currentUser?.id;
+      const otherUsername = isUser1 ? room.username2 : room.username1;
+      const otherId = isUser1 ? room.user2Id : room.user1Id;
+      
+      return {
+        id: otherId,
+        roomId: room.id,
+        name: otherUsername,
+        online: false,
+        preview: "Chat about stays...",
+        unread: 0,
+        friendStatus: "none",
+      };
+    });
+  }, [rooms, currentUser]);
 
-  function selectContact(id) {
-    setActiveId(id);
+  const activeContact = useMemo(() => {
+    if (!activeRoom) return contacts[0];
+    const contact = contacts.find(c => c.roomId === activeRoom.id);
+    if (contact && activeContactStays.length > 0) {
+       // Enrich with real data from stays if available
+       const firstStay = activeContactStays[0];
+       return {
+         ...contact,
+         location: firstStay.city,
+         image: firstStay.hostAvatarUrl
+       };
+    }
+    return contact;
+  }, [activeRoom, contacts, activeContactStays]);
+
+  const chatMessages = messages.map(m => ({
+    id: m.id,
+    text: m.content,
+    from: m.senderId === currentUser?.id ? "me" : "them"
+  }));
+
+  function selectContact(roomId) {
+    const room = rooms.find(r => r.id === roomId);
+    setActiveRoom(room);
     setView("chat");
     setSelectedListing(null);
-
-    setContacts((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, unread: 0 } : c))
-    );
-  }
-
-  function handleFriendAction(action) {
-    const nextStatus = { request: "pending", cancel: "none", unfriend: "none" };
-    setContacts((prev) =>
-      prev.map((c) =>
-        c.id === activeId ? { ...c, friendStatus: nextStatus[action] } : c
-      )
-    );
   }
 
   function sendMessage() {
     const text = input.trim();
-    if (!text) return;
+    if (!text || !activeRoom || !stompClient.current?.connected) return;
 
-    const newMsg = { id: Date.now(), text, from: "me" };
-
-    setMessages((prev) => ({
-      ...prev,
-      [activeId]: [...(prev[activeId] || []), newMsg],
-    }));
-
-    setContacts((prev) =>
-      prev.map((c) => (c.id === activeId ? { ...c, preview: text } : c))
-    );
+    stompClient.current.publish({
+      destination: `/app/chat/${activeRoom.id}`,
+      body: JSON.stringify({ content: text }),
+    });
 
     setInput("");
   }
 
   function handleClickHere() {
-    if (contextListing) {
-      // a specific listing
-      setSelectedListing(contextListing);
-    } else {
-      // first listing of this owner
-      const ownerListings = getStaysByOwnerId(activeContact.id);
-      if (ownerListings.length > 0) {
-        setSelectedListing(ownerListings[0]);
-      }
+    // If we have a stayId in URL, use it
+    if (stayId) {
+       const found = activeContactStays.find(s => s.id.toString() === stayId);
+       if (found) {
+         setSelectedListing(found);
+         setView("listing");
+         return;
+       }
+    }
+    
+    // Fallback to first listing or contextListing if available
+    if (activeContactStays.length > 0) {
+      setSelectedListing(activeContactStays[0]);
     }
     setView("listing");
   }
 
-  // selecting listing from profile modal
   function handleSelectListingFromProfile(listing) {
     setShowProfile(false);
     setSelectedListing(listing);
     setView("listing");
   }
 
+  if (loading) return <div className="h-screen flex items-center justify-center bg-[var(--color-bg)]">Loading chat...</div>;
+  if (error) return <div className="h-screen flex items-center justify-center bg-[var(--color-bg)] text-red-500">{error}</div>;
+  if (!activeContact && !ownerId) return <div className="h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-muted)]">No active chats. Start one from a listing!</div>;
 
   return (
     <div className="h-screen max-w-7xl mx-auto p-4 flex flex-col bg-[var(--color-bg)] overflow-hidden">
-
       <div className="flex justify-end mb-4">
-          <Link to="/"> 
-              <Return className="cursor-pointer" />
-          </Link>
+        <Link to="/"> 
+          <Return className="cursor-pointer" />
+        </Link>
       </div>
 
       <div className="flex-1 flex flex-col md:flex-row bg-[var(--color-surface)] 
@@ -358,22 +478,16 @@ export default function ChatPage() {
           <div className="flex-1 overflow-y-auto">
             {contacts.map((c) => (
               <button
-                key={c.id}
-                onClick={() => selectContact(c.id)}
+                key={c.roomId}
+                onClick={() => selectContact(c.roomId)}
                 className={`w-full flex items-center gap-3 p-4 text-left hover:bg-[var(--color-bg)] transition
-                  ${c.id === activeId ? "bg-[var(--color-bg)] border-l-4 border-[var(--color-secondary)]" : ""}`}
+                  ${c.roomId === activeRoom?.id ? "bg-[var(--color-bg)] border-l-4 border-[var(--color-secondary)]" : ""}`}
               >
-                <Avatar name={c.name} online={c.online} />
-                <div className="flex-1 min-w-0"> {/* min-w-0 allows text to truncate properly */}
+                <Avatar name={c.name} image={c.image} />
+                <div className="flex-1 min-w-0">
                   <span className="block font-semibold text-sm text-[var(--color-text)]">{c.name}</span>
                   <span className="block text-xs text-[var(--color-muted)] truncate">{c.preview}</span>
                 </div>
-                {c.unread > 0 && (
-                  <span className="bg-[var(--color-secondary)] text-[var(--color-surface)] 
-                                    text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
-                    {c.unread}
-                  </span>
-                )}
               </button>
             ))}
           </div>
@@ -381,33 +495,34 @@ export default function ChatPage() {
 
         {/* the chat */}
         <main className="flex-1 flex flex-col">
-
-          <header className="flex justify-between items-center p-5 border-b border-[var(--color-border-gray)]">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setShowProfile(true)}
-                className="rounded-full focus:outline-none"
-                aria-label="Open profile"
-              >
-                <Avatar name={activeContact.name} online={activeContact.online} />
-              </button>
-              <div>
-                <p className="font-semibold text-[var(--color-text)]">{activeContact.name}</p>
-                <p className="text-xs text-[var(--color-muted)]">
-                  {contextListing ? `Chat about: ` : `View listing: `}
-                  <button
-                    type="button"
-                    onClick={handleClickHere}
-                    className="text-[var(--color-primary)] hover:underline hover:text-[var(--color-secondary)]"
-                  >
-                    Click here
-                  </button>
-                </p>
+          {activeContact && (
+            <header className="flex justify-between items-center p-5 border-b border-[var(--color-border-gray)]">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowProfile(true)}
+                  className="rounded-full focus:outline-none"
+                  aria-label="Open profile"
+                >
+                  <Avatar name={activeContact.name} image={activeContact.image} />
+                </button>
+                <div>
+                  <p className="font-semibold text-[var(--color-text)]">{activeContact.name}</p>
+                  <p className="text-xs text-[var(--color-muted)]">
+                    {stayId ? `Chat about listing ` : `View listings: `}
+                    <button
+                      type="button"
+                      onClick={handleClickHere}
+                      className="text-[var(--color-primary)] hover:underline hover:text-[var(--color-secondary)]"
+                    >
+                      Click here
+                    </button>
+                  </p>
+                </div>
               </div>
-            </div>
-            <FriendButton status={activeContact.friendStatus} onAction={handleFriendAction} />
-          </header>
+              <FriendButton status={activeContact.friendStatus} onAction={() => {}} />
+            </header>
+          )}
 
           {view === "chat" ? (
             <>
@@ -415,7 +530,7 @@ export default function ChatPage() {
               <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[var(--color-bg)]">
                 {chatMessages.length === 0 ? (
                   <p className="h-full flex items-center justify-center text-sm text-[var(--color-muted)]">
-                    Start a conversation...
+                    {activeContact ? "No messages yet... send a request or a hello!" : "Select a contact to start chatting"}
                   </p>
                 ) : (
                   chatMessages.map((msg) => (
@@ -439,26 +554,28 @@ export default function ChatPage() {
               </div>
 
               {/* input field */}
-              <div className="p-4 border-t border-[var(--color-border-gray)] bg-[var(--color-surface)]">
-                <div className="flex items-center gap-3 bg-[var(--color-bg)] rounded-xl px-4 py-2">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                    placeholder="Type your message..."
-                    className="flex-1 bg-transparent outline-none text-sm text-[var(--color-text)]"
-                  />
-                  <button
-                    onClick={sendMessage}
-                    className="bg-[var(--color-primary)] hover:opacity-90 
-                              text-[var(--color-surface)] px-4 py-2 rounded-lg text-sm"
-                  >
-                    Send
-                  </button>
+              {activeRoom && (
+                <div className="p-4 border-t border-[var(--color-border-gray)] bg-[var(--color-surface)]">
+                  <div className="flex items-center gap-3 bg-[var(--color-bg)] rounded-xl px-4 py-2">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                      placeholder="Type your message..."
+                      className="flex-1 bg-transparent outline-none text-sm text-[var(--color-text)]"
+                    />
+                    <button
+                      onClick={sendMessage}
+                      className="bg-[var(--color-primary)] hover:opacity-90 
+                                text-[var(--color-surface)] px-4 py-2 rounded-lg text-sm"
+                    >
+                      Send
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           ) : (
             <ListingView listing={selectedListing} onBack={() => setView("chat")} />
@@ -466,9 +583,10 @@ export default function ChatPage() {
         </main>
       </div>
 
-      {showProfile && (
+      {showProfile && activeContact && (
         <ProfileModal 
           contact={activeContact} 
+          listings={activeContactStays}
           onClose={() => setShowProfile(false)} 
           onSelectListing={handleSelectListingFromProfile}
         />
