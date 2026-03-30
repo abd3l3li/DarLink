@@ -27,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TotpService totpService;
+    private final NotificationService notificationService;
 
     public void registerUser(User user) {
         if (userRepository.existsUserByUsername(user.getUsername())) {
@@ -110,7 +111,14 @@ public class UserService {
                 currentUser.setTotpSecret(null);
             }
         }
-
+        notificationService.sendNotification(
+                currentUser,
+                "profile_update",
+                "DarLink Team",
+                null,
+                "Your profile was updated successfully.",
+                "/profile"
+        );
         try {
             User savedUser = userRepository.save(currentUser);
             UserResponse response = toResponse(savedUser);
