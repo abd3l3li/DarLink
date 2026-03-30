@@ -7,12 +7,13 @@ export default function NotificationDropdown({ isOpen, onClose }) {
     const { notifications, markAsRead, markAllAsRead, refreshNotifications, refreshUnreadCount, loading, error } = useNotifications();
     const navigate = useNavigate();
 
-    if (!isOpen) return null;
-
     useEffect(() => {
+        if (!isOpen) return;
         refreshNotifications();
         refreshUnreadCount();
-    }, [refreshNotifications, refreshUnreadCount]);
+    }, [isOpen, refreshNotifications, refreshUnreadCount]);
+
+    if (!isOpen) return null;
 
     const handleNotificationClick = (notification) => {
         markAsRead(notification.id);

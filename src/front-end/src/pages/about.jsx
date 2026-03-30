@@ -2,6 +2,7 @@ import team1  from "../components/ui/imgs/team1.jpg";
 import team2  from "../components/ui/imgs/team2.jpg";
 import team3  from "../components/ui/imgs/team3.jpg";
 import team4  from "../components/ui/imgs/team4.jpg";
+import team5  from "../components/ui/rboulaga.jpeg";
 import cover from "../components/ui/imgs/marrakech.jpeg";
 export default function About() {
     return (
@@ -75,7 +76,7 @@ export default function About() {
                     Our Team
                 </h2>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 justify-items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 justify-items-center">
 
                     <div>
                         <a href="https://github.com/abd3l3li" target="_blank" rel="noreferrer">
@@ -125,6 +126,17 @@ export default function About() {
                     </a>
                     </div>
 
+                    <div>
+                        <a href="https://github.com/rabieboulaga" target="_blank" rel="noreferrer">
+                    <img
+                        src={team5}
+                        alt="her-rehy"
+                        className="w-20 h-20 rounded-full object-cover mx-auto flex items-center justify-center
+                            border bg-white transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                    />
+                    <p className="mt-2 text-gray-700">rboulaga</p>
+                    </a>
+                    </div>
                 </div>
                 </section>
 

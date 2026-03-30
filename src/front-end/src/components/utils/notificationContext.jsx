@@ -14,7 +14,13 @@ export const NOTIFICATION_TYPES = {
 };
 
 function getApiBaseUrl() {
-    return import.meta.env.VITE_API_BASE_URL || "https://localhost:1337";
+    return import.meta.env.VITE_API_BASE_URL || "";
+}
+
+function buildApiUrl(path) {
+    const base = getApiBaseUrl();
+    const url = new URL(`${base}${path}`, window.location.origin);
+    return url.toString().replace(window.location.origin, "");
 }
 
 function getToken() {
@@ -27,6 +33,13 @@ async function parseJsonSafe(res) {
     } catch {
         return null;
     }
+}
+
+function normalizeNotification(notification) {
+    return {
+        ...notification,
+        read: Boolean(notification?.read ?? notification?.isRead),
+    };
 }
 
 export function NotificationProvider({ children }) {
@@ -59,7 +72,7 @@ export function NotificationProvider({ children }) {
         setError("");
 
         try {
-            const res = await fetch(`${apiBaseUrl}/api/notifications`, {
+            const res = await fetch(buildApiUrl("/api/notifications"), {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -81,7 +94,7 @@ export function NotificationProvider({ children }) {
                 throw new Error(message);
             }
 
-            const list = Array.isArray(data) ? data : [];
+            const list = Array.isArray(data) ? data.map(normalizeNotification) : [];
             setNotifications(list);
             setUnreadCount(list.filter((n) => !n.read).length);
         } catch (err) {
@@ -98,9 +111,8 @@ export function NotificationProvider({ children }) {
             return;
         }
 
-        const apiBaseUrl = getApiBaseUrl();
         try {
-            const res = await fetch(`${apiBaseUrl}/api/notifications/unread-count`, {
+            const res = await fetch(buildApiUrl("/api/notifications/unread-count"), {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -129,18 +141,20 @@ export function NotificationProvider({ children }) {
         const token = getToken();
         if (!token) return;
 
-        const apiBaseUrl = getApiBaseUrl();
         try {
-            await fetch(`${apiBaseUrl}/api/notifications/read.${id}`, {
+            const res = await fetch(buildApiUrl(`/api/notifications/read.${id}`), {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            if (!res.ok) {
+                await refreshNotifications();
+            }
         } catch {
-            // ignore
+            await refreshNotifications();
         }
-    }, []);
+    }, [refreshNotifications]);
 
     const markAllAsRead = useCallback(async () => {
         setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -149,18 +163,22 @@ export function NotificationProvider({ children }) {
         const token = getToken();
         if (!token) return;
 
-        const apiBaseUrl = getApiBaseUrl();
         try {
-            await fetch(`${apiBaseUrl}/api/notifications/read`, {
+            const res = await fetch(buildApiUrl("/api/notifications/read"), {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            if (!res.ok) {
+                await refreshNotifications();
+                await refreshUnreadCount();
+            }
         } catch {
-            // ignore
+            await refreshNotifications();
+            await refreshUnreadCount();
         }
-    }, []);
+    }, [refreshNotifications, refreshUnreadCount]);
 
     const removeNotification = useCallback((id) => {
         setNotifications((prev) => prev.filter((n) => n.id !== id));
