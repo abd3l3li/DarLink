@@ -2,6 +2,7 @@ package com.DarLink.DarLink.security;
 
 import com.DarLink.DarLink.entity.User;
 import com.DarLink.DarLink.repository.UserRepository;
+import com.DarLink.DarLink.service.NotificationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final NotificationService notificationService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -57,6 +59,29 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // set user as online
         user.setOnline(true);
         userRepository.save(user);
+
+        // Send notification for OAuth login
+        if (isNewUser) {
+            // New user welcome notification
+            notificationService.sendNotification(
+                    user,
+                    "oauth_welcome",
+                    "DarLink Team",
+                    null,
+                    "Welcome to DarLink, " + user.getUsername() + "! You've successfully registered via OAuth.",
+                    "/profile"
+            );
+        } else {
+            // Existing user login notification
+            notificationService.sendNotification(
+                    user,
+                    "oauth_login",
+                    "DarLink Team",
+                    null,
+                    "Welcome back, " + user.getUsername() + "!",
+                    "/"
+            );
+        }
 
         // Check if it's a new user or if user has 2FA enabled
         if (isNewUser) {

@@ -15,6 +15,7 @@ import java.util.List;
 public class FriendService {
 
     private final FriendRequestRepository friendRequestRepository;
+    private final NotificationService notificationService;
 
     public FriendRequest sendRequest(User sender, User receiver) {
         // cannot send request to yourself
@@ -28,7 +29,19 @@ public class FriendService {
         FriendRequest request = new FriendRequest();
         request.setSender(sender);
         request.setReceiver(receiver);
-        return friendRequestRepository.save(request);
+        FriendRequest savedRequest = friendRequestRepository.save(request);
+
+        // Send notification to receiver
+        notificationService.sendNotification(
+                receiver,
+                "friend_request_received",
+                sender.getUsername(),
+                null,
+                sender.getUsername() + " sent you a friend request!",
+                "/friends/requests/received"
+        );
+
+        return savedRequest;
     }
 
     public FriendRequest acceptRequest(Long requestId, User currentUser) {
@@ -40,7 +53,19 @@ public class FriendService {
             throw new RuntimeException("Not authorized");
 
         request.setStatus(FriendRequestStatus.ACCEPTED);
-        return friendRequestRepository.save(request);
+        FriendRequest acceptedRequest = friendRequestRepository.save(request);
+
+        // Send notification to sender that request was accepted
+        notificationService.sendNotification(
+                request.getSender(),
+                "friend_request_accepted",
+                request.getReceiver().getUsername(),
+                null,
+                request.getReceiver().getUsername() + " accepted your friend request!",
+                "/friends"
+        );
+
+        return acceptedRequest;
     }
 
     public FriendRequest declineRequest(Long requestId, User currentUser) {
@@ -52,7 +77,19 @@ public class FriendService {
             throw new RuntimeException("Not authorized");
 
         request.setStatus(FriendRequestStatus.DECLINED);
-        return friendRequestRepository.save(request);
+        FriendRequest declinedRequest = friendRequestRepository.save(request);
+
+        // Send notification to sender that request was declined
+        notificationService.sendNotification(
+                request.getSender(),
+                "friend_request_declined",
+                request.getReceiver().getUsername(),
+                null,
+                request.getReceiver().getUsername() + " declined your friend request.",
+                "/friends/requests/sent"
+        );
+
+        return declinedRequest;
     }
 
     public void cancelRequest(Long requestId, User currentUser) {

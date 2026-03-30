@@ -51,16 +51,18 @@ public class AuthService {
         user.setOnline(true);
         userRepository.save(user);
 
-        // 4. Print the ID Card (JWT) and return it
-        String token = jwtService.generateToken(user.getEmail());
+        // 4. Send welcome notification for new user registration
         notificationService.sendNotification(
                 user,
-                "welcome",
+                "user_registration",
                 "DarLink Team",
                 null,
-                "Welcome to DarLink, " + user.getUsername() + "!",
+                "Welcome to DarLink, " + user.getUsername() + "! Your account has been successfully created. Start exploring and making new friends!",
                 "/profile"
         );
+
+        // 5. Generate and return JWT token
+        String token = jwtService.generateToken(user.getEmail());
         return new AuthResponse(token);
     }
 
@@ -83,19 +85,23 @@ public class AuthService {
             // Return a special response indicating 2FA is required
             return new AuthResponse(null); // Return special status (see Step 6)
         }
+
         // Set user online status
         user.setOnline(true);
         userRepository.save(user);
-        // 3. Print a new ID Card (JWT) and return it
-        String token = jwtService.generateToken(user.getEmail());
+
+        // 3. Send login notification for existing user
         notificationService.sendNotification(
                 user,
-                "welcome",
+                "user_login",
                 "DarLink Team",
                 null,
-                "Welcome back, " + user.getUsername() + "!",
+                "Welcome back, " + user.getUsername() + "! You've successfully logged in.",
                 "/"
         );
+
+        // 4. Generate and return JWT token
+        String token = jwtService.generateToken(user.getEmail());
         return new AuthResponse(token);
     }
 }
