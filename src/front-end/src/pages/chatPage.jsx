@@ -246,14 +246,22 @@ export default function ChatPage() {
 
         // If ownerId is provided, handle active room
         if (ownerId) {
+          const ownerInt = parseInt(ownerId);
+          // Guard against malformed ownerId (e.g. placeholder strings like 'owner-1')
+          if (isNaN(ownerInt)) {
+            // Redirect to chat list instead of attempting backend calls with invalid id
+            window.location.href = "/chat";
+            return;
+          }
+
           let room = allRooms.find(r => 
-            (r.user1Id === parseInt(ownerId) || r.user2Id === parseInt(ownerId))
+            (r.user1Id === ownerInt || r.user2Id === ownerInt)
           );
 
           if (!room) {
             try {
-              await ensureRoom(ownerId, token);
-              room = await fetchRoomBetween(ownerId, token);
+              await ensureRoom(ownerInt, token);
+              room = await fetchRoomBetween(ownerInt, token);
               setRooms(prev => [...prev, room]);
             } catch (err) {
               if (err.message.includes("401")) {
