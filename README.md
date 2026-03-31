@@ -254,4 +254,3 @@ AI was **not** used as a blind replacement for implementation decisions; outputs
 - `ONBOARDING_CHECKLIST.md`
 - `plan-twoFactorAuthenticationImplementation.prompt.md`
 - `src/front-end/docs/`
-- `src/back-end/docs/friend-api-doc.md`
