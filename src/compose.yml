@@ -32,7 +32,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./uploads:/app/uploads
+      - uploads-data:/app/uploads
       - db-backups:/var/backups/darlink
   db:
     #image: postgres:18
@@ -71,6 +71,7 @@ services:
 
 
 volumes:
+  uploads-data:
   db-data:
   db-backups:
   node_modules:
