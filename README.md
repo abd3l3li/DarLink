@@ -161,9 +161,9 @@ mvn spring-boot:run
 
 | Module | Type | Points | Why chosen | Implementation summary | Implemented by |
 |---|---:|---:|---|---|---|
-| Use a framework for both frontend and backend | Major | 2 | Strong structure and maintainability for full-stack development | React (frontend) + Spring Boot (backend) architecture | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou` |
+| Use a framework for both frontend and backend | Major | 2 | Strong structure and maintainability for full-stack development | React (frontend) + Spring Boot (backend) architecture | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou`, `rboulaga` |
 | Implement real-time features | Major | 2 | Core collaborative user experience | WebSocket/STOMP live chat and real-time updates | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
-| Allow users to interact with other users | Major | 2 | Social core of the platform | Chat, profile actions, and friends system | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou` |
+| Allow users to interact with other users | Major | 2 | Social core of the platform | Chat, profile actions, and friends system | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou`, `rboulaga` |
 | Standard user management | Major | 2 | Mandatory user lifecycle and profile handling | Profiles, avatar/user data, friend status and account flows | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
 | Custom Major Module: integrated social booking platform | Major | 2 | High-complexity domain integration across multiple subsystems | End-to-end flow linking listings, slot requests, chat, notifications, and friendship states | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou`, `rboulaga` |
 | Use an ORM | Minor | 1 | Type-safe data access and maintainable DB layer | JPA/Hibernate-based entity modeling and persistence | `her-rehy`, `ysahraou` |
@@ -173,7 +173,7 @@ mvn spring-boot:run
 | File upload and management | Minor | 1 | Required media workflow for listing quality | Image validation, secure upload paths, preview, and management hooks | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
 | Support for additional browsers | Minor | 1 | Better compatibility and evaluation coverage | Cross-browser behavior support beyond default browser | `abel-baz`, `a-ait-bo` |
 | Remote authentication | Minor | 1 | Easier login and modern auth experience | OAuth2 provider integration and callback handling | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
-| 2FA system | Minor | 1 | Stronger account security | TOTP-based two-factor authentication setup and verification flow | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| 2FA system | Minor | 1 | Stronger account security | TOTP-based two-factor authentication setup and verification flow | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo`, `rboulaga` |
 | Health check & status page | Minor | 1 | Reliability and operational visibility | Service status/health visibility with backup/disaster-recovery awareness | `rboulaga` |
 
 **Total points:** 19 / 14 required
