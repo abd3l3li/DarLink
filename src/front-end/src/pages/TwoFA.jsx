@@ -22,7 +22,7 @@ export default function TwoFA() {
     const data = await res.json();
 
     if (data.token) {
-      // Save token to localStorage only after successful 2FA verification
+  // save token to localStorage only after successful 2FA verification
       localStorage.setItem("token", data.token);
       sessionStorage.removeItem("tempToken");
       localStorage.removeItem("pendingEmail");

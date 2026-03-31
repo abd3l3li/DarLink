@@ -28,9 +28,8 @@ export default function ReqButton({ stay }) {
 
         if (!stay) return;
 
-    queueAutoMessageForRequest();
+        queueAutoMessageForRequest();
 
-        // sending to yourself for now
         addNotification({
             type: NOTIFICATION_TYPES.SLOT_REQUEST,
             message: `New slot request for ${stay.city}`,

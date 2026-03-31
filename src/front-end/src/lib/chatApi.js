@@ -83,7 +83,7 @@ export async function ensureRoom(user2Id, token) {
     throw new Error(typeof body === "string" && body ? body : `Failed to ensure room (${res.status})`);
   }
 
-  // Backend returns a string "Chat room created successfully"
+  // backend returns a string "Chat room created successfully"
   return res.text();
 }
 

@@ -1,17 +1,56 @@
-# 📡 Friend API Documentation
+# Friend and friend-request API
 
-## Base URL
-`/api/friends`
+This document summarizes the social endpoints used by chat and profile actions.
 
----
+## auth
 
-## 1. Send Friend Request
-**POST** `/request`
+All endpoints require:
 
-### Params
-- `receiverId` (Long)
+```http
+Authorization: Bearer <jwt>
+```
 
-### Response
+## endpoints
+
+### send friend request
+
+- **POST** `/api/friends/request`
+- query/body includes `receiverId`
+
+### accept request
+
+- **POST** `/api/friends/accept`
+- includes `requestId`
+
+### decline request
+
+- **POST** `/api/friends/decline`
+- includes `requestId`
+
+### cancel sent request
+
+- **DELETE** `/api/friends/cancel`
+- includes `requestId`
+
+### remove friend
+
+- **DELETE** `/api/friends/remove`
+- includes `requestId`
+
+### list friends
+
+- **GET** `/api/friends/`
+
+### list received pending requests
+
+- **GET** `/api/friends/requests/received`
+
+### list sent pending requests
+
+- **GET** `/api/friends/requests/sent`
+
+## response shape (request object)
+
 ```json
 {
   "id": 1,
@@ -24,75 +63,7 @@
 }
 ```
 
----
+## notes
 
-## 2. Accept Friend Request
-**POST** `/accept`
-
-### Params
-- `requestId` (Long)
-
----
-
-## 3. Decline Friend Request
-**POST** `/decline`
-
-### Params
-- `requestId` (Long)
-
----
-
-## 4. Cancel Sent Request
-**DELETE** `/cancel`
-
-### Params
-- `requestId` (Long)
-
-### Response
-```
-Friend request cancelled
-```
-
----
-
-## 5. Remove Friend
-**DELETE** `/remove`
-
-### Params
-- `requestId` (Long)
-
-### Response
-```
-Friend removed
-```
-
----
-
-## 6. Get All Friends
-**GET** `/`
-
-### Response
-List of `FriendRequestResponse`
-
----
-
-## 7. Get Received Requests
-**GET** `/requests/received`
-
-### Response
-List of pending requests where current user is receiver
-
----
-
-## 8. Get Sent Requests
-**GET** `/requests/sent`
-
-### Response
-List of pending requests where current user is sender
-
----
-
-## 🔐 Notes
-- All endpoints require authentication
-- Current user is resolved from Spring Security context
-- Authorization rules are enforced (sender/receiver only)
+- operations are authorized by current authenticated user
+- sender/receiver ownership is validated server-side

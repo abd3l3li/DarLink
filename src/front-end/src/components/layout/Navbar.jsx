@@ -62,7 +62,6 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
                     {isLoggedIn ? <Logged isCreating={isCreating} /> : <NotLogged />}
                 </div>
 
-                {/* mobile: bell + hamburger */}
                 <div className="flex items-center gap-3 md:hidden">
                     {!isLoggedIn && <NotLogged />}
 
@@ -90,13 +89,11 @@ function Navbar({isLoggedIn = false, isCreating = false}) {
                 
             </div>
 
-            {/* mobile menu */}
             {isOpen && (
                 <div className="md:hidden mt-5 px-5 pb-4" data-dropdown>
                     <ul className="flex flex-col gap-4 font-bold text-lg">
                         <li className="hover:text-[var(--color-secondary)]"><Link to="/" onClick={closeDropdown}>Home</Link></li>
                         <li className="hover:text-[var(--color-secondary)]"><Link to="/slots" onClick={closeDropdown}>Slots</Link></li>
-                        {/* <li className="hover:text-[var(--color-secondary)]"><Link to="/profile" onClick={() => setIsOpen(false)}>Profile</Link></li> */}
                         <li className="hover:text-[var(--color-secondary)]"><Link to="/create-post" onClick={closeDropdown}>Create</Link></li>
                         <li className="hover:text-[var(--color-secondary)]"><Link to="/about" onClick={closeDropdown}>About</Link></li>
 

@@ -25,10 +25,6 @@ export default function About() {
                             <p className="text-gray-500 mb-6">
                                 Connecting people with spaces through a modern platform
                         </p>
-
-                        <button className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700">
-                            Learn More
-                        </button>
                         </div>
                     </div>
                 </section>
@@ -40,7 +36,6 @@ export default function About() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
 
-                        {/* card 1 */}
                         <div className="bg-white p-6 w-full max-w-xs rounded-lg shadow-sm">
                         <div className="text-blue-600 text-3xl mb-3">📅</div>
                         <h3 className="font-semibold text-lg mb-2">Easy Booking</h3>
@@ -49,7 +44,6 @@ export default function About() {
                         </p>
                         </div>
 
-                        {/* card 2 */}
                         <div className="bg-white p-6 w-full max-w-xs rounded-lg shadow-sm">
                         <div className="text-blue-600 text-3xl mb-3">🛡️</div>
                         <h3 className="font-semibold text-lg mb-2">Community</h3>
@@ -58,7 +52,6 @@ export default function About() {
                         </p>
                         </div>
 
-                        {/* card 3 */}
                         <div className="bg-white p-6 w-full max-w-xs rounded-lg shadow-sm">
                         <div className="text-blue-600 text-3xl mb-3">👥</div>
                         <h3 className="font-semibold text-lg mb-2">Secure Platform</h3>
@@ -70,7 +63,6 @@ export default function About() {
                     </div>
                 </section>
 
-                {/* TEAM */}
                 <section className="text-center py-7 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-semibold text-gray-800 mb-10">
                     Our Team

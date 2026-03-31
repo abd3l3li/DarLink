@@ -24,7 +24,7 @@ export function DropdownProvider({ children }) {
         setActiveDropdown((prev) => (prev === type ? DROPDOWN_TYPES.NONE : type));
     }, []);
 
-    // clicking outside
+    // close any open dropdown when the user clicks outside it.
     useEffect(() => {
         const handleGlobalClick = (e) => {
             

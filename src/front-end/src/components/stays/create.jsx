@@ -4,7 +4,6 @@ import create from "../ui/create.svg";
 export default function Create() {
 
     return (
-            /* drop-shadow follows the shape of svg */
             <img 
                 src={create} 
                 alt="Create" 

@@ -9,7 +9,7 @@ export function clearStoredAuth() {
   localStorage.removeItem("pendingEmail");
   sessionStorage.removeItem("tempToken");
 
-  // Same-tab listeners won't receive the `storage` event; emit our own.
+  // same-tab listeners won't receive the `storage` event; emit our own.
   try {
     window.dispatchEvent(new Event("darl:auth-changed"));
   } catch {
