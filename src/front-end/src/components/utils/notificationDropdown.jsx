@@ -24,7 +24,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
                 navigate("/chat");
                 break;
                 
-            // to be implemented
+            // use the provided deep link when these notifications include one.
             case NOTIFICATION_TYPES.SLOT_REQUEST:
             case NOTIFICATION_TYPES.SLOT_CONFIRMED:
             case NOTIFICATION_TYPES.SLOT_DECLINED:

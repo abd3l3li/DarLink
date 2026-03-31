@@ -8,7 +8,7 @@ export default function TwoFASetup() {
 
   useEffect(() => {
     const fetchQR = async () => {
-      // For new users, token is in sessionStorage; for existing users, it's in localStorage
+  // support both first-time setup and existing account flows.
       const token = sessionStorage.getItem("tempToken") || localStorage.getItem("token");
 
       const res = await fetch("https://localhost:1337/api/auth/2fa/setup", {
@@ -26,7 +26,7 @@ export default function TwoFASetup() {
   }, []);
 
   const verify = async () => {
-    // For new users, token is in sessionStorage; for existing users, it's in localStorage
+  // support both first-time setup and existing account flows.
     const token = sessionStorage.getItem("tempToken") || localStorage.getItem("token");
 
     const res = await fetch("https://localhost:1337/api/auth/2fa/verify-setup", {
@@ -41,7 +41,6 @@ export default function TwoFASetup() {
     if (!res.ok)
       alert("Invalid code");
     else {
-      // Save token to localStorage only after successful 2FA setup
       localStorage.setItem("token", token);
       sessionStorage.removeItem("tempToken");
       navigate("/");
@@ -90,40 +89,5 @@ export default function TwoFASetup() {
       </div> 
     </div>  
   </div>
-
-
-
-    // <div className="min-h-screen flex items-center justify-center px-6">
-    //   {/* Card */}
-    //   <div className="bg-(--color-surface) rounded-2xl shadow-sm border border-(--color-border-gray) max-w-[1000px] w-full flex flex-col md:flex-row items-center md:items-start justify-between p-8 md:p-12 gap-10">
-    //     <div className="w-full md:w-1/2">
-    //       <h2 className="text-2xl mb-4">Setup 2FA</h2>
-
-    //       <input
-    //         type="text"
-    //         placeholder="Enter code"
-    //         onChange={(e) => setCode(e.target.value)}
-    //         className="mt-4 w-full border border-(--color-border-gray) rounded-lg p-2 bg-transparent text-(--color-text)"
-    //       />
-
-    //       <button
-    //         onClick={verify}
-    //         className="bg-(--color-primary) text-(--color-surface) px-4 py-2 flex items-center justify-center rounded-full font-bold transition-all duration-300 h-11 w-32"
-    //       >
-    //         Verify
-    //       </button>
-    //     </div>
-
-    //     <div className="w-full md:w-1/2 flex items-center justify-center">
-    //       {qr && (
-    //         <img
-    //           src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qr)}`}
-    //           alt="QR Code"
-    //           className="h-40 w-40 md:h-56 md:w-56"
-    //         />
-    //       )}
-    //     </div>
-    //   </div>
-    // </div>
   );
 }

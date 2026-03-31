@@ -203,7 +203,7 @@ export default function SlotShow({ isOwner = false }) {
 
                                     <div className="Buttons flex flex-col items-center justify-center w-full">
                                         {
-                                            // edit and delete buttons for admin (post owner)
+                                            // show management actions for owners/admins.
                                             canManage ? (
 
                                                 <div className="flex items-center gap-7 mt-12">
@@ -228,7 +228,6 @@ export default function SlotShow({ isOwner = false }) {
 
                             <div className=" md:max-w-1/2 w-full px-5 mt-10 md:mx-30 
                                             flex flex-col items-start justify-center gap-5">
-                                {/* next here */}
                                     <div className="my-2 border-t border-(--color-muted) opacity-80 w-full "></div>
 
                                     <div className="flex flex-col items-start mb-3 gap-10">

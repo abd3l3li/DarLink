@@ -29,19 +29,14 @@ export default function Right_side() {
         : data?.message || data?.error || "";
 
     switch (res.status) {
-      // case 400:
       case 422:
         return rawMessage || "Please check your details and try again.";
-      // case 401:
       case 403:
         return "You are not allowed to register right now. Please try again.";
       case 409:
         return rawMessage || "This email is already in use. Try logging in instead.";
       case 413:
         return "Your request is too large. Try a shorter input and retry.";
-      // case 500:
-      // case 502:
-      // case 503:
       case 504:
         return "Server error. Please try again in a moment.";
       default:
@@ -54,7 +49,7 @@ export default function Right_side() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ✅ prevent reload
+    e.preventDefault();
 
     setError("");
     setLoading(true);
@@ -79,14 +74,12 @@ export default function Right_side() {
         throw new Error(getReadableErrorMessage({ res, data, fallback: "Registration failed." }));
       }
 
-      // ✅ Save token safely
       if (data.token && typeof data.token === "string") {
         localStorage.setItem("token", data.token);
       } else {
         throw new Error("No token received from server");
       }
 
-      // 🚀 Redirect to home (user is logged in)
       navigate("/");
 
     } catch (err) {
@@ -103,10 +96,8 @@ export default function Right_side() {
         <Form_header />
         <Log_with />
 
-        {/* ✅ FORM */}
         <form onSubmit={handleSubmit} className="mt-10 space-y-8">
 
-          {/* Username */}
           <div className="relative">
             <label className="text-sm text-gray-500">Username</label>
             <input
@@ -119,7 +110,6 @@ export default function Right_side() {
             />
           </div>
 
-          {/* Email */}
           <div className="relative">
             <label className="text-sm text-gray-500">Email</label>
             <input
@@ -132,7 +122,6 @@ export default function Right_side() {
             />
           </div>
 
-          {/* Password */}
           <div className="relative">
             <label className="text-sm text-gray-500">Password</label>
             <input
@@ -145,7 +134,6 @@ export default function Right_side() {
             />
           </div>
 
-          {/* Error */}
           {error && (
             <div
               role="alert"
@@ -156,7 +144,6 @@ export default function Right_side() {
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -170,7 +157,6 @@ export default function Right_side() {
 
         </form>
 
-        {/* Footer */}
         <p className="mt-6 text-gray-600">
           Already have an account?{" "}
           <Link
