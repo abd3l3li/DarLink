@@ -57,7 +57,7 @@ public class AuthService {
                 "user_registration",
                 "DarLink Team",
                 null,
-                "Welcome to DarLink, " + user.getUsername() + "! Your account has been successfully created. Start exploring and making new friends!",
+                "Welcome to DarLink, " + user.getUsername() + "! Your account has been successfully created. Start exploring!",
                 "/profile"
         );
 

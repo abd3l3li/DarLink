@@ -58,6 +58,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+# add adminer
   adminer:
     image: adminer
     container_name: adminer
@@ -67,6 +68,7 @@ services:
       - db
     networks:
       - darlink
+
 
 volumes:
   db-data:

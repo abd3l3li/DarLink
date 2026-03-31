@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { getStoredToken } from "@/lib/auth.js";
 import { fetchRooms, fetchRoomSummaries, fetchMessages, ensureRoom, fetchRoomBetween, fetchMe, fetchStaysByHostId, markRoomUnreadAsRead } from "@/lib/chatApi.js";
 import { fetchStayById } from "@/lib/staysApi.js";
+import { fetchFriendStatuses, sendFriendRequest, acceptFriendRequest, deleteFriendRequest, unfriendUser } from "@/lib/friendApi.js";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
@@ -54,10 +55,11 @@ function Avatar({ name, online, image }) {
   );
 }
 
-function FriendButton({ status, onAction }) {
+function FriendButton({ status, onAction, disabled }) {
   const config = {
     friend: { label: "Delete", action: "unfriend", color: "bg-red-500 hover:bg-red-600" },
     pending: { label: "Pending", action: "cancel", color: "bg-yellow-500 hover:bg-yellow-600" },
+    incoming: { label: "Accept", action: "accept", color: "bg-blue-500 hover:bg-blue-600" },
     none: { label: "Add Friend", action: "request", color: "bg-green-500 hover:bg-green-600" },
   };
 
@@ -66,7 +68,8 @@ function FriendButton({ status, onAction }) {
   return (
     <button
       onClick={() => onAction(action)}
-      className={`${color} text-white px-5 py-2 rounded-full text-sm font-semibold`}
+      disabled={disabled}
+      className={`${color} text-white px-5 py-2 rounded-full text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed`}
     >
       {label}
     </button>
@@ -229,6 +232,8 @@ export default function ChatPage() {
   const [myStays, setMyStays] = useState([]);
   const [contextStay, setContextStay] = useState(null);
   const [userProfilesById, setUserProfilesById] = useState({});
+  const [friendStatusesByUser, setFriendStatusesByUser] = useState({});
+  const [friendActionBusy, setFriendActionBusy] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -542,7 +547,9 @@ export default function ChatPage() {
   // UI Mapping
   const contacts = useMemo(() => {
     if (roomSummaries.length > 0) {
-      return roomSummaries.map((summary) => ({
+      return roomSummaries.map((summary) => {
+        const statusMeta = friendStatusesByUser[summary.otherUserId] || { status: "none", requestId: null };
+        return {
         id: summary.otherUserId,
         roomId: summary.roomId,
         name: summary.otherUsername,
@@ -550,8 +557,10 @@ export default function ChatPage() {
         online: false,
         preview: summary.lastMessage || "Start chatting...",
         unread: Number(summary.unreadCount || 0),
-        friendStatus: "none",
-      }));
+        friendStatus: statusMeta.status || "none",
+        friendRequestId: statusMeta.requestId ?? null,
+      };
+      });
     }
 
     return rooms.map(room => {
@@ -561,6 +570,7 @@ export default function ChatPage() {
       const otherAvatar = isUser1
         ? (room.avatarUrl2 || room.user2AvatarUrl || room.otherAvatarUrl || null)
         : (room.avatarUrl1 || room.user1AvatarUrl || room.otherAvatarUrl || null);
+      const statusMeta = friendStatusesByUser[otherId] || { status: "none", requestId: null };
       
       return {
         id: otherId,
@@ -570,10 +580,57 @@ export default function ChatPage() {
         online: false,
         preview: "Start chatting...",
         unread: 0,
-        friendStatus: "none",
+        friendStatus: statusMeta.status || "none",
+        friendRequestId: statusMeta.requestId ?? null,
       };
     });
-  }, [roomSummaries, rooms, currentUser]);
+  }, [roomSummaries, rooms, currentUser, friendStatusesByUser]);
+
+  const contactUserIds = useMemo(() => {
+    if (roomSummaries.length > 0) {
+      return Array.from(new Set(
+        roomSummaries
+          .map((s) => s.otherUserId)
+          .filter((id) => id != null)
+      ));
+    }
+
+    return Array.from(new Set(
+      rooms
+        .map((room) => (room.user1Id === currentUser?.id ? room.user2Id : room.user1Id))
+        .filter((id) => id != null)
+    ));
+  }, [roomSummaries, rooms, currentUser?.id]);
+
+  useEffect(() => {
+    if (!token || contactUserIds.length === 0) {
+      setFriendStatusesByUser({});
+      return;
+    }
+
+    let cancelled = false;
+
+    fetchFriendStatuses(contactUserIds, token)
+      .then((rows) => {
+        if (cancelled) return;
+        const next = {};
+        (Array.isArray(rows) ? rows : []).forEach((row) => {
+          if (row?.userId == null) return;
+          next[row.userId] = {
+            status: row.status || "none",
+            requestId: row.requestId ?? null,
+          };
+        });
+        setFriendStatusesByUser(next);
+      })
+      .catch((err) => {
+        console.warn("Failed to load friend statuses", err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, contactUserIds]);
 
   // Fetch chat contact profiles to get reliable avatar/joined date metadata
   useEffect(() => {
@@ -681,6 +738,41 @@ export default function ChatPage() {
     });
 
     setInput("");
+  }
+
+  async function handleFriendAction(action) {
+    if (!activeContact?.id || !token || friendActionBusy) return;
+
+    const requestId = activeContact.friendRequestId;
+    setFriendActionBusy(true);
+    try {
+      let response = null;
+      if (action === "request") {
+        response = await sendFriendRequest(activeContact.id, token);
+      } else if (action === "accept") {
+        if (!requestId) return;
+        response = await acceptFriendRequest(requestId, token);
+      } else if (action === "cancel") {
+        if (!requestId) return;
+        response = await deleteFriendRequest(requestId, token);
+      } else if (action === "unfriend") {
+        response = await unfriendUser(activeContact.id, token);
+      }
+
+      if (response?.userId != null) {
+        setFriendStatusesByUser((prev) => ({
+          ...prev,
+          [response.userId]: {
+            status: response.status || "none",
+            requestId: response.requestId ?? null,
+          },
+        }));
+      }
+    } catch (err) {
+      console.error("Friend action failed", err);
+    } finally {
+      setFriendActionBusy(false);
+    }
   }
 
   async function handleClickHere() {
@@ -817,7 +909,11 @@ export default function ChatPage() {
                   </p>
                 </div>
               </div>
-              <FriendButton status={activeContact.friendStatus} onAction={() => {}} />
+              <FriendButton
+                status={activeContact.friendStatus}
+                onAction={handleFriendAction}
+                disabled={friendActionBusy}
+              />
             </header>
           )}
 

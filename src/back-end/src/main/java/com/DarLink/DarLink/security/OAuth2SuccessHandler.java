@@ -41,6 +41,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
         String name = checkName;
         String email = checkEmail;
+        String provider = (oAuth2User.getAttribute("login") != null) ? "42" : "Google";
         
         // save user to DB if first time and track if user is new
         boolean isNewUser = !userRepository.existsByEmail(email);
@@ -68,7 +69,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     "oauth_welcome",
                     "DarLink Team",
                     null,
-                    "Welcome to DarLink, " + user.getUsername() + "! You've successfully registered via OAuth.",
+                    "Welcome to DarLink, " + user.getUsername() + "! You've successfully registered via " + provider + ".",
                     "/profile"
             );
         } else {
@@ -78,7 +79,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                     "oauth_login",
                     "DarLink Team",
                     null,
-                    "Welcome back, " + user.getUsername() + "!",
+                    "Welcome back, " + user.getUsername() + "! (logged in via " + provider + ")",
                     "/"
             );
         }

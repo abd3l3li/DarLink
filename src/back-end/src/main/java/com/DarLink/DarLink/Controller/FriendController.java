@@ -1,16 +1,18 @@
 package com.DarLink.DarLink.Controller;
 
-import com.DarLink.DarLink.dto.FriendRequestResponse;
-import com.DarLink.DarLink.entity.FriendRequest;
+import com.DarLink.DarLink.dto.FriendRequestCreateRequest;
+import com.DarLink.DarLink.dto.FriendStatusResponse;
 import com.DarLink.DarLink.entity.User;
 import com.DarLink.DarLink.repository.UserRepository;
 import com.DarLink.DarLink.service.FriendService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -21,81 +23,46 @@ public class FriendController {
     private final UserRepository userRepository;
 
     private User getCurrentUser() {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
-        return userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findByEmail(auth.getName()).orElseThrow();
     }
 
-    // send friend request
-    @PostMapping("/api/friends/request")
-    public ResponseEntity<FriendRequestResponse> sendRequest(@RequestParam Long receiverId) {
-        User sender = getCurrentUser();
-        User receiver = userRepository.findById(receiverId).orElseThrow();
-        FriendRequest request = friendService.sendRequest(sender, receiver);
-        return ResponseEntity.ok(friendService.toResponse(request));
+    @GetMapping("/api/friends/statuses")
+    public ResponseEntity<List<FriendStatusResponse>> getStatuses(@RequestParam(required = false) String userIds) {
+        List<Long> ids = parseIds(userIds);
+        return ResponseEntity.ok(friendService.getStatuses(getCurrentUser(), ids));
     }
 
-    // accept friend request
-    @PostMapping("/api/friends/accept")
-    public ResponseEntity<FriendRequestResponse> acceptRequest(@RequestParam Long requestId) {
-        User currentUser = getCurrentUser();
-        FriendRequest request = friendService.acceptRequest(requestId, currentUser);
-        return ResponseEntity.ok(friendService.toResponse(request));
+    @PostMapping("/api/friend-requests")
+    public ResponseEntity<FriendStatusResponse> createRequest(@Valid @RequestBody FriendRequestCreateRequest request) {
+        return ResponseEntity.ok(friendService.createRequest(getCurrentUser(), request.getUserId()));
     }
 
-    // decline friend request
-    @PostMapping("/api/friends/decline")
-    public ResponseEntity<FriendRequestResponse> declineRequest(@RequestParam Long requestId) {
-        User currentUser = getCurrentUser();
-        FriendRequest request = friendService.declineRequest(requestId, currentUser);
-        return ResponseEntity.ok(friendService.toResponse(request));
+    @PostMapping("/api/friend-requests/{id}/accept")
+    public ResponseEntity<FriendStatusResponse> acceptRequest(@PathVariable Long id) {
+        return ResponseEntity.ok(friendService.acceptRequest(getCurrentUser(), id));
     }
 
-    // cancel sent request
-    @DeleteMapping("/api/friends/cancel")
-    public ResponseEntity<String> cancelRequest(@RequestParam Long requestId) {
-        User currentUser = getCurrentUser();
-        friendService.cancelRequest(requestId, currentUser);
-        return ResponseEntity.ok("Friend request cancelled");
+    @DeleteMapping("/api/friend-requests/{id}")
+    public ResponseEntity<FriendStatusResponse> cancelOrRejectRequest(@PathVariable Long id) {
+        return ResponseEntity.ok(friendService.cancelOrRejectRequest(getCurrentUser(), id));
     }
 
-    // remove friend
-    @DeleteMapping("/api/friends/remove")
-    public ResponseEntity<String> removeFriend(@RequestParam Long requestId) {
-        User currentUser = getCurrentUser();
-        friendService.removeFriend(requestId, currentUser);
-        return ResponseEntity.ok("Friend removed");
+    @DeleteMapping("/api/friends/{userId}")
+    public ResponseEntity<FriendStatusResponse> unfriend(@PathVariable Long userId) {
+        return ResponseEntity.ok(friendService.unfriend(getCurrentUser(), userId));
     }
 
-    // get all friends
-    @GetMapping("/api/friends")
-    public List<FriendRequestResponse> getFriends() {
-        User user = getCurrentUser();
-        return friendService.getFriends(user)
-                .stream()
-                .map(friendService::toResponse)
-                .toList();
-    }
+    private List<Long> parseIds(String userIds) {
+        if (userIds == null || userIds.isBlank()) {
+            return List.of();
+        }
 
-    // get received pending requests
-    @GetMapping("/api/friends/requests/received")
-    public List<FriendRequestResponse> getReceivedRequests() {
-        User user = getCurrentUser();
-        return friendService.getReceivedRequests(user)
-                .stream()
-                .map(friendService::toResponse)
-                .toList();
-    }
-
-    // get sent pending requests
-    @GetMapping("/api/friends/requests/sent")
-    public List<FriendRequestResponse> getSentRequests() {
-        User user = getCurrentUser();
-        return friendService.getSentRequests(user)
-                .stream()
-                .map(friendService::toResponse)
+        return Arrays.stream(userIds.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Long::valueOf)
+                .distinct()
                 .toList();
     }
 }
