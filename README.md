@@ -73,13 +73,13 @@ mvn spring-boot:run
 
 ## Team Information
 
-| Member | Assigned role(s) | Responsibilities |
-|---|---|---|
+| Member | Assigned role(s)             | Responsibilities |
+|---|------------------------------|---|
 | `abel-baz` | Tech Lead, Frontend Developer | Technical direction, frontend architecture, UI implementation, and design system alignment. |
-| `a-ait-bo` | PM, Frontend Developer | Planning/scheduling, frontend implementation, and delivery coordination. |
-| `her-rehy` | PO, Backend Developer | Product requirement ownership, backend implementation, and feature priority alignment. |
-| `ysahraou` | Backend Developer | Backend endpoints, data handling, and service-level integration. |
-| `rboulaga` | DevOps Engineer | Docker/Makefile workflow, container orchestration, and environment setup. |
+| `a-ait-bo` | PM, Frontend Developer       | Planning/scheduling, frontend implementation, and delivery coordination. |
+| `her-rehy` | PO, Backend Developer        | Product requirement ownership, backend implementation, and feature priority alignment. |
+| `ysahraou` | Backend Developer            | Backend (WebSocket, Notifications, OAuth2), Makefile, and Docker Compose layout. |
+| `rboulaga` | DevOps Engineer              | DevOps implementation, backup system, and health check integration. |
 
 ## Project Management
 
@@ -201,13 +201,16 @@ mvn spring-boot:run
 
 ### `ysahraou`
 
-- implemented backend services and data-flow handling.
-- contributed to API integration support for frontend features.
+- implemented the chatapp backend with WebSocket/STOMP.
+- developed the notification backend system.
+- integrated OAuth2 authentication (Google, 42).
+- created and maintained the project's Makefile and Docker Compose layout.
 
 ### `rboulaga`
 
-- handled devops setup and container workflow.
-- maintained Docker and Makefile-based execution flow.
+- handled all DevOps implementation, including container orchestration and environment setup.
+- developed the database backup and restoration system (Makefile/scripts).
+- implemented the health check and status monitoring system for service reliability.
 
 ### Challenges and resolutions
 
