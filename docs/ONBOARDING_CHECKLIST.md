@@ -1,6 +1,6 @@
 # Onboarding checklist
 
-Use this when a new teammate joins DarLink.
+To be used when a new teammate joins DarLink.
 
 ## 1) prerequisites
 
