@@ -238,9 +238,11 @@ export default function ChatPage() {
   const [selectedListing, setSelectedListing] = useState(null);
 
   const stompClient = useRef(null);
+  const roomSubscriptionsRef = useRef(new Map());
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const preserveOnEmptyOnceRef = useRef(false);
+  const [wsConnected, setWsConnected] = useState(false);
 
   useEffect(() => {
     if (location.state?.fromProfileChat) {
@@ -472,7 +474,7 @@ export default function ChatPage() {
     };
   }, [token, currentUser?.id]);
 
-  // websocket setup and pending auto-message handling.
+  // websocket setup (single stable client per token).
   useEffect(() => {
     if (!token) return;
 
@@ -480,68 +482,13 @@ export default function ChatPage() {
     const client = new Client({
       webSocketFactory: () => new SockJS(socketUrl),
       connectHeaders: { Authorization: `Bearer ${token}` },
-      onConnect: async () => {
+      reconnectDelay: 4000,
+      onConnect: () => {
+        setWsConnected(true);
         console.log("Connected to WebSocket");
-        const roomIds = Array.from(new Set(rooms.map((r) => r.id).filter(Boolean)));
-
-        roomIds.forEach((roomId) => {
-          client.subscribe(`/topic/room.${roomId}`, (message) => {
-            const newMsg = JSON.parse(message.body);
-
-            if (activeRoom?.id === roomId) {
-              setMessages((prev) => {
-                if (prev.find((m) => m.id === newMsg.id)) return prev;
-                return [...prev, newMsg];
-              });
-            }
-
-            updateSummaryFromMessage(newMsg);
-          });
-        });
-
-        if (activeRoom) {
-          // process pending auto-message once websocket is connected.
-          const pending = sessionStorage.getItem("pendingChatMessage");
-          if (pending) {
-            try {
-              const { ownerId: pendingOwnerId, message } = JSON.parse(pending);
-              if (pendingOwnerId != null && pendingOwnerId.toString() === ownerId?.toString()) {
-                let existingMessages = null;
-                for (let attempt = 0; attempt < 2; attempt += 1) {
-                  try {
-                    const fetched = await fetchMessages(activeRoom.id, token);
-                    if (Array.isArray(fetched)) {
-                      existingMessages = fetched;
-                    }
-                    break;
-                  } catch {
-                    // retry once for transient timing/network issues.
-                  }
-                }
-
-                if (!Array.isArray(existingMessages)) {
-                  // keep pending payload for the next successful check.
-                  return;
-                }
-
-                const shouldSend = existingMessages.length === 0;
-
-                if (shouldSend) {
-                  client.publish({
-                    destination: `/app/chat/${activeRoom.id}`,
-                    body: JSON.stringify({ content: message }),
-                  });
-                }
-
-                // remove pending payload after a confirmed send/skip decision.
-                sessionStorage.removeItem("pendingChatMessage");
-              }
-            } catch (e) {
-              console.error("Error parsing pending message", e);
-              sessionStorage.removeItem("pendingChatMessage");
-            }
-          }
-        }
+      },
+      onWebSocketClose: () => {
+        setWsConnected(false);
       },
       onStompError: (frame) => {
         console.error("Broker reported error: " + frame.headers['message']);
@@ -553,9 +500,95 @@ export default function ChatPage() {
     stompClient.current = client;
 
     return () => {
+      roomSubscriptionsRef.current.forEach((sub) => sub?.unsubscribe?.());
+      roomSubscriptionsRef.current.clear();
+      setWsConnected(false);
       client.deactivate();
     };
-  }, [token, rooms, activeRoom?.id, ownerId, currentUser?.id]);
+  }, [token]);
+
+  // keep room subscriptions in sync without reconnecting the socket.
+  useEffect(() => {
+    const client = stompClient.current;
+    if (!client || !client.connected || !wsConnected) return;
+
+    const wantedRoomIds = new Set(rooms.map((r) => r.id).filter(Boolean));
+
+    roomSubscriptionsRef.current.forEach((sub, roomId) => {
+      if (!wantedRoomIds.has(roomId)) {
+        sub?.unsubscribe?.();
+        roomSubscriptionsRef.current.delete(roomId);
+      }
+    });
+
+    wantedRoomIds.forEach((roomId) => {
+      if (roomSubscriptionsRef.current.has(roomId)) return;
+
+      const subscription = client.subscribe(`/topic/room.${roomId}`, (message) => {
+        const newMsg = JSON.parse(message.body);
+
+        if (activeRoom?.id === roomId) {
+          setMessages((prev) => {
+            if (prev.find((m) => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
+        }
+
+        updateSummaryFromMessage(newMsg);
+      });
+
+      roomSubscriptionsRef.current.set(roomId, subscription);
+    });
+  }, [wsConnected, rooms, activeRoom?.id]);
+
+  // process pending auto-message once room and websocket are ready.
+  useEffect(() => {
+    const client = stompClient.current;
+    if (!client?.connected || !wsConnected || !activeRoom || !token) return;
+
+    const pending = sessionStorage.getItem("pendingChatMessage");
+    if (!pending) return;
+
+    let cancelled = false;
+
+    async function sendPendingIfNeeded() {
+      try {
+        const { ownerId: pendingOwnerId, message } = JSON.parse(pending);
+        if (pendingOwnerId == null || pendingOwnerId.toString() !== ownerId?.toString()) return;
+
+        let existingMessages = null;
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          try {
+            const fetched = await fetchMessages(activeRoom.id, token);
+            if (Array.isArray(fetched)) existingMessages = fetched;
+            break;
+          } catch {
+            // retry once for transient timing/network issues.
+          }
+        }
+
+        if (cancelled || !Array.isArray(existingMessages)) return;
+
+        if (existingMessages.length === 0) {
+          client.publish({
+            destination: `/app/chat/${activeRoom.id}`,
+            body: JSON.stringify({ content: message }),
+          });
+        }
+
+        sessionStorage.removeItem("pendingChatMessage");
+      } catch (e) {
+        console.error("Error parsing pending message", e);
+        sessionStorage.removeItem("pendingChatMessage");
+      }
+    }
+
+    void sendPendingIfNeeded();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [wsConnected, activeRoom?.id, ownerId, token]);
 
   // polling fallback for sidebar previews.
   useEffect(() => {
