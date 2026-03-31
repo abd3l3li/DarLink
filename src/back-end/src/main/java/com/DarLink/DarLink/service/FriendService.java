@@ -184,6 +184,19 @@ public class FriendService {
         }
 
         Long otherUserId = isSender ? request.getReceiver().getId() : request.getSender().getId();
+        
+        // If the receiver declines the request, notify the sender
+        if (isReceiver) {
+            notificationService.sendNotification(
+                    request.getSender(),
+                    "friend_reject",
+                    currentUser.getUsername(),
+                    null,
+                    currentUser.getUsername() + " declined your friend request.",
+                    "/chat/" + currentUser.getId()
+            );
+        }
+        
         friendRequestRepository.delete(request);
         return new FriendStatusResponse(otherUserId, "none", null);
     }

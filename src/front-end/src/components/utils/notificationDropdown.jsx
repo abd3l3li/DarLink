@@ -30,6 +30,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
                 
             case NOTIFICATION_TYPES.FRIEND_REQUEST:
             case NOTIFICATION_TYPES.FRIEND_ACCEPT:
+            case NOTIFICATION_TYPES.FRIEND_REJECT:
                 if (notification.link) {
                     navigate(notification.link);
                 }

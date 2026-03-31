@@ -14,6 +14,7 @@ export const NOTIFICATION_TYPES = {
     WELCOME: "welcome",
     FRIEND_REQUEST: "friend_request",
     FRIEND_ACCEPT: "friend_accept",
+    FRIEND_REJECT: "friend_reject",
     // more to be added
 };
 
