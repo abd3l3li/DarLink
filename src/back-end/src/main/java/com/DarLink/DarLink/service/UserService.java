@@ -62,6 +62,12 @@ public class UserService {
         return toResponse(currentUser);
     }
 
+    public UserResponse getUserProfileById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return toResponse(user);
+    }
+
     // old endpoint compatibility
     public UserResponse updateMyProfile(User currentUser, UpdateProfileRequest request) {
         currentUser.setBio(request.getBio());

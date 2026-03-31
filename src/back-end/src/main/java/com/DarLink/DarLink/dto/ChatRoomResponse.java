@@ -14,6 +14,8 @@ public class ChatRoomResponse {
     private LocalDateTime createdAt;
     private Long user1Id;
     private String username1;
+    private String avatarUrl1;
     private Long user2Id;
     private String username2;
+    private String avatarUrl2;
 }

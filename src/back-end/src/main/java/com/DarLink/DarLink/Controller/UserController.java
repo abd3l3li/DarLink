@@ -30,6 +30,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getMyProfile(getCurrentUser()));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUserProfileById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserProfileById(id));
+    }
+
     // PATCH /api/users/me (protected)
     @PatchMapping("/me")
     public ResponseEntity<UserResponse> patchMyProfile(@Valid @RequestBody PatchMeRequest request) {

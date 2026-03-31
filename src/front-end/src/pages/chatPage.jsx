@@ -19,6 +19,17 @@ function getInitials(name) {
     .toUpperCase();
 }
 
+function formatJoinedDate(value) {
+  if (!value) return "Unknown";
+  const dt = new Date(value);
+  if (Number.isNaN(dt.getTime())) return "Unknown";
+  return dt.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function Avatar({ name, online, image }) {
   return (
     <div className="relative">
@@ -99,6 +110,13 @@ function ProfileModal({ contact, listings, onClose, onSelectListing }) {
 
         {/* info */}
         <div className="space-y-4 text-sm w-full">
+          <div>
+            <p className="text-[var(--color-muted)]">Joined:</p>
+            <p className="font-semibold text-[var(--color-secondary)]">
+              {formatJoinedDate(contact.joinedAt)}
+            </p>
+          </div>
+
           {/* listings section*/}
           <div>
             <p className="text-[var(--color-muted)] mb-2">Listings ({listings?.length || 0}):</p>
@@ -207,7 +225,9 @@ export default function ChatPage() {
   const [activeRoom, setActiveRoom] = useState(null);
   const [messages, setMessages] = useState([]);
   const [activeContactStays, setActiveContactStays] = useState([]);
+  const [myStays, setMyStays] = useState([]);
   const [contextStay, setContextStay] = useState(null);
+  const [userProfilesById, setUserProfilesById] = useState({});
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -354,6 +374,27 @@ export default function ChatPage() {
     loadData();
   }, [activeRoom, token, currentUser?.id]);
 
+  // Fetch current user's own stays (owner fallback for "View listings")
+  useEffect(() => {
+    if (!token || currentUser?.id == null) {
+      setMyStays([]);
+      return;
+    }
+
+    let cancelled = false;
+    fetchStaysByHostId(currentUser.id, token)
+      .then((stays) => {
+        if (!cancelled) setMyStays(Array.isArray(stays) ? stays : []);
+      })
+      .catch(() => {
+        if (!cancelled) setMyStays([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, currentUser?.id]);
+
   // WebSocket Integration & Pending Message Logic
   useEffect(() => {
     if (!token) return;
@@ -453,10 +494,55 @@ export default function ChatPage() {
     });
   }, [rooms, currentUser]);
 
+  // Fetch chat contact profiles to get reliable avatar/joined date metadata
+  useEffect(() => {
+    if (!token || contacts.length === 0) return;
+
+    const missingIds = contacts
+      .map((c) => c.id)
+      .filter((id) => id != null && !userProfilesById[id]);
+
+    if (missingIds.length === 0) return;
+
+    let cancelled = false;
+
+    Promise.all(
+      missingIds.map(async (id) => {
+        try {
+          const res = await fetch(`/api/users/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!res.ok) return null;
+          const data = await res.json();
+          return { id, data };
+        } catch {
+          return null;
+        }
+      }),
+    ).then((results) => {
+      if (cancelled) return;
+      setUserProfilesById((prev) => {
+        const next = { ...prev };
+        results.forEach((entry) => {
+          if (entry?.data) next[entry.id] = entry.data;
+        });
+        return next;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, contacts, userProfilesById]);
+
   const activeContact = useMemo(() => {
     if (!activeRoom) return contacts[0];
     const contact = contacts.find(c => c.roomId === activeRoom.id);
     if (!contact) return contact;
+
+    const profile = userProfilesById[contact.id] || null;
 
     const firstStayOwnedByContact =
       activeContactStays.find((s) => Number(s.owner?.id ?? s.hostId) === Number(contact.id)) || null;
@@ -466,14 +552,16 @@ export default function ChatPage() {
       // Avatar: prefer room payload, then verified contact-owned stay/context.
       image:
         contact.image ||
+        profile?.avatarUrl ||
         (contextStay?.owner?.id != null && Number(contextStay.owner.id) === Number(contact.id)
           ? (contextStay.owner?.image || contextStay.hostAvatarUrl)
           : null) ||
         firstStayOwnedByContact?.owner?.image ||
         firstStayOwnedByContact?.hostAvatarUrl ||
         null,
+      joinedAt: profile?.createdAt || null,
     };
-  }, [activeRoom, contacts, activeContactStays, contextStay]);
+  }, [activeRoom, contacts, activeContactStays, contextStay, userProfilesById]);
 
   const chatMessages = messages.map(m => ({
     id: m.id,
@@ -541,6 +629,10 @@ export default function ChatPage() {
     // Fallback to first available stay context
     if (activeContactStays.length > 0) {
       setSelectedListing(activeContactStays[0]);
+      setView("listing");
+    } else if (myStays.length > 0) {
+      // Owner chatting with requester (who may have no listings): show owner's listings.
+      setSelectedListing(myStays[0]);
       setView("listing");
     } else if (contextStay) {
       setSelectedListing(contextStay);
@@ -612,7 +704,7 @@ export default function ChatPage() {
                 <div>
                   <p className="font-semibold text-[var(--color-text)]">{activeContact.name}</p>
                   <p className="text-xs text-[var(--color-muted)]">
-                    {stayId ? `Chat about listing ` : `View listings: `}
+                    {stayId ? `Chat about listing ` : `Chat about: `}
                     <button
                       type="button"
                       onClick={handleClickHere}
