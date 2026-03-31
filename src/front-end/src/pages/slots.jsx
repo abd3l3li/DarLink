@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Search from "../components/stays/searchBar.jsx";
 import Card from "../components/stays/card.jsx";
-import { fetchStays } from "../lib/staysApi.js";
+import { fetchMe, fetchStays } from "../lib/staysApi.js";
 import { getDisplaySlots } from "../lib/stays.js";
 
 const PAGE_SIZE = 6;
@@ -15,6 +15,10 @@ export default function Slots() {
     const [stays, setStays] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [me, setMe] = useState(null);
+    const [meLoaded, setMeLoaded] = useState(false);
+
+    const token = localStorage.getItem("token");
 
     const parseFiltersFromUrl = () => {
         return {
@@ -45,6 +49,32 @@ export default function Slots() {
         load(nextFilters);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        if (!token) {
+            setMe(null);
+            setMeLoaded(true);
+            return;
+        }
+
+        setMeLoaded(false);
+        fetchMe(token)
+            .then((user) => {
+                if (!cancelled) setMe(user || null);
+            })
+            .catch(() => {
+                if (!cancelled) setMe(null);
+            })
+            .finally(() => {
+                if (!cancelled) setMeLoaded(true);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [token]);
 
     const onSearch = (nextFilters) => {
         setPage(0);
@@ -87,7 +117,13 @@ export default function Slots() {
                 lg:grid-cols-3 lg:gap-15 gap-5 mt-10 px-5 w-full max-w-7xl mx-auto pb-10">
                 {pageStays.map((item) => (
                     <Link to={`/slot-show/${item.id}`} key={item.id}>
-                        <Card stay={item} isOwner={false} />
+                        <Card
+                            stay={item}
+                            isOwner={Boolean(
+                                (token && !meLoaded) ||
+                                (me?.id != null && item?.owner?.id != null && me.id === item.owner.id)
+                            )}
+                        />
                     </Link>
                 ))}
             </div>
