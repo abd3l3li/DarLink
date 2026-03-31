@@ -85,7 +85,20 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         // Check if it's a new user or if user has 2FA enabled
-        String redirectBase = "https://localhost:1337";
+        String scheme = "https"; // Force https for the external redirect
+        String host = request.getHeader("Host");
+        String forwardedHost = request.getHeader("X-Forwarded-Host");
+        
+        // Final fallback: use what's in the browser URL if possible
+        String targetHost = (forwardedHost != null) ? forwardedHost : (host != null ? host : "darlink.com");
+        
+        // If the host doesn't have the port, add it manually
+        if (!targetHost.contains(":")) {
+            targetHost += ":1337";
+        }
+        
+        String redirectBase = scheme + "://" + targetHost;
+        
         if (isNewUser) {
             // New user, no 2FA by default
             response.sendRedirect(redirectBase + "/auth/callback?token=" + token);
