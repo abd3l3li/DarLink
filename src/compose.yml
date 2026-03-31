@@ -21,6 +21,7 @@ services:
     build:
       context: ./back-end
       dockerfile: Dockerfile
+    restart: always
     ports:
       - 8081:8081
     secrets:
