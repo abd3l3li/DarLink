@@ -116,7 +116,7 @@ public class FriendService {
                     sender.getUsername(),
                     null,
                     sender.getUsername() + " accepted your friend request.",
-                    "/profile/" + sender.getUsername()
+                    "/chat/" + sender.getId()
             );
             
             return new FriendStatusResponse(receiver.getId(), "friend", saved.getId());
@@ -136,7 +136,7 @@ public class FriendService {
                 sender.getUsername(),
                 null,
                 sender.getUsername() + " sent you a friend request.",
-                "/profile/" + sender.getUsername()
+                "/chat/" + sender.getId()
         );
 
         return new FriendStatusResponse(receiver.getId(), "pending", saved.getId());
@@ -163,7 +163,7 @@ public class FriendService {
                 currentUser.getUsername(),
                 null,
                 currentUser.getUsername() + " accepted your friend request.",
-                "/profile/" + currentUser.getUsername()
+                "/chat/" + currentUser.getId()
         );
         
         return new FriendStatusResponse(saved.getSender().getId(), "friend", saved.getId());

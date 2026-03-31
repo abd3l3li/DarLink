@@ -12,6 +12,8 @@ export const NOTIFICATION_TYPES = {
     SLOT_DECLINED: "slot_declined",
     PROFILE_UPDATE: "profile_update",
     WELCOME: "welcome",
+    FRIEND_REQUEST: "friend_request",
+    FRIEND_ACCEPT: "friend_accept",
     // more to be added
 };
 
