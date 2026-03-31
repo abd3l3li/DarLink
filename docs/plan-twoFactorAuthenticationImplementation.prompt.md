@@ -1,45 +1,64 @@
-# DarLink – Two-Factor Authentication (2FA) Implementation Plan
+# 2FA implementation plan (TOTP)
 
-## 1) Purpose
+This is the concise implementation plan for DarLink 2FA.
 
-This document defines a full implementation plan for adding Two-Factor Authentication (2FA) to DarLink’s current authentication system (JWT + OAuth2). It is designed to be implementation-ready and aligned with the existing backend/frontend architecture.
+## goal
 
----
+Add optional TOTP-based 2FA while preserving current JWT + OAuth2 login flows.
 
-## 2) Current Authentication Architecture (Observed)
+## target login behavior
 
-### Backend (Spring Boot)
-- Auth base route: `POST /api/auth/*`
-- Existing endpoints:
-  - `POST /api/auth/register`
-  - `POST /api/auth/login`
-- Security:
-  - `SecurityConfig` uses stateless JWT (`SessionCreationPolicy.STATELESS`)
-  - JWT filter: `JwtAuthenticationFilter`
-  - OAuth2 login is enabled via `oauth2Login(...)`
-  - `/api/auth/**` is currently public
-- OAuth2 flow:
-  - `OAuth2SuccessHandler` creates/uses account and emits token via callback URL query param
+1. user logs in with email/password.
+2. if 2FA is disabled, backend returns JWT directly.
+3. if 2FA is enabled, backend returns a 2FA-required response.
+4. user submits TOTP code.
+5. backend validates code and returns final JWT.
 
-### Frontend (React)
-- Login request from `Right_Side_2.jsx` to:
-  - `https://localhost:1337/api/auth/login`
-- Token storage:
-  - JWT saved in `localStorage` (e.g. `localStorage.setItem("token", data.token)`)
-- OAuth callback:
-  - `AuthCallback.jsx` reads `token` from URL query and stores it in `localStorage`
+## core endpoints
 
----
+- `POST /api/auth/login`
+- `POST /api/auth/2fa/setup`
+- `POST /api/auth/2fa/verify-setup`
+- `POST /api/auth/2fa/verify-login`
+- `DELETE /api/auth/2fa/disable`
 
-## 3) 2FA Goals
+## backend tasks
 
-1. Add optional 2FA per user account (phase 1), then support mandatory mode (phase 2 if needed).
-2. Support standard authenticator apps (TOTP RFC 6238: Google Authenticator, Authy, 1Password, etc.).
-3. Ensure:
-   - Password/OAuth step first
-   - Second factor challenge before issuing final access JWT
-4. Keep compatibility with existing JWT flow and frontend routing.
-5. Include backup/recovery mechanisms to avoid lockouts.
+- add user 2FA state + secret persistence
+- generate QR/secret for setup
+- verify setup code before enabling 2FA
+- gate login response when 2FA is enabled
+- add verify-login endpoint
+- add disable endpoint
+- add safe audit logs
+
+## frontend tasks
+
+- implement two-step login state
+- add 2FA setup page (QR + manual secret)
+- add verify-code screen for login step 2
+- handle success/error states clearly
+
+## security requirements
+
+- never log secrets or TOTP codes
+- apply retry limits / temporary lockouts
+- use short-lived challenge semantics when needed
+
+## test checklist
+
+- login without 2FA returns JWT
+- login with 2FA requires second step
+- valid TOTP returns JWT
+- invalid/expired code is rejected
+- disabling 2FA restores one-step login
+
+## rollout
+
+1. enable for internal testing users
+2. release frontend and backend together
+3. monitor auth failures and UX errors
+4. expand usage progressively
 
 ---
 

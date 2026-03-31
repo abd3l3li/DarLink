@@ -1,334 +1,124 @@
+*This project has been created as part of the 42 curriculum by abel-baz, a-ait-bo, her-rehy, ysahraou, rboulaga.*
+
 # DarLink
 
-DarLink is a full-stack roommate and stay-matching platform. Users can browse listings, create stays as hosts, send booking requests, and chat in real time. The repository includes a containerized frontend, backend, reverse proxy, and PostgreSQL database.
+## Description
 
-This README is intentionally detailed so a new teammate can understand the system, run it locally, and contribute without hunting through multiple files.
+**Project name:** DarLink
 
-## Table of Contents
+DarLink is a full-stack roommate/stay platform.
 
-- [1) What This Project Does](#1-what-this-project-does)
-- [2) Repository Layout](#2-repository-layout)
-- [3) System Architecture](#3-system-architecture)
-- [4) Tech Stack](#4-tech-stack)
-- [5) Core User Flows](#5-core-user-flows)
-- [6) Service and Port Mapping](#6-service-and-port-mapping)
-- [7) Configuration and Secrets](#7-configuration-and-secrets)
-- [8) Local Development (Docker Compose)](#8-local-development-docker-compose)
-- [9) Running Individual Services (Without Compose)](#9-running-individual-services-without-compose)
-- [10) API Surface (Backend)](#10-api-surface-backend)
-- [11) Frontend Routes](#11-frontend-routes)
-- [12) Authentication and Security Model](#12-authentication-and-security-model)
-- [13) Real-Time Messaging (WebSocket/STOMP)](#13-real-time-messaging-websocketstomp)
-- [14) Data Model](#14-data-model)
-- [15) Common Development Tasks](#15-common-development-tasks)
-- [16) Troubleshooting Guide](#16-troubleshooting-guide)
-- [17) Current Status and Known Gaps](#17-current-status-and-known-gaps)
-- [18) Contribution Guide](#18-contribution-guide)
+### Goal
 
-## 1) What This Project Does
+Build a practical web platform where users can discover stays, request slots, and communicate in real time.
 
-DarLink focuses on three main product areas:
+### Key features
 
-1. Listing discovery and hosting
-   - Guests browse available stays.
-   - Hosts create, update, and delete their own stay listings.
-2. Booking workflow
-   - Guests send slot (booking) requests to hosts.
-   - Hosts review and change request status.
-3. Real-time chat
-   - Users create chat rooms.
-   - Message exchange happens through REST + WebSocket.
+- authentication (email/password, OAuth2, optional 2FA)
+- listings and booking workflow
+- real-time chat and notifications
+- friendship/request states in social flows
 
-It also supports classic email/password auth, JWT-based stateless auth, and OAuth2 login providers (Google + 42).
+## Instructions
 
-## 2) Repository Layout
+### Prerequisites
 
-Top-level:
+- Docker + Docker Compose
+- GNU Make
+- (optional local dev) Node.js LTS + npm, Java 17 + Maven
+- backend environment file: `src/back-end/.env`
+- DB password secret: `src/db/secrets/password.txt`
 
-- `README.md`: this file.
-- `src/`: all service code and infrastructure files.
+### Install and run (recommended)
 
-Inside `src/`:
-
-- `compose.yml`: orchestrates `nginx`, `front-end`, `back-end`, `db`.
-- `Makefile`: helper targets for compose lifecycle.
-- `nginx/`: reverse proxy config and SSL cert/key for local HTTPS.
-- `db/`: PostgreSQL image and secret password file.
-- `back-end/`: Spring Boot API + docs.
-- `front-end/`: Vite/React UI.
-
-Backend key folders:
-
-- `src/back-end/src/main/java/com/DarLink/DarLink/Controller`: HTTP + message controllers.
-- `src/back-end/src/main/java/com/DarLink/DarLink/service`: business logic.
-- `src/back-end/src/main/java/com/DarLink/DarLink/security`: JWT/OAuth2 security pieces.
-- `src/back-end/src/main/resources/application.properties`: app runtime configuration.
-- `src/back-end/docs/`: detailed backend docs and API reference.
-
-Frontend key folders:
-
-- `src/front-end/src/pages`: app pages (`home`, `slots`, `chat`, auth pages, etc.).
-- `src/front-end/src/components`: layout, UI primitives, and feature components.
-- `src/front-end/src/App.jsx`: route definitions.
-
-## 3) System Architecture
-
-High-level flow:
-
-1. Browser hits `https://localhost:1337`.
-2. Nginx serves as entrypoint and reverse proxy.
-3. Requests are routed by path:
-   - `/` -> frontend Vite app (`frontend:5173`)
-   - `/api/*` -> Spring backend (`backend:8081`)
-   - `/oauth2/*` and `/login/*` -> backend OAuth endpoints
-   - `/ws/*` -> backend WebSocket endpoint
-4. Backend reads/writes PostgreSQL (`db:5432`).
-
-Design characteristics:
-
-- Container-per-concern architecture.
-- Isolated Docker network (`darlink`).
-- Persistent database volume (`db-data`).
-- TLS termination at Nginx for local HTTPS testing.
-
-## 4) Tech Stack
-
-Frontend (`src/front-end/package.json`):
-
-- React `19.x`.
-- React Router `7.x`.
-- Vite `7.x`.
-- Tailwind CSS `4.x`.
-- Chakra UI and related UI dependencies.
-
-Backend (`src/back-end/pom.xml`):
-
-- Java 17 (project property) with Spring Boot `3.5.11`.
-- Spring Data JPA (ORM).
-- Spring Security.
-- Spring Web + Validation.
-- Spring WebSocket.
-- Spring OAuth2 client.
-- JWT with `jjwt` `0.12.5`.
-- PostgreSQL JDBC driver.
-- Lombok.
-
-Infra:
-
-- Docker + Docker Compose.
-- Nginx Alpine image.
-- PostgreSQL 18 image (via custom `db/Dockerfile`).
-
-## 5) Core User Flows
-
-Auth:
-
-- Register/login returns JWT token.
-- Token is sent in `Authorization: Bearer <token>` for protected endpoints.
-- OAuth2 login redirects back to frontend callback with token query param.
-
-Stay lifecycle:
-
-- Public users can list/browse stays.
-- Authenticated host creates stay (`POST /api/stays/create`).
-- Host can update/delete only own stays.
-
-Slot request lifecycle:
-
-- Guest creates request for a stay.
-- Guest views own requests.
-- Host views requests on host-owned stays.
-- Host updates status (`ACCEPTED`, `REJECTED`, `CANCELLED`).
-
-Chat lifecycle:
-
-- User creates room with another user.
-- Both users can fetch room metadata and history.
-- Real-time messages are published to `/topic/room.{roomId}`.
-
-## 6) Service and Port Mapping
-
-From `src/compose.yml` + `src/nginx/nginx.conf`:
-
-- External ports:
-  - `8080`: HTTP (redirects to HTTPS)
-  - `1337`: HTTPS public entrypoint
-- Internal services:
-  - `frontend`: Vite dev server on `5173` (proxied)
-  - `backend`: Spring app on `8081` (proxied)
-  - `db`: PostgreSQL on `5432` (internal network)
-
-User-facing URLs:
-
-- App UI: `https://localhost:1337/`
-- API through proxy: `https://localhost:1337/api/...`
-- OAuth2 callback endpoint (backend): `/login/oauth2/code/{provider}`
-
-## 7) Configuration and Secrets
-
-Backend reads runtime values from env variables (`application.properties`):
-
-- `DB_URL`
-- `DB_USERNAME`
-- `DB_PASSWORD`
-- `JWT_SECRET`
-- `JWT_EXPIRATION`
-- `SERVER_PORT` (defaults to `8080` if missing)
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `42_CLIENT_ID`
-- `42_CLIENT_SECRET`
-
-Docker secrets:
-
-- DB password file: `src/db/secrets/password.txt`
-- Mounted into containers via compose secret `db-password`
-
-Important notes:
-
-- Backend compose service expects env file at `src/back-end/.env`.
-- Keep real credentials out of git.
-- Current `application.properties` has debug security logging enabled.
-
-## 8) Local Development (Docker Compose)
-
-All commands below are run from `src/`.
-
-Quick start:
+DarLink uses **Docker through the Makefile** in `src/`.
 
 ```bash
-cd /DarLink/src
+cd src
 make build
 make up
 ```
 
-Common lifecycle commands:
+Open:
+
+- app: `https://localhost:1337`
+- api: `https://localhost:1337/api/...`
+
+### Common lifecycle commands
 
 ```bash
-cd /DarLink/src
+cd src
 make up-d
 make ps
 make logs SERVICE=backend
 make down
-make clean
 ```
 
-Equivalent direct compose commands:
+### Optional local service runs
+
+Frontend:
 
 ```bash
-cd /DarLink/src
-docker compose up --build
-docker compose up -d
-docker compose ps -a
-docker compose logs backend
-docker compose down
-```
-
-## 9) Running Individual Services (Without Compose)
-
-Frontend (from `src/front-end`):
-
-```bash
+cd src/front-end
 npm install
 npm run dev
 ```
 
-Backend (from `src/back-end`):
+Backend:
 
 ```bash
+cd src/back-end
 mvn spring-boot:run
 ```
 
-Use this mode when debugging one service deeply, but compose is recommended for full-stack integration.
+## Team Information
 
-## 10) API Surface (Backend)
+| Member | Assigned role(s) | Responsibilities |
+|---|---|---|
+| `abel-baz` | Tech Lead, Frontend Developer | Technical direction, frontend architecture, UI implementation, and design system alignment. |
+| `a-ait-bo` | PM, Frontend Developer | Planning/scheduling, frontend implementation, and delivery coordination. |
+| `her-rehy` | PO, Backend Developer | Product requirement ownership, backend implementation, and feature priority alignment. |
+| `ysahraou` | Backend Developer | Backend endpoints, data handling, and service-level integration. |
+| `rboulaga` | DevOps Engineer | Docker/Makefile workflow, container orchestration, and environment setup. |
 
-Primary route groups currently implemented:
+## Project Management
 
-- Auth: `/api/auth/*`
-  - `POST /register`
-  - `POST /login`
-- Users: `/api/users/*`
-  - `GET /me`
-  - `PATCH /me`
-- Stays: `/api/stays/*`
-  - `GET /`
-  - `GET /{id}`
-  - `GET /page?page=N`
-  - `POST /create`
-  - `PUT /{id}`
-  - `DELETE /{id}`
-- Slot requests: `/api/slot-requests/*`
-  - `POST /`
-  - `GET /me`
-  - `GET /host`
-  - `PATCH /{id}/status`
-- Chat rooms/messages:
-  - `POST /api/rooms?user2Id=...`
-  - `GET /api/rooms/between?user2Id=...`
-  - `GET /api/rooms/messages?roomId=...`
-  - `GET /api/rooms`
+- **Work organization:** split by domain ownership (frontend, backend, devops) with regular integration checkpoints.
+- **Task distribution:** frontend (`abel-baz`, `a-ait-bo`), backend (`her-rehy`, `ysahraou`), devops (`rboulaga`).
+- **Coordination cadence:** iterative cycles with shared review and merge phases.
+- **Tools used:** Git + GitHub repository, markdown-based project notes/checklists.
+- **Communication channels:** team chat and repository discussions.
 
-Detailed request/response examples live in `src/back-end/docs/API_REFERENCE.md`.
+## Technical Stack
 
-## 11) Frontend Routes
+### Frontend
 
-From `src/front-end/src/App.jsx`:
+- React, Vite, React Router, Tailwind CSS
 
-- `/`
-- `/slots`
-- `/create-post`
-- `/slot-show/:slotId`
-- `/about`
-- `/chat/:ownerId`
-- `/chat/:ownerId/:stayId`
-- `/sign-up`
-- `/log-in`
-- `/auth/callback`
+### Backend
 
-Routing is browser-based via React Router.
+- Java 17, Spring Boot, Spring Security, JPA, WebSocket/STOMP, OAuth2
 
-## 12) Authentication and Security Model
+### Database
 
-JWT:
+- PostgreSQL
 
-- Generated during register/login and after OAuth2 success.
-- Backend uses `JwtAuthenticationFilter` to parse and validate bearer token.
-- Security is configured stateless (`SessionCreationPolicy.STATELESS`).
+### Other significant technologies
 
-Route access policy (`SecurityConfig`):
+- Docker Compose
+- Nginx reverse proxy
+- JWT authentication
 
-- Public:
-  - `/api/auth/**`
-  - `/ws/**`
-  - `GET /api/stays/**`
-- Protected:
-  - all other routes
+### Major technical choices and justification
 
-OAuth2:
+- **Spring Boot:** fast and robust for REST + security + WebSocket in one backend.
+- **React + Vite:** fast iteration and simple component-based UI development.
+- **PostgreSQL:** reliable relational model for users, stays, requests, and chat entities.
+- **Docker + Makefile:** reproducible local environments with simple `make` commands.
 
-- Providers configured: Google and 42.
-- Success handler creates/fetches local user and redirects frontend to:
-  - `https://localhost:1337/auth/callback?token=<jwt>`
+## Database Schema
 
-## 13) Real-Time Messaging (WebSocket/STOMP)
-
-Backend WebSocket config:
-
-- STOMP endpoint: `/ws` (SockJS enabled)
-- App destination prefix: `/app`
-- Broker topic prefix: `/topic`
-
-Messaging behavior:
-
-- Clients connect with JWT in STOMP `Authorization` header.
-- Send chat payload to `/app/chat/{roomId}`.
-- Subscribe to `/topic/room.{roomId}` for live messages.
-- Per-user notifications use `/topic/user.{userId}`.
-
-## 14) Data Model
-
-Main entities in backend:
+### Main entities
 
 - `User`
 - `Stay`
@@ -336,99 +126,132 @@ Main entities in backend:
 - `ChatRoom`
 - `Message`
 - `Notification`
+- friend/request entities for social relationships
 
-Storage:
+### Relationship overview
 
-- PostgreSQL database `DarLink`.
-- Hibernate schema management in dev via `spring.jpa.hibernate.ddl-auto=update`.
-- SQL logging currently enabled (`spring.jpa.show-sql=true`).
+- one `User` can own many `Stay`
+- one `Stay` can have many `SlotRequest`
+- one `ChatRoom` contains many `Message`
+- one `User` can receive many `Notification`
+- friendship/request tables link two users with status transitions
 
-## 15) Common Development Tasks
+### Key field examples
 
-Rebuild and restart all services:
+- `id` (primary keys)
+- user identity fields (`username`, `email`)
+- stay fields (`city`, `pricePerNight`, `description`)
+- request fields (`status`, `startDate`, `endDate`)
+- message fields (`content`, `sentAt`, `senderId`, `roomId`)
 
-```bash
-cd /media/lvillager/ssd/work/DarLink/src
-make down
-make build
-make up
-```
+## Features List
 
-Inspect service logs:
+| Feature | Description | Implemented by |
+|---|---|---|
+| Authentication | Register/login with JWT, OAuth2 callbacks, 2FA support paths | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Listings | Create, browse, update, delete stays | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou` |
+| Slot requests | Guest request + host decision workflow | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Chat | Room creation, history fetch, real-time messaging | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Notifications | Notification feed and badge/update flows | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Social/Friends | Friend request state transitions and actions | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
 
-```bash
-cd /DarLink/src
-make logs SERVICE=frontend
-make logs SERVICE=backend
-make logs SERVICE=db
-```
+## Modules
 
-Cleanup all volumes and images (destructive):
+> Module naming below follows the project activity requirement format.
 
-```bash
-cd /DarLink/src
-make fclean
-```
+| Module | Type | Points | Why chosen | Implementation summary | Implemented by |
+|---|---:|---:|---|---|---|
+| Use a framework for both frontend and backend | Major | 2 | Strong structure and maintainability for full-stack development | React (frontend) + Spring Boot (backend) architecture | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou` |
+| Implement real-time features | Major | 2 | Core collaborative user experience | WebSocket/STOMP live chat and real-time updates | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Allow users to interact with other users | Major | 2 | Social core of the platform | Chat, profile actions, and friends system | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou` |
+| Standard user management | Major | 2 | Mandatory user lifecycle and profile handling | Profiles, avatar/user data, friend status and account flows | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Custom Major Module: integrated social booking platform | Major | 2 | High-complexity domain integration across multiple subsystems | End-to-end flow linking listings, slot requests, chat, notifications, and friendship states | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou`, `rboulaga` |
+| Use an ORM | Minor | 1 | Type-safe data access and maintainable DB layer | JPA/Hibernate-based entity modeling and persistence | `her-rehy`, `ysahraou` |
+| Notification system | Minor | 1 | Better responsiveness and user awareness | Creation/update/deletion-triggered notification flows and unread behavior | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Custom-made design system | Minor | 1 | Consistent and reusable UI/UX | Shared components, styling rules, and reusable interface patterns | `abel-baz`, `a-ait-bo` |
+| Advanced search functionality | Minor | 1 | Better discovery and filtering experience | Listing filters, query-based search, and pagination/search behavior | `abel-baz`, `a-ait-bo`, `her-rehy`, `ysahraou` |
+| File upload and management | Minor | 1 | Required media workflow for listing quality | Image validation, secure upload paths, preview, and management hooks | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Support for additional browsers | Minor | 1 | Better compatibility and evaluation coverage | Cross-browser behavior support beyond default browser | `abel-baz`, `a-ait-bo` |
+| Remote authentication | Minor | 1 | Easier login and modern auth experience | OAuth2 provider integration and callback handling | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| 2FA system | Minor | 1 | Stronger account security | TOTP-based two-factor authentication setup and verification flow | `her-rehy`, `ysahraou`, `abel-baz`, `a-ait-bo` |
+| Health check & status page | Minor | 1 | Reliability and operational visibility | Service status/health visibility with backup/disaster-recovery awareness | `rboulaga` |
 
-## 16) Troubleshooting Guide
+**Total points:** 19 / 14 required
 
-1. Browser shows certificate warning on `https://localhost:1337`
-   - Expected when using local self-signed certs in `src/nginx/ssl`.
+## Individual Contributions
 
-2. API returns `401 Unauthorized`
-   - Ensure bearer token is present and not expired.
-   - Confirm protected route policy in `src/back-end/src/main/java/com/DarLink/DarLink/config/SecurityConfig.java`.
+### `abel-baz`
 
-3. OAuth redirect works but frontend is not authenticated
-   - Check `AuthCallback` route exists (`/auth/callback`).
-   - Verify token query param parsing and storage in frontend page logic.
+- acted as tech lead for frontend technical direction and integration decisions.
+- created reusable frontend components and key user-facing flows.
+- designed the UI in Figma, including branding decisions: https://www.figma.com/design/QwLsyUAuPn2P0d5PjI16Cj/DarLink?node-id=0-1&p=f&t=SMCrYXnzZdjIyIZC-0
+- defined visual identity assets (color palette and logo).
 
-4. WebSocket connection established but no messages received
-   - Confirm subscription to exact room topic (`/topic/room.{id}`).
-   - Ensure STOMP connect headers include `Authorization: Bearer ...`.
+### `a-ait-bo`
 
-5. Backend cannot connect to DB
-   - Validate `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` values.
-   - Confirm db service is healthy in compose.
+- implemented frontend features and UI interaction behavior.
+- contributed to frontend routing and integration polish.
+- acted as project manager (PM) for planning and team coordination.
 
-## 17) Current Status and Known Gaps
+### `her-rehy`
 
-Observed status from repository docs/code:
+- implemented backend endpoints and business logic.
+- worked on authentication/security-related backend paths.
+- acted as product owner (PO) for requirement alignment and prioritization.
 
-- Core auth, stays, slot requests, and chat are implemented.
-- Profile endpoints are present in `UserController`.
-- Backend docs are rich and mostly up-to-date.
+### `ysahraou`
 
-Potential gaps to keep in mind:
+- implemented backend services and data-flow handling.
+- contributed to API integration support for frontend features.
 
-- Some documentation files in `src/front-end/docs/` describe older scaffold examples.
-- `src/back-end/Dockerfile` currently includes a non-standard `Copy` instruction spelling that may require correction to `COPY`.
-- Debug logging and verbose SQL output are enabled; tune before production.
+### `rboulaga`
 
-## 18) Contribution Guide
+- handled devops setup and container workflow.
+- maintained Docker and Makefile-based execution flow.
 
-Recommended workflow:
+### Challenges and resolutions
 
-1. Create a feature branch.
-2. Keep changes scoped (frontend, backend, or infra).
-3. Update docs when behavior or routes change.
-4. Run service startup checks with compose.
-5. Open PR with:
-   - what changed,
-   - why,
-   - how to test,
-   - any migration/config impacts.
+- **Challenge:** keeping frontend contracts aligned with backend evolution.
+	**Resolution:** dedicated API docs + explicit mapping sections.
+- **Challenge:** secure auth while preserving DX.
+	**Resolution:** JWT + route-level protections + planned 2FA flow.
 
-Suggested doc update points when adding features:
+## Resources
 
-- Root `README.md` for architecture/setup changes.
-- `src/back-end/docs/API_REFERENCE.md` for endpoint changes.
-- `src/back-end/docs/JWT.md` if auth flow changes.
+### Classic references
 
----
+- Figma design file (DarLink UI/branding): https://www.figma.com/design/QwLsyUAuPn2P0d5PjI16Cj/DarLink?node-id=0-1&p=f&t=SMCrYXnzZdjIyIZC-0
+- Spring Boot Documentation: https://docs.spring.io/spring-boot/docs/current/reference/html/
+- Spring Security Documentation: https://docs.spring.io/spring-security/reference/
+- React Documentation: https://react.dev/
+- Vite Documentation: https://vite.dev/guide/
+- PostgreSQL Documentation: https://www.postgresql.org/docs/
+- Docker Documentation: https://docs.docker.com/
+- Nginx Documentation: https://nginx.org/en/docs/
 
-If you want, I can also generate:
+### AI usage disclosure
 
-1. A matching `src/back-end/.env.example` template.
-2. A quick architecture diagram (Mermaid) embedded in this README.
-3. A contributor onboarding checklist with first-day tasks.
+AI assistance was used for:
+
+- refactoring documentation formatting,
+- generating concise API documentation drafts,
+- wording improvements and structure checks.
+
+AI was **not** used as a blind replacement for implementation decisions; outputs were reviewed and adjusted to match the repository’s actual behavior.
+
+## Additional information
+
+### Repository layout
+
+- `src/compose.yml` → full local stack
+- `src/front-end/` → web app
+- `src/back-end/` → API
+- `src/db/` → database image and secrets
+- `src/Makefile` → helper commands
+
+### Documentation map
+
+- `ONBOARDING_CHECKLIST.md`
+- `plan-twoFactorAuthenticationImplementation.prompt.md`
+- `src/front-end/docs/`
+- `src/back-end/docs/friend-api-doc.md`
