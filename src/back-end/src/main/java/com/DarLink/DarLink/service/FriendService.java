@@ -217,6 +217,17 @@ public class FriendService {
         }
 
         friendRequestRepository.delete(relation);
+
+        // Notification for unfriend
+        notificationService.sendNotification(
+                userRepository.findById(otherUserId).orElse(null),
+                "friend_unfriend",
+                currentUser.getUsername(),
+                null,
+                currentUser.getUsername() + " unfriended you.",
+                "/chat/" + currentUser.getId()
+        );
+
         return new FriendStatusResponse(otherUserId, "none", null);
     }
 }
