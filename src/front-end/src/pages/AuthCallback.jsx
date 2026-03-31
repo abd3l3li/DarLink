@@ -17,19 +17,19 @@ export default function AuthCallback() {
 
     if (token) {
       if (require2fa && email) {
-        // Existing user has 2FA enabled, store token temporarily and redirect to 2FA verification
+  // existing user has 2FA enabled, store token temporarily and redirect to 2FA verification
         sessionStorage.setItem("tempToken", token);
         localStorage.setItem("pendingEmail", email);
         console.log("2FA required, redirecting to /2fa");
         navigate("/2fa", { replace: true });
       } else if (setup2fa && email) {
-        // User needs to setup 2FA first
+  // user needs to setup 2FA first
         sessionStorage.setItem("tempToken", token);
         localStorage.setItem("pendingEmail", email);
         console.log("2FA setup required, redirecting to /2fa-setup");
         navigate("/2fa-setup", { replace: true });
       } else {
-        // No 2FA, save token to localStorage and navigate to home
+  // no 2FA, save token to localStorage and navigate to home
         localStorage.setItem("token", token);
         console.log("saved token, navigating to /");
         navigate("/", { replace: true });

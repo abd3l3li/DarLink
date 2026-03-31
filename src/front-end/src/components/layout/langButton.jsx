@@ -56,7 +56,6 @@ export default function LangButton() {
                             hover:text-[var(--color-surface)]
                             transition-all duration-100 text-[var(--color-primary)]"
                 >
-                    {/* '?' the optional chaining operator */}
                 {localStorage.getItem("preferredLanguage")?.toUpperCase()}
             </button>
 

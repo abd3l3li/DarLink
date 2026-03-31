@@ -158,9 +158,3 @@ svg {
     @apply bg-background text-foreground;
     }
 }
-
-
-.ft_container {
-    /* max-width: calc(100% - 100px); */
-    /* margin: auto */
-}

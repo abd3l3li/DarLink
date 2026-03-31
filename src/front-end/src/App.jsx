@@ -93,7 +93,7 @@ const router = createBrowserRouter([
     errorElement: <NotFound />,
   },
   {
-    // OPS: public system status page — no auth required
+  // public status page.
     path: "/status",
     element: <StatusPage />,
     errorElement: <NotFound />,
@@ -114,12 +114,12 @@ export default function App() {
       },
     })
       .then((res) => {
-        // If backend was reset, ensure we don't keep a dead token around.
+  // if the token is no longer valid, clear it and redirect as needed.
         const redirectTo = window.location.pathname === "/" ? null : "/log-in";
         handleAuthRejected(res, { redirectTo });
       })
       .catch(() => {
-        // ignore network errors
+  // ignore connectivity errors and keep the current UI state.
       });
   }, []);
 

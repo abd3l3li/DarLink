@@ -8,8 +8,6 @@ import { fetchFriendStatuses, sendFriendRequest, acceptFriendRequest, deleteFrie
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-// Helper functions
-
 function getInitials(name) {
   if (!name) return "??";
   return name
@@ -90,7 +88,6 @@ function ProfileModal({ contact, listings, onClose, onSelectListing }) {
                     flex-col items-center text-center"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* x */}
         <button
           type="button"
           onClick={onClose}
@@ -102,7 +99,6 @@ function ProfileModal({ contact, listings, onClose, onSelectListing }) {
 
         <h2 className="text-sm font-semibold mb-6 text-[var(--color-text)]">Profile</h2>
 
-        {/* avatar */}
         <div className="mb-4">
            <Avatar name={contact.name} image={contact.image} />
         </div>
@@ -111,7 +107,6 @@ function ProfileModal({ contact, listings, onClose, onSelectListing }) {
           {contact.name}
         </p>
 
-        {/* info */}
         <div className="space-y-4 text-sm w-full">
           <div>
             <p className="text-[var(--color-muted)]">Joined:</p>
@@ -120,7 +115,6 @@ function ProfileModal({ contact, listings, onClose, onSelectListing }) {
             </p>
           </div>
 
-          {/* listings section*/}
           <div>
             <p className="text-[var(--color-muted)] mb-2">Listings ({listings?.length || 0}):</p>
             {listings && listings.length > 0 ? (
@@ -259,7 +253,7 @@ export default function ChatPage() {
     try {
       await markRoomUnreadAsRead(roomId, token);
     } catch {
-      // ignore transient backend errors; UI state is still cleared locally.
+  // ui stays responsive even if this sync call fails.
     }
   };
 
@@ -304,7 +298,7 @@ export default function ChatPage() {
     });
   };
 
-  // Initialize: Current User & Rooms
+  // load current user and available chat rooms.
   useEffect(() => {
     if (!token) {
       window.location.href = "/log-in";
@@ -327,12 +321,12 @@ export default function ChatPage() {
         setRooms(allRooms);
         setRoomSummaries(Array.isArray(summaries) ? summaries : []);
 
-        // If ownerId is provided, handle active room
+  // if the route includes an owner id, open that conversation.
         if (ownerId) {
           const ownerInt = parseInt(ownerId);
-          // Guard against malformed ownerId (e.g. placeholder strings like 'owner-1')
+          // skip malformed ids such as placeholders.
           if (isNaN(ownerInt)) {
-            // Redirect to chat list instead of attempting backend calls with invalid id
+            // go back to chat list instead of calling backend with bad params.
             window.location.href = "/chat";
             return;
           }
@@ -367,7 +361,7 @@ export default function ChatPage() {
     init();
   }, [token, ownerId]);
 
-  // Resolve stay context from route (`/chat/:ownerId/:stayId`) for both guest and owner views
+  // resolve the stay context for `/chat/:ownerId/:stayId`.
   useEffect(() => {
     if (!stayId) {
       setContextStay(null);
@@ -383,14 +377,14 @@ export default function ChatPage() {
     let cancelled = false;
 
     async function resolveContextStay() {
-      // First, try already loaded partner stays (fast path)
+  // try already loaded stays first.
       const fromPartner = activeContactStays.find((s) => Number(s.id) === parsedStayId);
       if (fromPartner) {
         if (!cancelled) setContextStay(fromPartner);
         return;
       }
 
-      // Then, try direct stay endpoint
+  // then try loading the stay directly.
       try {
         const stay = await fetchStayById(parsedStayId);
         if (stay) {
@@ -401,7 +395,7 @@ export default function ChatPage() {
         console.warn("Failed to load stay context directly", err);
       }
 
-      // Owner fallback: fetch the current user's stays and match by stayId
+  // fallback: check current user's own stays.
       if (token && currentUser?.id != null) {
         try {
           const ownerStays = await fetchStaysByHostId(currentUser.id, token);
@@ -423,7 +417,7 @@ export default function ChatPage() {
     };
   }, [stayId, activeContactStays, currentUser?.id, token]);
 
-  // Fetch messages and partner stays when active room changes
+  // refresh messages and partner stays when room changes.
   useEffect(() => {
     if (!activeRoom || !token) return;
 
@@ -457,7 +451,7 @@ export default function ChatPage() {
     loadData();
   }, [activeRoom, token, currentUser?.id]);
 
-  // Fetch current user's own stays (owner fallback for "View listings")
+  // keep my stays loaded for listing fallbacks.
   useEffect(() => {
     if (!token || currentUser?.id == null) {
       setMyStays([]);
@@ -478,7 +472,7 @@ export default function ChatPage() {
     };
   }, [token, currentUser?.id]);
 
-  // WebSocket Integration & Pending Message Logic
+  // websocket setup and pending auto-message handling.
   useEffect(() => {
     if (!token) return;
 
@@ -506,7 +500,7 @@ export default function ChatPage() {
         });
 
         if (activeRoom) {
-          // Check for pending message precisely after connection is ready
+          // process pending auto-message once websocket is connected.
           const pending = sessionStorage.getItem("pendingChatMessage");
           if (pending) {
             try {
@@ -521,12 +515,12 @@ export default function ChatPage() {
                     }
                     break;
                   } catch {
-                    // retry once for transient timing/network issues
+                    // retry once for transient timing/network issues.
                   }
                 }
 
                 if (!Array.isArray(existingMessages)) {
-                  // Keep pending payload for a future successful connect/check.
+                  // keep pending payload for the next successful check.
                   return;
                 }
 
@@ -539,7 +533,7 @@ export default function ChatPage() {
                   });
                 }
 
-                // Consume after a confirmed decision.
+                // remove pending payload after a confirmed send/skip decision.
                 sessionStorage.removeItem("pendingChatMessage");
               }
             } catch (e) {
@@ -563,7 +557,7 @@ export default function ChatPage() {
     };
   }, [token, rooms, activeRoom?.id, ownerId, currentUser?.id]);
 
-  // Polling Fallback for sidebar previews
+  // polling fallback for sidebar previews.
   useEffect(() => {
     if (!token) return;
     const interval = setInterval(async () => {
@@ -592,7 +586,7 @@ export default function ChatPage() {
     inputRef.current?.focus();
   }, [messages, activeRoom]);
 
-  // UI Mapping
+  // build sidebar contacts from room summaries/rooms.
   const contacts = useMemo(() => {
     if (roomSummaries.length > 0) {
       return roomSummaries.map((summary) => {
@@ -680,7 +674,7 @@ export default function ChatPage() {
     };
   }, [token, contactUserIds]);
 
-  // Fetch chat contact profiles to get reliable avatar/joined date metadata
+  // load missing contact profiles (avatar + joined date).
   useEffect(() => {
     if (!token || contacts.length === 0) return;
 
@@ -735,7 +729,7 @@ export default function ChatPage() {
 
     return {
       ...contact,
-      // Avatar: prefer room payload, then verified contact-owned stay/context.
+  // pick the best avatar from room payload, profile, or stay context.
       image:
         contact.image ||
         profile?.avatarUrl ||
@@ -824,12 +818,12 @@ export default function ChatPage() {
   }
 
   async function handleClickHere() {
-    // If we have a stayId in URL, use it
+  // if URL includes a stay id, resolve it first.
     if (stayId) {
        const parsedOwnerId = Number(ownerId);
        const isOwnerViewer = Number.isFinite(parsedOwnerId) && Number(currentUser?.id) === parsedOwnerId;
 
-       // Owner flow: redirect to the stay page.
+  // owner view goes directly to the stay page.
        if (isOwnerViewer) {
         navigate(`/slot-show/${stayId}`);
         return;
@@ -845,7 +839,7 @@ export default function ChatPage() {
             found = await fetchStayById(parsedStayId);
             if (found) setContextStay(found);
           } catch {
-            // ignore and fallback below
+            // ignore this and continue with the normal fallback.
           }
         }
        }
@@ -856,17 +850,17 @@ export default function ChatPage() {
          return;
        }
 
-       // fallback if listing context is unavailable
+  // fallback when listing context cannot be resolved.
        navigate(`/slot-show/${stayId}`);
        return;
     }
     
-    // Fallback to first available stay context
+  // generic fallback to any available stay context.
     if (activeContactStays.length > 0) {
       setSelectedListing(activeContactStays[0]);
       setView("listing");
     } else if (myStays.length > 0) {
-      // Owner chatting with requester (who may have no listings): show owner's listings.
+  // if requester has no listings, show the owner's listing.
       setSelectedListing(myStays[0]);
       setView("listing");
     } else if (contextStay) {
@@ -927,7 +921,6 @@ export default function ChatPage() {
       <div className="flex-1 flex flex-col md:flex-row bg-[var(--color-surface)] 
                         rounded-2xl shadow-xl overflow-hidden">
 
-        {/* friends list */}
         <aside className="w-full md:w-80 border-b md:border-b-0 md:border-r 
                           border-[var(--color-border-gray)] flex flex-col">
           <h2 className="text-lg font-bold p-4 border-b 
@@ -958,7 +951,6 @@ export default function ChatPage() {
           </div>
         </aside>
 
-        {/* the chat */}
         <main className="flex-1 flex flex-col">
           {activeContact && (
             <header className="flex justify-between items-center p-5 border-b border-[var(--color-border-gray)]">
@@ -995,7 +987,6 @@ export default function ChatPage() {
 
           {view === "chat" ? (
             <>
-              {/* messages */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[var(--color-bg)]">
                 {chatMessages.length === 0 ? (
                   <p className="h-full flex items-center justify-center text-sm text-[var(--color-muted)]">
@@ -1022,7 +1013,6 @@ export default function ChatPage() {
                 <div ref={bottomRef} />
               </div>
 
-              {/* input field */}
               {activeRoom && (
                 <div className="p-4 border-t border-[var(--color-border-gray)] bg-[var(--color-surface)]">
                   <div className="flex items-center gap-3 bg-[var(--color-bg)] rounded-xl px-4 py-2">

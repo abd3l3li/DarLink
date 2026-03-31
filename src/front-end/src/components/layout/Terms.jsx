@@ -4,8 +4,6 @@ import term from "../ui/terms.png";
 export default function Terms() {
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
-
-      {/* Card */}
         <div className="bg-[var(--color-surface)] rounded-2xl shadow-sm 
         border border-[var(--color-border-gray)] 
         max-w-[1000px] w-full flex items-center justify-between 

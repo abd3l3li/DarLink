@@ -34,9 +34,6 @@ export default function Right_side_2() {
         return rawMessage || "You are not allowed to log in right now.";
       case 404:
         return "We couldn't find an account with those details.";
-      // case 500:
-      // case 502:
-      // case 503:
       case 504:
         return "Server error. Please try again in a moment.";
       default:
@@ -49,7 +46,7 @@ export default function Right_side_2() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // ✅ prevent reload
+    e.preventDefault();
 
     setError("");
     setLoading(true);
@@ -92,19 +89,16 @@ export default function Right_side_2() {
         );
       }
 
-      // ✅ CASE 1: Normal login
       if (data?.token && typeof data.token === "string") {
         localStorage.setItem("token", data.token);
         navigate("/");
       }
 
-      // ✅ CASE 2: 2FA required
       else if (data?.token === null) {
         localStorage.setItem("pendingEmail", form.email);
         navigate("/2fa");
       }
 
-      // ❌ unexpected response
       else {
         throw new Error("Unexpected response from server");
       }
@@ -123,10 +117,8 @@ export default function Right_side_2() {
         <Form_header />
         <Log_with />
 
-        {/* ✅ FORM */}
         <form onSubmit={handleSubmit} className="mt-10 space-y-8">
 
-          {/* Email */}
           <div className="relative">
             <label className="text-sm text-gray-500">Email</label>
             <input
@@ -139,7 +131,6 @@ export default function Right_side_2() {
             />
           </div>
 
-          {/* Password */}
           <div className="relative">
             <label className="text-sm text-gray-500">Password</label>
             <input
@@ -152,7 +143,6 @@ export default function Right_side_2() {
             />
           </div>
 
-          {/* Error */}
           {error && (
             <div
               role="alert"
@@ -163,7 +153,6 @@ export default function Right_side_2() {
             </div>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -177,7 +166,6 @@ export default function Right_side_2() {
 
         </form>
 
-        {/* Footer */}
         <p className="mt-6 text-gray-600">
           No account yet?{" "}
           <Link

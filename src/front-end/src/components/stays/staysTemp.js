@@ -1,4 +1,4 @@
-// Owners data - single source of truth for owner information
+// owners data - single source of truth for owner information
 export const owners = [
     {
         id: "owner-1",
@@ -34,7 +34,7 @@ export const owners = [
     },
 ];
 
-// Contacts for chat - derived from owners with additional chat-specific info
+// contacts for chat - derived from owners with additional chat-specific info
 export const contacts = owners.map((owner, index) => ({
     id: owner.id,
     name: owner.name,
@@ -46,7 +46,7 @@ export const contacts = owners.map((owner, index) => ({
     listings: owner.listings,
 }));
 
-// Messages for chat - keyed by owner ID
+// messages for chat - keyed by owner ID
 export const messages = {
     "owner-1": [
         { id: 1, text: "Hey There!", from: "them" },
@@ -221,7 +221,7 @@ export const stays = [
         expectations: ["Clean up after yourself"],
         included: ["Wi-Fi", "Surfboard storage"],
     },
-    // --- Additional stays for testing ---
+    // --- additional stays for testing ---
     {
         id: "stay-10",
         city: "Oujda",
@@ -320,11 +320,11 @@ export const stays = [
     }
 ];
 
-// Helper function to get owner by ID
+// helper function to get owner by ID
 export const getOwnerById = (ownerId) => owners.find(o => o.id === ownerId);
 
-// Helper function to get stay by ID
+// helper function to get stay by ID
 export const getStayById = (stayId) => stays.find(s => s.id === stayId);
 
-// Helper function to get all stays by owner ID
+// helper function to get all stays by owner ID
 export const getStaysByOwnerId = (ownerId) => stays.filter(s => s.owner.id === ownerId); 

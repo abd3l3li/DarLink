@@ -67,7 +67,6 @@ export default function FloatingSearchBar({ onSearch, initialFilters }) {
 						onClick={triggerSearch}
 						className="flex w-full items-center justify-center gap-2 rounded-xl bg-(--color-secondary) px-8 py-4 font-bold text-(--color-surface) shadow-lg shadow-(--color-secondary)/30 transition-all hover:scale-[1.01] active:scale-100"
 					>
-						{/* <span className="material-symbols-outlined">search</span> */}
 						Search
 					</button>
 				</div>

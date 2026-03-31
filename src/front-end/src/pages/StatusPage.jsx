@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 
-// ─── Exponential backoff config ───────────────────────────────────────────────
+// polling backoff settings.
 const INITIAL_INTERVAL_MS = 30_000;
 const MAX_INTERVAL_MS = 300_000;
 const BACKOFF_MULTIPLIER = 1.5;
 
-// ─── Clean Status Definitions ─────────────────────────────────────────────────
+// ui metadata for status states.
 const STATUS = {
   healthy: {
     label: "All Systems Operational",
@@ -119,7 +119,6 @@ function formatDate(isoString) {
   }
 }
 
-// Minimalist detail row
 function DetailRow({ label, value, isCode }) {
   return (
     <div className="flex justify-between items-center py-1.5 text-sm">
@@ -188,7 +187,7 @@ function FormattedDetails({ name, details }) {
   return (
     <div className="pt-2 border-t border-gray-100 mt-2 space-y-1">
       {Object.entries(details).map(([k, v]) => {
-        if (typeof v === "object" && v !== null && !Array.isArray(v)) return null; // Simplified for clean cards
+        if (typeof v === "object" && v !== null && !Array.isArray(v)) return null;
         return <DetailRow key={k} label={k.replace(/([A-Z])/g, " $1").trim()} value={String(v)} />;
       })}
     </div>
@@ -259,7 +258,6 @@ export default function StatusPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans selection:bg-blue-100">
       
-      {/* ── Header ── */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <h1 className="text-base font-semibold text-gray-900 tracking-tight">System Status</h1>
@@ -280,10 +278,8 @@ export default function StatusPage() {
         </div>
       </header>
 
-      {/* ── Main Content ── */}
       <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
 
-        {/* Hero Banner (Overall Status) */}
         <section className="bg-white border border-gray-200 rounded-xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
           <div className="flex items-center gap-4">
             <div className={`p-3 rounded-full bg-gray-50 border border-gray-100 ${status === 'loading' ? 'animate-pulse' : ''}`}>
@@ -309,7 +305,6 @@ export default function StatusPage() {
           </div>
         </section>
 
-        {/* Component Grid */}
         {components.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center justify-between">
@@ -335,7 +330,6 @@ export default function StatusPage() {
                       </span>
                     </div>
                     
-                    {/* Render details directly in the card if they exist */}
                     {hasDetails ? (
                       <FormattedDetails name={c.name} details={c.details} />
                     ) : (

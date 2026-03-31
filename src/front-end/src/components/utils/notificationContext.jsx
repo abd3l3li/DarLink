@@ -66,12 +66,12 @@ export function NotificationProvider({ children }) {
         setNotifications((prev) => [newNotification, ...prev]);
         setUnreadCount((c) => c + 1);
 
-        // Trigger browser notification if supported
+    // show a browser notification when supported.
         if ('Notification' in window) {
             if (Notification.permission === 'granted') {
                 new Notification(newNotification.message, {
                     body: 'Click to view',
-                    icon: '/favicon.ico', // or your icon
+                    icon: '/favicon.ico',
                 });
             } else if (Notification.permission !== 'denied') {
                 Notification.requestPermission().then(permission => {
@@ -134,7 +134,6 @@ export function NotificationProvider({ children }) {
                 console.log("Connected to WebSocket for notifications");
                 client.subscribe(`/topic/user.${currentUser.email}`, (message) => {
                     const data = JSON.parse(message.body);
-                    // data: { type, roomId, senderUsername }
                     let notification = {
                         type: data.type,
                         message: `${data.senderUsername} sent you a message`,
@@ -225,7 +224,7 @@ export function NotificationProvider({ children }) {
             const count = typeof data?.count === "number" ? data.count : 0;
             setUnreadCount(count);
         } catch {
-            // ignore
+            // ignore and keep the last known unread count.
         }
     }, []);
 

@@ -36,11 +36,9 @@ export default function CreatePost({ stay, onSuccess, onCancel }) {
     const [expectations, setExpectations] = useState([]);
     const [details, setDetails] = useState("");
     const [selectedFiles, setSelectedFiles] = useState([]);
-    // lifted up from Gallery.jsx
     const [photos, setPhotos] = useState([]);
     const navigate = useNavigate();
 
-    // Prefill logic
     useEffect(() => {
         if (stay && Object.keys(stay).length > 0) {
             setValues({
@@ -66,7 +64,6 @@ export default function CreatePost({ stay, onSuccess, onCancel }) {
 
     const handleChange = (e) => setValues({ ...values, [e.target.name]: e.target.value });
 
-    // for both included and expectations
     const toggleCheckbox = (setter, list, value) => {
         setter(list.includes(value) ? list.filter((i) => i !== value) : [...list, value]);
     };
@@ -146,7 +143,6 @@ export default function CreatePost({ stay, onSuccess, onCancel }) {
 
                 <Gallery photos={photos} orientation="vertical" onPhotoAdd={handlePhotoAdd} />
 
-                {/* Filter bar */}
                 <div className="flex items-center justify-around w-full md:h-32 
                                 bg-(--color-surface) 
                                 rounded-4xl shadow-lg py-40 md:py-3 px-6">
@@ -171,7 +167,6 @@ export default function CreatePost({ stay, onSuccess, onCancel }) {
                             </div>
                         ))}
 
-                        {/* Price */}
                         <div className="flex flex-col text-left">
                             <label className="mb-2 pl-2 text-xs font-bold uppercase tracking-wider text-(--color-muted)">
                                 Price Range
@@ -191,7 +186,6 @@ export default function CreatePost({ stay, onSuccess, onCancel }) {
                             </div>
                         </div>
 
-                        {/* Available Slots */}
                         <div className="flex flex-col text-left">
                             <label className="mb-2 pl-2 text-xs font-bold uppercase tracking-wider text-(--color-muted)">
                                 Available Slots
@@ -212,7 +206,6 @@ export default function CreatePost({ stay, onSuccess, onCancel }) {
                     </div>
                 </div>
 
-                {/* What's Included */}
                 <SectionBlock title="What's Included:" icon={letterIcon}>
                     <div className="grid grid-cols-1 md:grid-cols-3 space-y-3 md:space-y-0 w-full bg-(--color-surface) rounded-4xl py-3 px-6 md:px-0 shadow-lg min-h-36">
                         {INCLUDED_OPTIONS.map((item) => (
@@ -226,7 +219,6 @@ export default function CreatePost({ stay, onSuccess, onCancel }) {
                     </div>
                 </SectionBlock>
 
-                {/* House Rules */}
                 <SectionBlock title="House Rules & Expectations:" icon={letterIcon}>
                     <div className="grid grid-cols-1 md:grid-cols-3 space-y-3 md:space-y-0 w-full bg-(--color-surface) rounded-4xl py-3 px-6 md:px-0 shadow-lg min-h-36">
                         {EXPECTATION_OPTIONS.map((item) => (
@@ -240,17 +232,15 @@ export default function CreatePost({ stay, onSuccess, onCancel }) {
                     </div>
                 </SectionBlock>
 
-                {/* Room Details */}
                 <SectionBlock title="Room Details:" icon={letterIcon} subtitle="Describe the rooms available, size, furniture, and anything important to know.">
                     <textarea
-                        value={details} // so resetForm() actually clears it
+                        value={details}
                         onChange={(e) => setDetails(e.target.value)}
                         className="w-full h-36 bg-(--color-surface) rounded-4xl shadow-lg p-6 text-(--color-text) focus:ring-2 focus:ring-(--color-secondary) focus:outline-none resize-none"
                         placeholder="E.g., Spacious private room with a queen-size bed, desk, and wardrobe. Shared access to a fully equipped kitchen and living room."
                     />
                 </SectionBlock>
 
-                {/* Actions */}
                 <div className="flex items-center justify-center w-full mb-10 gap-16">
                     <img
                         src={cancelButton} alt="Cancel"
@@ -298,7 +288,7 @@ function CheckboxItem({ item, checked, onChange }) {
                 className="mr-2 w-3 h-3 md:w-5 md:h-5"
                 value={item}
                 checked={checked}
-                onChange={onChange} // onChange not onClick
+                onChange={onChange}
             />
             <span className="text-lg">{item}</span>
         </label>

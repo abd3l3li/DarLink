@@ -136,7 +136,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                         }
                     });
                 } catch {
-                    // ignore
+                    // if server logout fails, we still clear local auth below.
                 } finally {
                     clearStoredAuth();
                     window.location.href = "/log-in";
@@ -171,8 +171,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
             const data = await res.json().catch(() => null);
             console.log("Profile updated successfully:", data);
 
-            // if email or password changed, force re-auth.
-            // email change may also cause backend to mint a new token, but we intentionally log out.
+            // if credentials changed, force a fresh login for safety.
             const serverEmail = data?.email;
             const serverEmailChanged = emailChanged && typeof serverEmail === "string" && serverEmail !== profile.email;
             if (serverEmailChanged || passwordChanged) {
@@ -203,7 +202,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     const handleLogout = () => {
         console.log("Logging out...");
         const token = getStoredToken();
-        // Best-effort server logout; always clear local auth to avoid being stuck.
+    // best-effort server logout; always clear local auth to avoid being stuck.
         fetch("/api/users/me/logout", {
             method: "POST",
             headers: token
@@ -213,7 +212,7 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                 : {},
         })
             .catch(() => {
-                // ignore
+                // ignore logout network errors and always clear local auth.
             })
             .finally(() => {
                 clearStoredAuth();
@@ -223,7 +222,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
     };
 
     const handleEnable2FA = () => {
-        // Navigate to 2FA setup page
         window.location.href = "/2fa-setup";
     };
 
@@ -240,7 +238,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
             if (handleAuthRejected(res)) return;
 
             if (res.ok) {
-                // Update profile state
                 setProfile(prev => ({ ...prev, twoFactorEnabled: false, twoFactorVerified: false }));
                 alert("2FA disabled successfully");
             } else {
@@ -262,7 +259,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
 
     if (!isOpen) return null;
 
-    // edit mode view
     if (showEditProfile) {
         return (
             <div 
@@ -345,7 +341,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                         />
                     </div>
 
-                    {/* 2FA Section */}
                     <div className="pt-2 border-t border-[var(--color-border-gray)]">
                         <label className="text-sm font-medium text-[var(--color-text)]">Two-Factor Authentication</label>
                         <div className="mt-2 flex items-center justify-between">
@@ -372,7 +367,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
         );
     }
 
-    // default dropdown view
     return (
         <div 
             className="absolute right-0 top-14 w-64 bg-[var(--color-surface)] rounded-2xl shadow-xl 
@@ -391,7 +385,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                 <span className="ml-3 font-semibold text-[var(--color-text)]">Profile</span>
             </div>
 
-            {/* info */}
             <div className="flex flex-col items-center py-4">
                 {displayProfileImage ? (
                     <img
@@ -408,7 +401,6 @@ export default function ProfileDropdown({ isOpen, onClose }) {
                 <span className="mt-2 font-medium text-[var(--color-text)]">{profile.name}</span>
             </div>
 
-            {/* menu */}
             <div className="px-2 pb-3">
                 <button
                     onClick={handleEditClick}
