@@ -112,36 +112,48 @@ Recommended mapping:
 
 ---
 
-## Friend requests (UI mock feature; backend not specified yet)
+## Friend requests (backend-supported)
 
-The chat UI shows a friend button with states:
+The chat UI now supports button states:
 
 - `friend` → show Delete
 - `pending` → show Pending
+- `incoming` → show Accept
 - `none` → show Add Friend
 
-To support this, suggested endpoints:
+Implemented endpoints:
 
-### GET `/api/friends` (protected)
+### GET `/api/friends/statuses?userIds=7,9,12` (protected)
 
-List friends.
+Returns friend state for each provided user:
 
-### GET `/api/friend-requests` (protected)
-
-List incoming/outgoing requests.
+```json
+[
+  { "userId": 7, "status": "friend", "requestId": 14 },
+  { "userId": 9, "status": "pending", "requestId": 15 },
+  { "userId": 12, "status": "incoming", "requestId": 16 }
+]
+```
 
 ### POST `/api/friend-requests` (protected)
 
 **Request**
+
 ```json
 { "userId": 7 }
 ```
 
 ### POST `/api/friend-requests/{id}/accept` (protected)
 
-### POST `/api/friend-requests/{id}/reject` (protected)
+Accept incoming request.
+
+### DELETE `/api/friend-requests/{id}` (protected)
+
+Cancel outgoing pending request (or reject incoming pending request).
 
 ### DELETE `/api/friends/{userId}` (protected)
+
+Removes an existing friendship.
 
 ---
 
