@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import Return from "../components/utils/return_home.jsx";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { getStoredToken } from "@/lib/auth.js";
-import { fetchRooms, fetchMessages, ensureRoom, fetchRoomBetween, fetchMe, fetchStaysByHostId } from "@/lib/chatApi.js";
+import { fetchRooms, fetchRoomSummaries, fetchMessages, ensureRoom, fetchRoomBetween, fetchMe, fetchStaysByHostId, markRoomUnreadAsRead } from "@/lib/chatApi.js";
 import { fetchStayById } from "@/lib/staysApi.js";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -222,6 +222,7 @@ export default function ChatPage() {
   
   const [currentUser, setCurrentUser] = useState(null);
   const [rooms, setRooms] = useState([]);
+  const [roomSummaries, setRoomSummaries] = useState([]);
   const [activeRoom, setActiveRoom] = useState(null);
   const [messages, setMessages] = useState([]);
   const [activeContactStays, setActiveContactStays] = useState([]);
@@ -240,6 +241,56 @@ export default function ChatPage() {
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
+  const persistUnreadReset = async (roomId) => {
+    if (!roomId || !token) return;
+    try {
+      await markRoomUnreadAsRead(roomId, token);
+    } catch {
+      // ignore transient backend errors; UI state is still cleared locally.
+    }
+  };
+
+  const updateSummaryFromMessage = (message) => {
+    if (!message?.roomId) return;
+
+    const room = rooms.find((r) => r.id === message.roomId) || activeRoom;
+    const isActiveRoom = activeRoom?.id === message.roomId;
+    const isIncoming = message.senderId != null && message.senderId !== currentUser?.id;
+
+    setRoomSummaries((prev) => {
+      const existing = prev.find((s) => s.roomId === message.roomId);
+      const unreadCount = isActiveRoom
+        ? 0
+        : Math.max(
+            0,
+            (existing?.unreadCount ?? 0) + (isIncoming ? 1 : 0),
+          );
+
+      const fallbackOtherUserId = room
+        ? (room.user1Id === currentUser?.id ? room.user2Id : room.user1Id)
+        : existing?.otherUserId;
+      const fallbackOtherUsername = room
+        ? (room.user1Id === currentUser?.id ? room.username2 : room.username1)
+        : existing?.otherUsername;
+      const fallbackAvatar = room
+        ? (room.user1Id === currentUser?.id ? room.avatarUrl2 : room.avatarUrl1)
+        : existing?.otherAvatarUrl;
+
+      const updated = {
+        roomId: message.roomId,
+        otherUserId: existing?.otherUserId ?? fallbackOtherUserId ?? null,
+        otherUsername: existing?.otherUsername ?? fallbackOtherUsername ?? "Unknown",
+        otherAvatarUrl: existing?.otherAvatarUrl ?? fallbackAvatar ?? null,
+        lastMessage: message.content || existing?.lastMessage || "",
+        lastMessageAt: message.sentAt || new Date().toISOString(),
+        unreadCount,
+      };
+
+      const rest = prev.filter((s) => s.roomId !== message.roomId);
+      return [updated, ...rest];
+    });
+  };
+
   // Initialize: Current User & Rooms
   useEffect(() => {
     if (!token) {
@@ -256,8 +307,12 @@ export default function ChatPage() {
         }
         setCurrentUser(user);
         
-        const allRooms = await fetchRooms(token);
+        const [allRooms, summaries] = await Promise.all([
+          fetchRooms(token),
+          fetchRoomSummaries(token).catch(() => []),
+        ]);
         setRooms(allRooms);
+        setRoomSummaries(Array.isArray(summaries) ? summaries : []);
 
         // If ownerId is provided, handle active room
         if (ownerId) {
@@ -405,15 +460,24 @@ export default function ChatPage() {
       connectHeaders: { Authorization: `Bearer ${token}` },
       onConnect: () => {
         console.log("Connected to WebSocket");
-        if (activeRoom) {
-          client.subscribe(`/topic/room.${activeRoom.id}`, (message) => {
-            const newMsg = JSON.parse(message.body);
-            setMessages((prev) => {
-               if (prev.find(m => m.id === newMsg.id)) return prev;
-               return [...prev, newMsg];
-            });
-          });
+        const roomIds = Array.from(new Set(rooms.map((r) => r.id).filter(Boolean)));
 
+        roomIds.forEach((roomId) => {
+          client.subscribe(`/topic/room.${roomId}`, (message) => {
+            const newMsg = JSON.parse(message.body);
+
+            if (activeRoom?.id === roomId) {
+              setMessages((prev) => {
+                if (prev.find((m) => m.id === newMsg.id)) return prev;
+                return [...prev, newMsg];
+              });
+            }
+
+            updateSummaryFromMessage(newMsg);
+          });
+        });
+
+        if (activeRoom) {
           // Check for pending message precisely after connection is ready
           const pending = sessionStorage.getItem("pendingChatMessage");
           if (pending) {
@@ -444,14 +508,18 @@ export default function ChatPage() {
     return () => {
       client.deactivate();
     };
-  }, [token, activeRoom?.id, ownerId]);
+  }, [token, rooms, activeRoom?.id, ownerId, currentUser?.id]);
 
   // Polling Fallback for sidebar previews
   useEffect(() => {
     if (!token) return;
     const interval = setInterval(async () => {
       try {
-        const freshRooms = await fetchRooms(token);
+        const [freshRooms, freshSummaries] = await Promise.all([
+          fetchRooms(token),
+          fetchRoomSummaries(token).catch(() => []),
+        ]);
+        setRoomSummaries(Array.isArray(freshSummaries) ? freshSummaries : []);
         setRooms(prev => {
           return freshRooms.map(fr => {
             const old = prev.find(p => p.id === fr.id);
@@ -473,6 +541,19 @@ export default function ChatPage() {
 
   // UI Mapping
   const contacts = useMemo(() => {
+    if (roomSummaries.length > 0) {
+      return roomSummaries.map((summary) => ({
+        id: summary.otherUserId,
+        roomId: summary.roomId,
+        name: summary.otherUsername,
+        image: summary.otherAvatarUrl || null,
+        online: false,
+        preview: summary.lastMessage || "Start chatting...",
+        unread: Number(summary.unreadCount || 0),
+        friendStatus: "none",
+      }));
+    }
+
     return rooms.map(room => {
       const isUser1 = room.user1Id === currentUser?.id;
       const otherUsername = isUser1 ? room.username2 : room.username1;
@@ -487,12 +568,12 @@ export default function ChatPage() {
         name: otherUsername,
         image: otherAvatar,
         online: false,
-        preview: "Chat about stays...",
+        preview: "Start chatting...",
         unread: 0,
         friendStatus: "none",
       };
     });
-  }, [rooms, currentUser]);
+  }, [roomSummaries, rooms, currentUser]);
 
   // Fetch chat contact profiles to get reliable avatar/joined date metadata
   useEffect(() => {
@@ -574,7 +655,21 @@ export default function ChatPage() {
     setActiveRoom(room);
     setView("chat");
     setSelectedListing(null);
+    setRoomSummaries((prev) =>
+      prev.map((s) => (s.roomId === roomId ? { ...s, unreadCount: 0 } : s)),
+    );
+
+    void persistUnreadReset(roomId);
   }
+
+  useEffect(() => {
+    if (!activeRoom?.id) return;
+    setRoomSummaries((prev) =>
+      prev.map((s) => (s.roomId === activeRoom.id ? { ...s, unreadCount: 0 } : s)),
+    );
+
+    void persistUnreadReset(activeRoom.id);
+  }, [activeRoom?.id]);
 
   function sendMessage() {
     const text = input.trim();
@@ -681,7 +776,14 @@ export default function ChatPage() {
                 <Avatar name={c.name} image={c.image} />
                 <div className="flex-1 min-w-0">
                   <span className="block font-semibold text-sm text-[var(--color-text)]">{c.name}</span>
-                  <span className="block text-xs text-[var(--color-muted)] truncate">{c.preview}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="block text-xs text-[var(--color-muted)] truncate">{c.preview}</span>
+                    {c.unread > 0 ? (
+                      <span className="min-w-5 h-5 px-1 rounded-full bg-[var(--color-secondary)] text-white text-[10px] font-semibold flex items-center justify-center">
+                        {c.unread > 99 ? "99+" : c.unread}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               </button>
             ))}
