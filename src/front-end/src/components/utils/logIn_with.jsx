@@ -4,7 +4,7 @@ import Intra from "../ui/intra.svg";
 export default function Log_with() {
     return (
         <div className="flex gap-4 mt-8 ">
-            <a href="https://localhost:1337/oauth2/authorization/google">
+            <a href="/oauth2/authorization/google">
                 <button
                     type="button"
                     className="flex items-center justify-center
@@ -14,7 +14,7 @@ export default function Log_with() {
                     <img src={Google} alt="Google" draggable="false"/>
                 </button>
             </a>
-            <a href="https://localhost:1337/oauth2/authorization/42">
+            <a href="/oauth2/authorization/42">
                 <button
                     type="button"
                     className="flex items-center justify-center

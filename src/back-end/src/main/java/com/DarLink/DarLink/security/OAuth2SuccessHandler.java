@@ -85,18 +85,19 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         // Check if it's a new user or if user has 2FA enabled
+        String redirectBase = "https://localhost:1337";
         if (isNewUser) {
             // New user, no 2FA by default
-            response.sendRedirect("https://localhost:1337/auth/callback?token=" + token);
+            response.sendRedirect(redirectBase + "/auth/callback?token=" + token);
         } else if (Boolean.TRUE.equals(user.getTwoFactorEnabled()) && !Boolean.TRUE.equals(user.getTwoFactorVerified())) {
             // Existing user has 2FA enabled but not verified, redirect to setup
-            response.sendRedirect("https://localhost:1337/auth/callback?token=" + token + "&setup2fa=true&email=" + user.getEmail());
+            response.sendRedirect(redirectBase + "/auth/callback?token=" + token + "&setup2fa=true&email=" + user.getEmail());
         } else if (Boolean.TRUE.equals(user.getTwoFactorEnabled())) {
             // Existing user with 2FA enabled and verified, redirect to 2FA verification
-            response.sendRedirect("https://localhost:1337/auth/callback?token=" + token + "&require2fa=true&email=" + user.getEmail());
+            response.sendRedirect(redirectBase + "/auth/callback?token=" + token + "&require2fa=true&email=" + user.getEmail());
         } else {
             // No 2FA, normal login
-            response.sendRedirect("https://localhost:1337/auth/callback?token=" + token);
+            response.sendRedirect(redirectBase + "/auth/callback?token=" + token);
         }
     }
 }

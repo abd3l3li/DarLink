@@ -8,7 +8,7 @@ export default function TwoFA() {
   const handleVerify = async () => {
     const email = localStorage.getItem("pendingEmail");
 
-    const res = await fetch("https://localhost:1337/api/auth/2fa/verify-login", {
+    const res = await fetch("/api/auth/2fa/verify-login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

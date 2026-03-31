@@ -11,7 +11,7 @@ export default function TwoFASetup() {
       // For new users, token is in sessionStorage; for existing users, it's in localStorage
       const token = sessionStorage.getItem("tempToken") || localStorage.getItem("token");
 
-      const res = await fetch("https://localhost:1337/api/auth/2fa/setup", {
+      const res = await fetch("/api/auth/2fa/setup", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`
@@ -29,7 +29,7 @@ export default function TwoFASetup() {
     // For new users, token is in sessionStorage; for existing users, it's in localStorage
     const token = sessionStorage.getItem("tempToken") || localStorage.getItem("token");
 
-    const res = await fetch("https://localhost:1337/api/auth/2fa/verify-setup", {
+    const res = await fetch("/api/auth/2fa/verify-setup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
