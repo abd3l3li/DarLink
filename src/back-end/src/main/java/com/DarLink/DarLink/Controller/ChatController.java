@@ -106,4 +106,11 @@ public class ChatController {
         User user = getCurrentUser();
         return chatRoomService.getRoomsForUser(user);
     }
+
+    // the path should be like this /api/rooms/summaries
+    @GetMapping("/api/rooms/summaries")
+    public List<ChatRoomSummaryResponse> getRoomSummaries() {
+        User user = getCurrentUser();
+        return chatRoomService.getRoomSummariesForUser(user);
+    }
 }

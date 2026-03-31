@@ -61,4 +61,12 @@ public class NotificationService {
         notification.setRead(true);
         notificationRepository.save(notification);
     }
+
+    public void markRoomMessagesAsRead(User user, Long roomId) {
+        List<Notification> notifications = notificationRepository
+                .findAllByRecipientAndTypeAndRoomIdAndReadFalse(user, "new_message", roomId);
+        if (notifications.isEmpty()) return;
+        notifications.forEach(n -> n.setRead(true));
+        notificationRepository.saveAll(notifications);
+    }
 }

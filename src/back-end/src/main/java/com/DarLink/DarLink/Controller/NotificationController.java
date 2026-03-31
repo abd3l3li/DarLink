@@ -77,4 +77,12 @@ public class NotificationController {
         notificationService.markAsRead(id, user);
         return ResponseEntity.ok("Notification marked as read");
     }
+
+    // POST /api/notifications/read-room/{roomId}
+    @PostMapping("/api/notifications/read-room/{roomId}")
+    public ResponseEntity<String> markRoomAsRead(@PathVariable Long roomId) {
+        User user = getCurrentUser();
+        notificationService.markRoomMessagesAsRead(user, roomId);
+        return ResponseEntity.ok("Room notifications marked as read");
+    }
 }

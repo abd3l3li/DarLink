@@ -45,6 +45,19 @@ export async function fetchRooms(token) {
   return res.json();
 }
 
+export async function fetchRoomSummaries(token) {
+  const res = await fetch(buildUrl("/api/rooms/summaries"), {
+    headers: { ...authHeaders(token) },
+  });
+
+  if (!res.ok) {
+    const body = await readErrorBody(res);
+    throw new Error(typeof body === "string" && body ? body : `Failed to load room summaries (${res.status})`);
+  }
+
+  return res.json();
+}
+
 export async function fetchRoomBetween(user2Id, token) {
   const res = await fetch(buildUrl("/api/rooms/between", { user2Id }), {
     headers: { ...authHeaders(token) },
@@ -112,4 +125,16 @@ export async function fetchMe(token) {
 
   if (!res.ok) return null;
   return res.json();
+}
+
+export async function markRoomUnreadAsRead(roomId, token) {
+  const res = await fetch(buildUrl(`/api/notifications/read-room/${roomId}`), {
+    method: "POST",
+    headers: { ...authHeaders(token) },
+  });
+
+  if (!res.ok) {
+    const body = await readErrorBody(res);
+    throw new Error(typeof body === "string" && body ? body : `Failed to mark room as read (${res.status})`);
+  }
 }
