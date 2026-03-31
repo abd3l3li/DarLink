@@ -49,11 +49,11 @@ public class ChatController {
 
         notificationService.sendNotification(
                 user2, "room_updated", user1.getUsername(), null,
-                user1.getUsername() + " created a room with you", "/chat"
+                user1.getUsername() + " start a new chat with you", "/chat"
         );
         notificationService.sendNotification(
                 user1, "room_updated", user2.getUsername(), null,
-                "You created a room with " + user2.getUsername(), "/chat"
+                "You started a new chat with " + user2.getUsername(), "/chat"
         );
 
         return ResponseEntity.ok("Chat room created successfully");

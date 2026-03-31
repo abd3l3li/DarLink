@@ -21,10 +21,22 @@ export default function NotificationDropdown({ isOpen, onClose }) {
         switch (notification.type) {
             case NOTIFICATION_TYPES.MESSAGE:
             case "new_message":
-                navigate("/chat");
+                if (notification.link) {
+                    navigate(notification.link);
+                } else {
+                    navigate("/chat");
+                }
                 break;
                 
-            // use the provided deep link when these notifications include one.
+            case NOTIFICATION_TYPES.FRIEND_REQUEST:
+            case NOTIFICATION_TYPES.FRIEND_ACCEPT:
+            case NOTIFICATION_TYPES.FRIEND_REJECT:
+            case NOTIFICATION_TYPES.FRIEND_UNFRIEND:
+                if (notification.link) {
+                    navigate(notification.link);
+                }
+                break;
+
             case NOTIFICATION_TYPES.SLOT_REQUEST:
             case NOTIFICATION_TYPES.SLOT_CONFIRMED:
             case NOTIFICATION_TYPES.SLOT_DECLINED:

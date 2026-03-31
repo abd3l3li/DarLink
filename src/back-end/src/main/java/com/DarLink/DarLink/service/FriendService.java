@@ -19,6 +19,7 @@ public class FriendService {
 
     private final FriendRequestRepository friendRequestRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public List<FriendStatusResponse> getStatuses(User currentUser, List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
@@ -107,6 +108,17 @@ public class FriendService {
             // auto-accept if there is an incoming pending request
             reverse.setStatus(ACCEPTED);
             FriendRequest saved = friendRequestRepository.save(reverse);
+            
+            // Notification for acceptance
+            notificationService.sendNotification(
+                    receiver,
+                    "friend_accept",
+                    sender.getUsername(),
+                    null,
+                    sender.getUsername() + " accepted your friend request.",
+                    "/chat/" + sender.getId()
+            );
+            
             return new FriendStatusResponse(receiver.getId(), "friend", saved.getId());
         }
 
@@ -116,6 +128,17 @@ public class FriendService {
         created.setStatus(PENDING);
 
         FriendRequest saved = friendRequestRepository.save(created);
+        
+        // Notification for request
+        notificationService.sendNotification(
+                receiver,
+                "friend_request",
+                sender.getUsername(),
+                null,
+                sender.getUsername() + " sent you a friend request.",
+                "/chat/" + sender.getId()
+        );
+
         return new FriendStatusResponse(receiver.getId(), "pending", saved.getId());
     }
 
@@ -132,6 +155,17 @@ public class FriendService {
 
         request.setStatus(ACCEPTED);
         FriendRequest saved = friendRequestRepository.save(request);
+        
+        // Notification for acceptance
+        notificationService.sendNotification(
+                saved.getSender(),
+                "friend_accept",
+                currentUser.getUsername(),
+                null,
+                currentUser.getUsername() + " accepted your friend request.",
+                "/chat/" + currentUser.getId()
+        );
+        
         return new FriendStatusResponse(saved.getSender().getId(), "friend", saved.getId());
     }
 
@@ -150,6 +184,19 @@ public class FriendService {
         }
 
         Long otherUserId = isSender ? request.getReceiver().getId() : request.getSender().getId();
+        
+        // If the receiver declines the request, notify the sender
+        if (isReceiver) {
+            notificationService.sendNotification(
+                    request.getSender(),
+                    "friend_reject",
+                    currentUser.getUsername(),
+                    null,
+                    currentUser.getUsername() + " declined your friend request.",
+                    "/chat/" + currentUser.getId()
+            );
+        }
+        
         friendRequestRepository.delete(request);
         return new FriendStatusResponse(otherUserId, "none", null);
     }
@@ -170,6 +217,17 @@ public class FriendService {
         }
 
         friendRequestRepository.delete(relation);
+
+        // Notification for unfriend
+        notificationService.sendNotification(
+                userRepository.findById(otherUserId).orElse(null),
+                "friend_unfriend",
+                currentUser.getUsername(),
+                null,
+                currentUser.getUsername() + " unfriended you.",
+                "/chat/" + currentUser.getId()
+        );
+
         return new FriendStatusResponse(otherUserId, "none", null);
     }
 }
