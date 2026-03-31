@@ -95,16 +95,19 @@ export default function SlotShow({ isOwner = false }) {
     }
     const reqHandle = () => {
         if (!stay?.id || !stay?.owner?.id) return;
-        // auto-message
-        const displayType = stay.type || stay.roomType || "Room";
-        const displayPrice = stay.price ?? stay.pricePerNight;
-        const autoMessage = `Hi! Is the stay in ${stay.city} (${displayType}, ${displayPrice ?? "N/A"} MAD) still available?`;
-        
-        sessionStorage.setItem("pendingChatMessage", JSON.stringify({
-            ownerId: stay.owner?.id,
-            stayId: stay.id,
-            message: autoMessage,
-        }));
+        const sentKey = `autoMessageSent:${stay.owner.id}:${stay.id}`;
+        if (localStorage.getItem(sentKey) !== "1") {
+            const displayType = stay.type || stay.roomType || "Room";
+            const displayPrice = stay.price ?? stay.pricePerNight;
+            const autoMessage = `Hi! Is the stay in ${stay.city} (${displayType}, ${displayPrice ?? "N/A"} MAD) still available?`;
+
+            sessionStorage.setItem("pendingChatMessage", JSON.stringify({
+                id: `${stay.owner.id}:${stay.id}`,
+                ownerId: stay.owner?.id,
+                stayId: stay.id,
+                message: autoMessage,
+            }));
+        }
 
         addNotification({
             type: NOTIFICATION_TYPES.SLOT_REQUEST,
