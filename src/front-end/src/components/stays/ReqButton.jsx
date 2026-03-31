@@ -5,13 +5,10 @@ export default function ReqButton({ stay }) {
     const navigate = useNavigate();
     const { addNotification } = useNotifications();
 
-    const queueAutoMessageOnce = () => {
+    const queueAutoMessageForRequest = () => {
         const ownerId = stay?.owner?.id;
         const stayId = stay?.id;
         if (!ownerId || !stayId) return;
-
-        const sentKey = `autoMessageSent:${ownerId}:${stayId}`;
-        if (localStorage.getItem(sentKey) === "1") return;
 
         const displayType = stay?.type || stay?.roomType || "Room";
         const displayPrice = stay?.price ?? stay?.pricePerNight;
@@ -31,7 +28,7 @@ export default function ReqButton({ stay }) {
 
         if (!stay) return;
 
-        queueAutoMessageOnce();
+    queueAutoMessageForRequest();
 
         // sending to yourself for now
         addNotification({

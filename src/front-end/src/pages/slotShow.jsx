@@ -24,6 +24,8 @@ export default function SlotShow({ isOwner = false }) {
     const token = localStorage.getItem("token");
     const stayId = Number(params.slotId);
     const me = token ? meState : null;
+    const isViewerOwner = Boolean(me?.id != null && stay?.owner?.id != null && me.id === stay.owner.id);
+    const isAuthResolving = Boolean(token && meState == null);
 
     const loadMe = async () => {
         if (!token) return;
@@ -95,19 +97,17 @@ export default function SlotShow({ isOwner = false }) {
     }
     const reqHandle = () => {
         if (!stay?.id || !stay?.owner?.id) return;
-        const sentKey = `autoMessageSent:${stay.owner.id}:${stay.id}`;
-        if (localStorage.getItem(sentKey) !== "1") {
-            const displayType = stay.type || stay.roomType || "Room";
-            const displayPrice = stay.price ?? stay.pricePerNight;
-            const autoMessage = `Hi! Is the stay in ${stay.city} (${displayType}, ${displayPrice ?? "N/A"} MAD) still available?`;
+        if (isViewerOwner) return;
+        const displayType = stay.type || stay.roomType || "Room";
+        const displayPrice = stay.price ?? stay.pricePerNight;
+        const autoMessage = `Hi! Is the stay in ${stay.city} (${displayType}, ${displayPrice ?? "N/A"} MAD) still available?`;
 
-            sessionStorage.setItem("pendingChatMessage", JSON.stringify({
-                id: `${stay.owner.id}:${stay.id}`,
-                ownerId: stay.owner?.id,
-                stayId: stay.id,
-                message: autoMessage,
-            }));
-        }
+        sessionStorage.setItem("pendingChatMessage", JSON.stringify({
+            id: `${stay.owner.id}:${stay.id}`,
+            ownerId: stay.owner?.id,
+            stayId: stay.id,
+            message: autoMessage,
+        }));
 
         addNotification({
             type: NOTIFICATION_TYPES.SLOT_REQUEST,
@@ -119,7 +119,7 @@ export default function SlotShow({ isOwner = false }) {
     }
 
     const canManage = Boolean(
-        stay && (isOwner || stay.admin || (me?.id != null && stay.owner?.id != null && me.id === stay.owner.id)),
+        stay && (isOwner || stay.admin || isViewerOwner || isAuthResolving),
     );
 
     const getInitial = (name) => {

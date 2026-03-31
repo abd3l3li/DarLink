@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Return from "../components/utils/return_home.jsx";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { getStoredToken } from "@/lib/auth.js";
@@ -221,6 +221,7 @@ function ListingView({ listing, onBack }) {
 export default function ChatPage() {
   const { ownerId, stayId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const token = getStoredToken();
   
   const [currentUser, setCurrentUser] = useState(null);
@@ -245,6 +246,13 @@ export default function ChatPage() {
   const stompClient = useRef(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+  const preserveOnEmptyOnceRef = useRef(false);
+
+  useEffect(() => {
+    if (location.state?.fromProfileChat) {
+      preserveOnEmptyOnceRef.current = true;
+    }
+  }, [location.state]);
 
   const persistUnreadReset = async (roomId) => {
     if (!roomId || !token) return;
@@ -425,7 +433,22 @@ export default function ChatPage() {
           fetchMessages(activeRoom.id, token),
           fetchStaysByHostId(activeRoom.user1Id === currentUser?.id ? activeRoom.user2Id : activeRoom.user1Id, token)
         ]);
-        setMessages(msgs);
+        setMessages((prev) => {
+          const shouldPreserveCurrent =
+            preserveOnEmptyOnceRef.current &&
+            Array.isArray(msgs) &&
+            msgs.length === 0 &&
+            Array.isArray(prev) &&
+            prev.length > 0;
+
+          if (shouldPreserveCurrent) {
+            preserveOnEmptyOnceRef.current = false;
+            return prev;
+          }
+
+          preserveOnEmptyOnceRef.current = false;
+          return msgs;
+        });
         setActiveContactStays(partnerStays);
       } catch (err) {
         console.error("Failed to load room data", err);
@@ -487,19 +510,27 @@ export default function ChatPage() {
           const pending = sessionStorage.getItem("pendingChatMessage");
           if (pending) {
             try {
-              const { id: pendingId, ownerId: pendingOwnerId, stayId: pendingStayId, message } = JSON.parse(pending);
+              const { ownerId: pendingOwnerId, message } = JSON.parse(pending);
               if (pendingOwnerId != null && pendingOwnerId.toString() === ownerId?.toString()) {
-                let shouldSend = false;
-                try {
-                  const existingMessages = await fetchMessages(activeRoom.id, token);
-                  shouldSend = Array.isArray(existingMessages) && existingMessages.length === 0;
-                } catch {
-                  // If message history cannot be confirmed, skip auto-send to avoid accidental duplicates.
-                  shouldSend = false;
+                let existingMessages = null;
+                for (let attempt = 0; attempt < 2; attempt += 1) {
+                  try {
+                    const fetched = await fetchMessages(activeRoom.id, token);
+                    if (Array.isArray(fetched)) {
+                      existingMessages = fetched;
+                    }
+                    break;
+                  } catch {
+                    // retry once for transient timing/network issues
+                  }
                 }
 
-                // Consume first to avoid duplicate sends during reconnect churn.
-                sessionStorage.removeItem("pendingChatMessage");
+                if (!Array.isArray(existingMessages)) {
+                  // Keep pending payload for a future successful connect/check.
+                  return;
+                }
+
+                const shouldSend = existingMessages.length === 0;
 
                 if (shouldSend) {
                   client.publish({
@@ -508,11 +539,8 @@ export default function ChatPage() {
                   });
                 }
 
-                if (pendingOwnerId && pendingStayId) {
-                  localStorage.setItem(`autoMessageSent:${pendingOwnerId}:${pendingStayId}`, "1");
-                } else if (pendingId) {
-                  localStorage.setItem(`autoMessageSent:${pendingId}`, "1");
-                }
+                // Consume after a confirmed decision.
+                sessionStorage.removeItem("pendingChatMessage");
               }
             } catch (e) {
               console.error("Error parsing pending message", e);
@@ -858,11 +886,39 @@ export default function ChatPage() {
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-[var(--color-bg)]">Loading chat...</div>;
   if (error) return <div className="h-screen flex items-center justify-center bg-[var(--color-bg)] text-red-500">{error}</div>;
-  if (!activeContact && !ownerId) return <div className="h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-muted)]">No active chats. Start one from a listing!</div>;
+  if (!activeContact && !ownerId) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center gap-4 bg-[var(--color-bg)] text-[var(--color-muted)] px-4 text-center">
+        <p>No active chats. Start one from a listing!</p>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="px-3 py-2 rounded-lg border border-[var(--color-border-gray)] text-[var(--color-text)] hover:bg-[var(--color-surface)] transition-colors text-sm"
+          >
+            ← Back
+          </button>
+          <Link
+            to="/slots"
+            className="px-3 py-2 rounded-lg bg-[var(--color-secondary)] text-white hover:opacity-90 transition-opacity text-sm"
+          >
+            Browse listings
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen max-w-7xl mx-auto p-4 flex flex-col bg-[var(--color-bg)] overflow-hidden">
-      <div className="flex justify-end mb-4">
+      <div className="flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="px-3 py-2 rounded-lg border border-[var(--color-border-gray)] text-[var(--color-text)] hover:bg-[var(--color-surface)] transition-colors text-sm"
+        >
+          ← Back
+        </button>
         <Link to="/"> 
           <Return className="cursor-pointer" />
         </Link>
