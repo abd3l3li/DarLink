@@ -463,7 +463,7 @@ export default function ChatPage() {
     const client = new Client({
       webSocketFactory: () => new SockJS(socketUrl),
       connectHeaders: { Authorization: `Bearer ${token}` },
-      onConnect: () => {
+      onConnect: async () => {
         console.log("Connected to WebSocket");
         const roomIds = Array.from(new Set(rooms.map((r) => r.id).filter(Boolean)));
 
@@ -487,16 +487,36 @@ export default function ChatPage() {
           const pending = sessionStorage.getItem("pendingChatMessage");
           if (pending) {
             try {
-              const { ownerId: pendingOwnerId, message } = JSON.parse(pending);
-              if (pendingOwnerId.toString() === ownerId?.toString()) {
-                client.publish({
-                  destination: `/app/chat/${activeRoom.id}`,
-                  body: JSON.stringify({ content: message }),
-                });
+              const { id: pendingId, ownerId: pendingOwnerId, stayId: pendingStayId, message } = JSON.parse(pending);
+              if (pendingOwnerId != null && pendingOwnerId.toString() === ownerId?.toString()) {
+                let shouldSend = false;
+                try {
+                  const existingMessages = await fetchMessages(activeRoom.id, token);
+                  shouldSend = Array.isArray(existingMessages) && existingMessages.length === 0;
+                } catch {
+                  // If message history cannot be confirmed, skip auto-send to avoid accidental duplicates.
+                  shouldSend = false;
+                }
+
+                // Consume first to avoid duplicate sends during reconnect churn.
                 sessionStorage.removeItem("pendingChatMessage");
+
+                if (shouldSend) {
+                  client.publish({
+                    destination: `/app/chat/${activeRoom.id}`,
+                    body: JSON.stringify({ content: message }),
+                  });
+                }
+
+                if (pendingOwnerId && pendingStayId) {
+                  localStorage.setItem(`autoMessageSent:${pendingOwnerId}:${pendingStayId}`, "1");
+                } else if (pendingId) {
+                  localStorage.setItem(`autoMessageSent:${pendingId}`, "1");
+                }
               }
             } catch (e) {
               console.error("Error parsing pending message", e);
+              sessionStorage.removeItem("pendingChatMessage");
             }
           }
         }

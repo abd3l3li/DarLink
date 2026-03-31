@@ -5,19 +5,33 @@ export default function ReqButton({ stay }) {
     const navigate = useNavigate();
     const { addNotification } = useNotifications();
 
+    const queueAutoMessageOnce = () => {
+        const ownerId = stay?.owner?.id;
+        const stayId = stay?.id;
+        if (!ownerId || !stayId) return;
+
+        const sentKey = `autoMessageSent:${ownerId}:${stayId}`;
+        if (localStorage.getItem(sentKey) === "1") return;
+
+        const displayType = stay?.type || stay?.roomType || "Room";
+        const displayPrice = stay?.price ?? stay?.pricePerNight;
+        const autoMessage = `Hi! Is the stay in ${stay.city} (${displayType}, ${displayPrice ?? "N/A"} MAD) still available?`;
+
+        sessionStorage.setItem("pendingChatMessage", JSON.stringify({
+            id: `${ownerId}:${stayId}`,
+            ownerId,
+            stayId,
+            message: autoMessage,
+        }));
+    };
+
     const handleRequest = (e) => {
         e.preventDefault();
         e.stopPropagation();
 
         if (!stay) return;
 
-        const autoMessage = `Hi! Is the stay in ${stay.city} (${stay.type}, ${stay.price} MAD) still available?`;
-        
-        sessionStorage.setItem("pendingChatMessage", JSON.stringify({
-            ownerId: stay.owner?.id,
-            stayId: stay.id,
-            message: autoMessage,
-        }));
+        queueAutoMessageOnce();
 
         // sending to yourself for now
         addNotification({
