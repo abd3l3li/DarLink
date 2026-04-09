@@ -254,6 +254,4 @@ AI was **not** used as a blind replacement for implementation decisions; outputs
 
 ### Documentation map
 
-- `ONBOARDING_CHECKLIST.md`
-- `plan-twoFactorAuthenticationImplementation.prompt.md`
-- `src/front-end/docs/`
+- `docs/`
